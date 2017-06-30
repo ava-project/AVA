@@ -13,11 +13,11 @@ class ComponentManager(object):
         self.threads = []
 
     def add_component(self, Component):
-        component = Component()
-        t = Thread(target=self.worker, args=(component,))
+        t = Thread(target=self.worker, args=(Component,))
         self.threads.append(t)
 
-    def worker(self, component):
+    def worker(self, Component):
+        component = Component()
         component.run()
 
     def start_all(self):
