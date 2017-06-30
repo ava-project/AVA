@@ -1,11 +1,11 @@
-
+from ..queues import QueueAudio, QueueCommand
 
 class VocalInterpretor(object):
 
-    def __init__(self, queue_audio, queue_command):
+    def __init__(self):
         super().__init__()
-        self.queue_audio = queue_audio
-        self.queue_command = queue_command
+        self.queue_audio = QueueAudio()
+        self.queue_command = QueueCommand()
 
     def run(self):
         while True:

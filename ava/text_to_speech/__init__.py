@@ -1,10 +1,10 @@
-
+from ..queues import QueueTtS
 
 class TextToSpeech(object):
 
-    def __init__(self, queue_tts):
+    def __init__(self):
         super().__init__()
-        self.queue_tts = queue_tts
+        self.queue_tts = QueueTtS()
 
     def run(self):
         while True:

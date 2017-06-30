@@ -1,11 +1,12 @@
+from ..queues import QueuePlugin, QueueTtS
 
 
 class PluginManager(object):
 
-    def __init__(self, queue_plugin, queue_tts):
+    def __init__(self):
         super().__init__()
-        self.queue_plugin = queue_plugin
-        self.queue_tts = queue_tts
+        self.queue_plugin = QueuePlugin()
+        self.queue_tts = QueueTtS()
 
     def run(self):
         while True:

@@ -1,10 +1,11 @@
+from ..queues import QueueAudio
 
 
 class AudioInput(object):
 
-    def __init__(self, queue_audio):
+    def __init__(self):
         super().__init__()
-        self.queue = queue_audio
+        self.queue = QueueAudio()
 
     def run(self):
         self.queue.put('Input Audio')

@@ -1,11 +1,12 @@
+from ..queues import QueueCommand, QueuePlugin
 
 
 class Executor(object):
 
-    def __init__(self, queue_command, queue_plugin):
+    def __init__(self):
         super().__init__()
-        self.queue_command = queue_command
-        self.queue_plugin = queue_plugin
+        self.queue_command = QueueCommand()
+        self.queue_plugin = QueuePlugin()
 
     def run(self):
         while True:
