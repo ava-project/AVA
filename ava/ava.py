@@ -18,9 +18,15 @@ class AVA(object):
         manager.start_all()
         manager.join_all()
 
+    def stop(self):
+        print('Exiting AVA')
+
 def main():
     test = AVA()
-    test.run()
+    try:
+        test.run()
+    except KeyboardInterrupt:
+        test.stop()
 
 
 if __name__ == "__main__":
