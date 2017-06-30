@@ -1,7 +1,8 @@
 from ..queues import QueueCommand, QueuePlugin
+from ..components import _BaseComponent
 
 
-class Executor(object):
+class Executor(_BaseComponent):
 
     def __init__(self):
         super().__init__()

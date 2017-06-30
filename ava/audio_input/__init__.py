@@ -1,7 +1,8 @@
 from ..queues import QueueAudio
+from ..components import _BaseComponent
 
 
-class AudioInput(object):
+class AudioInput(_BaseComponent):
 
     def __init__(self):
         super().__init__()
@@ -9,4 +10,3 @@ class AudioInput(object):
 
     def run(self):
         self.queue.put('Input Audio')
-        print('Done sending a message')

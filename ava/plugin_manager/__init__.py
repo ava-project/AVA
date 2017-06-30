@@ -1,7 +1,8 @@
 from ..queues import QueuePlugin, QueueTtS
+from ..components import _BaseComponent
 
 
-class PluginManager(object):
+class PluginManager(_BaseComponent):
 
     def __init__(self):
         super().__init__()

@@ -1,6 +1,8 @@
 from ..queues import QueueAudio, QueueCommand
+from ..components import _BaseComponent
 
-class VocalInterpretor(object):
+
+class VocalInterpretor(_BaseComponent):
 
     def __init__(self):
         super().__init__()

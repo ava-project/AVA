@@ -1,6 +1,8 @@
 from ..queues import QueueTtS
+from ..components import _BaseComponent
 
-class TextToSpeech(object):
+
+class TextToSpeech(_BaseComponent):
 
     def __init__(self):
         super().__init__()
