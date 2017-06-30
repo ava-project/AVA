@@ -10,6 +10,5 @@ class VocalInterpretor(_BaseComponent):
         self.queue_command = QueueCommand()
 
     def run(self):
-        while True:
-            command = input('$> ')
-            self.queue_command.put(command)
+        command = input('$> ')
+        self.queue_command.put(command)

@@ -13,13 +13,17 @@ class ComponentManager(object):
         self.threads = []
 
     def add_component(self, Component):
-        t = Thread(target=self.worker, args=(Component,))
+        t = Thread(target=self._worker, args=(Component,))
         t.daemon = True
         self.threads.append(t)
 
-    def worker(self, Component):
+    def _worker(self, Component):
         component = Component()
+        need_loop = getattr(component, 'loop_on_run', True)
         component.run()
+        while need_loop:
+            component.run()
+        print('Component {} exit'.format(Component.__name__))
 
     def start_all(self):
         for t in self.threads:

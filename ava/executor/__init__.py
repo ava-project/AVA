@@ -10,12 +10,11 @@ class Executor(_BaseComponent):
         self.queue_plugin = QueuePlugin()
 
     def run(self):
-        while True:
-            command = self.queue_command.get()
-            print('Vocal interpretor send : {}'.format(command))
-            print('Executor run')
-            self.execute_command(command)
-            self.queue_command.task_done()
+        command = self.queue_command.get()
+        print('Vocal interpretor send : {}'.format(command))
+        print('Executor run')
+        self.execute_command(command)
+        self.queue_command.task_done()
 
     def execute_command(self, command):
         self.queue_plugin.put(command)
