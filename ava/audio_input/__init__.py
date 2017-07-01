@@ -1,13 +1,15 @@
 from ..queues import QueueAudio
-from ..components import _BaseComponent
+from ..components import _BaseComponent, RunOneTime
 
 
-class AudioInput(_BaseComponent):
+class AudioInput(RunOneTime, _BaseComponent):
 
     def __init__(self):
         super().__init__()
         self.queue = QueueAudio()
-        self.loop_on_run = False
+
+    def setup(self):
+        print('seting up Audio')
 
     def run(self):
         self.queue.put('Input Audio')
