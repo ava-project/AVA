@@ -25,7 +25,7 @@ def main():
     test = AVA()
     try:
         test.run()
-    except KeyboardInterrupt:
+    except (KeyboardInterrupt, EOFError):
         test.stop()
 
 
