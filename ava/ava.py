@@ -1,6 +1,5 @@
 from .components import ComponentManager
 
-from .audio_input import AudioInput
 from .vocal_interpretor import VocalInterpretor
 from .executor import Executor
 from .plugin_manager import PluginManager
@@ -10,7 +9,6 @@ class AVA(object):
 
     def run(self):
         manager = ComponentManager()
-        manager.add_component(AudioInput)
         manager.add_component(VocalInterpretor)
         manager.add_component(Executor)
         manager.add_component(PluginManager)
