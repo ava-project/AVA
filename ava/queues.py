@@ -14,5 +14,9 @@ class QueuePlugin(Queue, metaclass=Singleton):
     pass
 
 
+class QueueBuiltin(Queue, metaclass=Singleton):
+    pass
+
+
 class QueueTtS(Queue, metaclass=Singleton):
     pass

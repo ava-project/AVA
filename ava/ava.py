@@ -4,6 +4,7 @@ from .audio_input import AudioInput
 from .vocal_interpretor import VocalInterpretor
 from .executor import Executor
 from .plugin_manager import PluginManager
+from .plugin_runner import PluginRunner
 from .text_to_speech import TextToSpeech
 
 class AVA(object):
@@ -14,6 +15,7 @@ class AVA(object):
         manager.add_component(VocalInterpretor)
         manager.add_component(Executor)
         manager.add_component(PluginManager)
+        manager.add_component(PluginRunner)
         manager.add_component(TextToSpeech)
         manager.start_all()
         manager.join_all()
