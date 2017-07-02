@@ -45,5 +45,5 @@ class STT_Engine():
         self.config = Decoder.default_config()
         self.config.set_string('-hmm', path.join(HMM_DIR))
         self.config.set_string('-lm', path.join(MODELDIR , 'en-us/en-us.lm.bin'))
-        self.config.set_string('-dict', path.join('static/custom.dict'))
+        self.config.set_string('-dict', path.join('ava/static/custom.dict'))
         self.config.set_string('-logfn', '/dev/null')
