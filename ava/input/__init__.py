@@ -1,3 +1,4 @@
+import sys
 from ..queues import QueueCommand
 from ..components import _BaseComponent
 

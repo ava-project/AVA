@@ -11,9 +11,9 @@ class AVA(object):
 
     def run(self):
         manager = ComponentManager()
+        manager.add_component(Input)
         manager.add_component(Dispatcher)
         manager.add_component(BuiltinRunner)
-        manager.add_component(Input)
         # manager.add_component(SpeechToText)
         manager.add_component(PluginManager)
         manager.add_component(PluginRunner)
@@ -28,7 +28,7 @@ def main():
     test = AVA()
     try:
         test.run()
-    except (KeyboardInterrupt, EOFError):
+    except (KeyboardInterrupt):
         test.stop()
 
 
