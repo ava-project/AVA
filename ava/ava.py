@@ -1,5 +1,4 @@
 from .components import ComponentManager
-
 from .audio_input import AudioInput
 from .vocal_interpretor import VocalInterpretor
 from .dispatcher import Dispatcher
