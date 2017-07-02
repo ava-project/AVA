@@ -7,6 +7,16 @@ class _BaseComponent(object):
         raise NotImplemented()
 
 
+class RunOneTime(object):
+    """
+    Make the class run one time
+    """
+
+    def __init__(self, *args, **kwargs):
+        self.loop_on_run = False
+        super().__init__(*args, **kwargs)
+
+
 class ComponentManager(object):
 
     def __init__(self):
@@ -19,9 +29,12 @@ class ComponentManager(object):
 
     def _worker(self, Component):
         component = Component()
-        need_loop = getattr(component, 'loop_on_run', True)
-        component.run()
-        while need_loop:
+        if getattr(component, 'setup', None):
+            component.setup()
+        if getattr(component, 'loop_on_run', True):
+            while True:
+                component.run()
+        else:
             component.run()
         print('Component {} exit'.format(Component.__name__))
 
