@@ -10,6 +10,7 @@ class Dispatcher(_BaseComponent):
         self.queue_builtin = QueueBuiltin()
         self.queue_plugin_manage = QueuePluginManage()
         self.queue_plugin_command = QueuePluginCommand()
+        # TODO find a better way
         self.builtin = ['help', 'open', 'run', 'start', 'launch']
         self.plugin_manage = ['install', 'uninstall', 'enable', 'disable']
 

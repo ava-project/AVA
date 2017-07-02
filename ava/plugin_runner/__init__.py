@@ -13,5 +13,7 @@ class PluginRunner(_BaseComponent):
     def run(self):
         command = self.queue_plugin_command.get()
         print('Plugin runner execute : {}'.format(command))
+        # TODO check if the plugin is installed
+        # TODO execute the command
         self.queue_tts.put('task completed')
         self.queue_plugin_command.task_done()

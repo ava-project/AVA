@@ -22,6 +22,7 @@ class PluginStore(metaclass=Singleton):
         PluginStore.mutex.acquire()
         if self.plugins.get(plugin) is None:
             self.plugins[plugin] = dictionary
+            # TODO spawn process
         PluginStore.mutex.release()
 
     def get_plugin(self, plugin):
@@ -38,6 +39,7 @@ class PluginStore(metaclass=Singleton):
         PluginStore.mutex.acquire()
         if self.plugins.get(plugin) is not None:
             self.plugins.pop(plugin, None)
+            # TODO remove process
         PluginStore.mutex.release()
 
     def is_plugin_disabled(self, plugin):
@@ -50,12 +52,11 @@ class PluginStore(metaclass=Singleton):
         PluginStore.mutex.release()
         return result
 
-    def remove_disabled_plugin(self, plugin):
+    def enable_plugin(self, plugin):
         '''
         '''
         PluginStore.mutex.acquire()
-        if plugin in self.disabled:
-            self.disabled.remove(plugin)
+        self.disabled.remove(plugin)
         PluginStore.mutex.release()
 
     def disable_plugin(self, plugin):

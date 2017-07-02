@@ -28,7 +28,7 @@ class PluginBuiltins(object):
         if PluginBuiltins.store.get_plugin(plugin_to_enable) is None:
             return 'No plugin named ' + plugin_to_enable + ' found.'
         if PluginBuiltins.store.is_plugin_disabled(plugin_to_enable):
-            PluginBuiltins.store.remove_disabled_plugin(plugin_to_enable)
+            PluginBuiltins.store.enable_plugin(plugin_to_enable)
             return 'Plugin ' + plugin_to_enable + ' enabled.'
         else:
             return 'Plugin ' + plugin_to_enable + ' is already enabled.'
