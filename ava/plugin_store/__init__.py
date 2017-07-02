@@ -22,7 +22,6 @@ class PluginStore(metaclass=Singleton):
         PluginStore.mutex.acquire()
         if self.plugins.get(plugin) is None:
             self.plugins[plugin] = dictionary
-            # TODO spawn process
         PluginStore.mutex.release()
 
     def get_plugin(self, plugin):

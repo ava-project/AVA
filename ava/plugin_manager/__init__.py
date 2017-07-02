@@ -25,6 +25,7 @@ class PluginManager(_BaseComponent):
         for name in os.listdir(self.store.path):
             plugin = load_plugin(self.store.path, name)
             self.store.add_plugin(name, plugin[name])
+            # TODO spawn process
         print(self.store.plugins)
 
     def run(self):
