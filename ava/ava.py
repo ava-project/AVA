@@ -1,5 +1,4 @@
 from .components import ComponentManager
-from .audio_input import AudioInput
 from .dispatcher import Dispatcher
 from .builtin_runner import BuiltinRunner
 from .speech_to_text import SpeechToText
@@ -11,7 +10,6 @@ class AVA(object):
 
     def run(self):
         manager = ComponentManager()
-        manager.add_component(AudioInput)
         manager.add_component(Dispatcher)
         manager.add_component(BuiltinRunner)
         manager.add_component(SpeechToText)
