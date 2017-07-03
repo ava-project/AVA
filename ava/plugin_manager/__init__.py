@@ -4,6 +4,7 @@ from ..plugin_store import PluginStore
 from ..queues import QueuePluginManage, QueueTtS
 from avasdk.plugins.ioutils.utils import load_plugin
 from .plugin_builtins import PluginBuiltins
+from ..process import spawn_process
 
 class PluginManager(_BaseComponent):
 
@@ -25,7 +26,9 @@ class PluginManager(_BaseComponent):
         for name in os.listdir(self.store.path):
             plugin = load_plugin(self.store.path, name)
             self.store.add_plugin(name, plugin[name])
-            # TODO spawn process
+            process = spawn_process(name, plugin[name])
+            self.store.add_plugin_process(name, process)
+            print('process: ', process)
         print(self.store.plugins)
 
     def run(self):

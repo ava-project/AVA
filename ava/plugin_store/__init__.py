@@ -16,12 +16,12 @@ class PluginStore(metaclass=Singleton):
         self.process = {}
         self.disabled = []
 
-    def add_plugin(self, plugin, dictionary):
+    def add_plugin(self, name, plugin):
         '''
         '''
         PluginStore.mutex.acquire()
-        if self.plugins.get(plugin) is None:
-            self.plugins[plugin] = dictionary
+        if self.plugins.get(name) is None:
+            self.plugins[name] = plugin
         PluginStore.mutex.release()
 
     def get_plugin(self, plugin):
@@ -29,6 +29,22 @@ class PluginStore(metaclass=Singleton):
         '''
         PluginStore.mutex.acquire()
         result = self.plugins.get(plugin)
+        PluginStore.mutex.release()
+        return result
+
+    def add_plugin_process(self, plugin, process):
+        '''
+        '''
+        PluginStore.mutex.acquire()
+        if self.process.get(plugin) is None:
+            self.process[plugin] = process
+        PluginStore.mutex.release()
+
+    def get_plugin_process(self, plugin):
+        '''
+        '''
+        PluginStore.mutex.acquire()
+        result = self.process.get(plugin)
         PluginStore.mutex.release()
         return result
 

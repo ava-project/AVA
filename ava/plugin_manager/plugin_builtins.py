@@ -10,6 +10,7 @@ class PluginBuiltins(object):
         '''
         '''
         unzip(path_to_the_plugin_to_install, PluginBuiltins.store.path)
+        # TODO extract plugin name from path
         # TODO load the new plugin
         # TODO spawn new process
         return 'Installation succeeded.'
