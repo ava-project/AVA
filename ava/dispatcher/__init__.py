@@ -23,6 +23,7 @@ class Dispatcher(_BaseComponent):
 
     def execute_command(self, command):
         cmd = command.split(' ')
+        # TODO improve the following statements
         if any(x in cmd[0] for x in self.builtin):
             self.queue_builtin.put(command)
         elif any(x in cmd[0] for x in self.plugin_manage):

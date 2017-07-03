@@ -26,10 +26,12 @@ class PluginManager(_BaseComponent):
         for name in os.listdir(self.store.path):
             plugin = load_plugin(self.store.path, name)
             self.store.add_plugin(name, plugin[name])
-            process = spawn_process(name, plugin[name])
+            process = spawn_process(plugin[name])
             self.store.add_plugin_process(name, process)
-            print('process: ', process)
-        print(self.store.plugins)
+            print('PluginStore process for: ', name, ' object: ', self.store.get_plugin_process(name))
+            print('PluginStore process for: ', name, ' pid: ', self.store.get_plugin_process(name).pid)
+            print('PluginStore process for: ', name, ' args: ', self.store.get_plugin_process(name).args)
+            print('PluginStore process for: ', name, ' stdout: ', self.store.get_plugin_process(name).stdout.read())
 
     def run(self):
         '''

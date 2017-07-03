@@ -1,4 +1,5 @@
 import os
+from ..process import spawn_process
 from ..plugin_store import PluginStore
 from avasdk.plugins.ioutils.utils import unzip, remove_directory, load_plugin
 
@@ -9,10 +10,20 @@ class PluginBuiltins(object):
     def install(path_to_the_plugin_to_install):
         '''
         '''
+        name = path_to_the_plugin_to_install
+        name = name[:name.rfind('.zip')]
+        name = name[1 + name.rfind(os.sep):]
+        if PluginBuiltins.store.get_plugin(name):
+            return 'The plugin ' + name + ' is already installed.'
         unzip(path_to_the_plugin_to_install, PluginBuiltins.store.path)
-        # TODO extract plugin name from path
-        # TODO load the new plugin
-        # TODO spawn new process
+        plugin = load_plugin(PluginBuiltins.store.path, name)
+        PluginBuiltins.store.add_plugin(name, plugin[name])
+        process = spawn_process(plugin[name])
+        PluginBuiltins.store.add_plugin_process(name, process)
+        print('PluginStore process for: ', name, ' object: ', PluginBuiltins.store.get_plugin_process(name))
+        print('PluginStore process for: ', name, ' pid: ', PluginBuiltins.store.get_plugin_process(name).pid)
+        print('PluginStore process for: ', name, ' args: ', PluginBuiltins.store.get_plugin_process(name).args)
+        print('PluginStore process for: ', name, ' stdout: ', PluginBuiltins.store.get_plugin_process(name).stdout.read())
         return 'Installation succeeded.'
 
     @staticmethod
