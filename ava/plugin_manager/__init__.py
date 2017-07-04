@@ -9,8 +9,8 @@ from ..process import spawn_process
 class PluginManager(_BaseComponent):
 
     def __init__(self):
-        '''
-        '''
+        """
+        """
         super().__init__()
         self.store = PluginStore()
         self.queue_plugin_manage = QueuePluginManage()
@@ -18,24 +18,19 @@ class PluginManager(_BaseComponent):
         self._init()
 
     def _init(self):
-        '''
-        '''
+        """
+        """
         if not os.path.exists(self.store.path):
             os.makedirs(self.store.path)
             return
         for name in os.listdir(self.store.path):
             plugin = load_plugin(self.store.path, name)
-            self.store.add_plugin(name, plugin[name])
             process = spawn_process(plugin[name])
-            self.store.add_plugin_process(name, process)
-            print('PluginStore process for: ', name, ' object: ', self.store.get_plugin_process(name))
-            print('PluginStore process for: ', name, ' pid: ', self.store.get_plugin_process(name).pid)
-            print('PluginStore process for: ', name, ' args: ', self.store.get_plugin_process(name).args)
-            print('PluginStore process for: ', name, ' stdout: ', self.store.get_plugin_process(name).stdout.read())
+            self.store.add_plugin(name, plugin[name], process)
 
     def run(self):
-        '''
-        '''
+        """
+        """
         command = self.queue_plugin_manage.get()
         print('Plugin manager execute : {}'.format(command))
         target = command.split(' ')
