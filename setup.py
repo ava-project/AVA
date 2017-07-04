@@ -15,6 +15,8 @@ setup(
     install_requires=[
         'flask==0.12',
         'requests',
+        'gtts',
+        'pygame',
     ],
     include_package_data=True,
     url='https://github.com/ava-project/ava-core',
