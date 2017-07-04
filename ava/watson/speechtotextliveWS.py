@@ -1,9 +1,7 @@
+
 ##Install Websocket pip install ws4py
 from ws4py.client.threadedclient import WebSocketClient
-import base64, time
-import threading
-import json
-import subprocess
+import base64, json, ssl, subprocess, threading, time, pyaudio
 
 class SpeechToTextClient(WebSocketClient):
     def __init__(self):
@@ -32,12 +30,14 @@ class SpeechToTextClient(WebSocketClient):
         ##OPEN
         ##Setting configuration tools for the audio streaming
 
+        print ('open.....')
         self.send('{"action": "start", "content-type": "audio/l16;rate=16000"}')
         self.stream_audio_thread = threading.Thread(target=self.stream_audio)
         self.stream_audio_thread.start()
 
     def received_message(self, message):
         ##Answer success from server
+        print ('message receiving..')
         message = json.loads(str(message))
         if "state" in message:
             if message["state"] == "listening":
@@ -47,19 +47,25 @@ class SpeechToTextClient(WebSocketClient):
     def stream_audio(self):
         ## LISTENING
         ## Listening part part of the program
+        print ('stream_audio...')
         while not self.listening:
             time.sleep(0.1)
 
-        reccmd = ["arecord", "-f", "S16_LE", "-r", "16000", "-t", "raw"]
-        p = subprocess.Popen(reccmd, stdout=subprocess.PIPE)
+        p = pyaudio.PyAudio()
+
+        stream = p.open(format=pyaudio.paInt16,
+                        channels=1,
+                        rate=16000,
+                        input=True,
+                        frames_per_buffer=2048)
 
         while self.listening:
-            data = p.stdout.read(1024)
-
-            try: self.send(bytearray(data), binary=True)
-            except ssl.SSLError: pass
-
-        p.kill()
+            data = stream.read(1024)
+            try:
+                self.send(bytearray(data), binary=True)
+            except ssl.SSLError:
+                print ("fail")
+                pass
 
     def close(self):
         ##CLOSE
