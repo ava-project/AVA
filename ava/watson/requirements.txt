@@ -1,0 +1,7 @@
+pip :
+    - json
+    - pyaudio
+    - wave
+    - base64
+    - threading
+    - watson_developer_cloud
