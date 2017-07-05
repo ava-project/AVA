@@ -9,7 +9,7 @@ class TextToSpeech(_BaseComponent):
     def __init__(self):
         super().__init__()
         self.queue_tts = QueueTtS()
-        self.tts = talkey.Talkey()
+        self.tts = talkey.Talkey(engine_preference=['google', 'espeak'])
 
     def run(self):
         sentence = self.queue_tts.get()
