@@ -9,8 +9,6 @@ def spawn_process(plugin):
     """
     """
     path = os.path.join('ava', 'process')
-    # TODO improve this line
-    target = plugin['commands'][0]['exec']
     handler = {
         'cpp': 'cpp_plugin_process.py',
         'go': 'golang_plugin_process.py',
@@ -18,5 +16,5 @@ def spawn_process(plugin):
     }.get(plugin['lang'], None)
     if not handler:
         raise NotSupportedLanguage('Error: Plugin language not supported.')
-    process = Popen(['python', os.path.join(path, handler), target], stdin=PIPE, stdout=PIPE, stderr=STDOUT)
+    process = Popen(['python', os.path.join(path, handler), plugin['name']], stdin=PIPE, stdout=PIPE, stderr=STDOUT)
     return process
