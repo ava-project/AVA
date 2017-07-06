@@ -33,7 +33,7 @@ class PluginBuiltins(object):
     def enable(plugin_to_enable):
         """
         """
-        if PluginBuiltins.store.get_plugin(plugin_to_enable) is None:
+        if not PluginBuiltins.store.get_plugin(plugin_to_enable):
             return 'No plugin named ' + plugin_to_enable + ' found.'
         if PluginBuiltins.store.is_plugin_disabled(plugin_to_enable):
             PluginBuiltins.store.enable_plugin(plugin_to_enable)
@@ -45,7 +45,7 @@ class PluginBuiltins(object):
     def disable(plugin_to_disable):
         """
         """
-        if PluginBuiltins.store.get_plugin(plugin_to_disable) is None:
+        if not PluginBuiltins.store.get_plugin(plugin_to_disable):
             return 'No plugin named ' + plugin_to_disable + ' found.'
         if not PluginBuiltins.store.is_plugin_disabled(plugin_to_disable):
             PluginBuiltins.store.disable_plugin(plugin_to_disable)
