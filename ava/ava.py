@@ -7,6 +7,7 @@ from .plugin_runner import PluginRunner
 from .text_to_speech import TextToSpeech
 from .input import Input
 
+
 class AVA(object):
 
     def run(self):

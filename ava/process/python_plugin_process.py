@@ -1,5 +1,6 @@
 import os, sys, json
 # TODO check
+import pip
 from importlib.machinery import SourceFileLoader
 
 PLUGIN = {}
@@ -10,8 +11,7 @@ def main():
     name = sys.argv[1]
     import_module(name)
     while True:
-        # TODO fix
-        cmd = sys.stdin.buffer.read()
+        cmd = input('')
         execute(name, cmd)
 
 def import_module(name):
@@ -42,7 +42,7 @@ def execute(name, command):
         if cmd[0] in plugin.__dict__:
             print(plugin.__dict__[cmd[0]](plugin, str(' '.join(cmd[1:])) if len(cmd) > 1 else ''))
             return
-        print('The plugin ', name, ' cannot handle the following command: ', cmd[0])
+        print('The plugin ', name, ' cannot handle the following command: ', cmd[0], flush=False)
 
 if __name__ == "__main__":
     main()

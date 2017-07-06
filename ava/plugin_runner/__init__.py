@@ -27,10 +27,9 @@ class PluginRunner(_BaseComponent):
                 self.queue_tts.put('The plugin ' + command[0] + ' is currently disabled.')
             else:
                 process = self.store.get_plugin_process(command[0])
-                # TODO fix
-                process.stdin.write(str.encode(str(' '.join(command[1:]))))
-                result = process.stdout.read()
-                print(result)
+                process.stdin.write(' '.join(command[1:]) + '\n')
+                process.stdin.flush()
+                result = process.stdout.readline().rstrip()
                 self.queue_tts.put(result)
         else:
             self.queue_tts.put('No plugin named ' + command[0] + ' found.')
