@@ -34,7 +34,7 @@ class SpeechToTextFile():
         p.terminate()
 
     def writeToFile(self, p):
-        wf = wave.open("sample.wav", "wb")
+        wf = wave.open("../static/sample.wav", "wb")
         wf.setnchannels(1)
         wf.setsampwidth(p.get_sample_size(pyaudio.paInt16))
         wf.setframerate(16000)
@@ -43,7 +43,7 @@ class SpeechToTextFile():
         self.sendFile()
 
     def sendFile(self):
-        with open('sample.wav', 'rb') as audio_file:
+        with open('../static/sample.wav', 'rb') as audio_file:
             print(json.dumps(self.stt.recognize(
                 audio_file, content_type='audio/wav', timestamps=True,
                 word_confidence=True),
