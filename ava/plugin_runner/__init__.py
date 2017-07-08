@@ -1,6 +1,7 @@
 from ..queues import QueuePluginCommand, QueueTtS
 from ..components import _BaseComponent
 from ..plugin_store import PluginStore
+from avasdk.plugins.ioutils.utils import split_string
 
 class PluginRunner(_BaseComponent):
 
@@ -15,23 +16,23 @@ class PluginRunner(_BaseComponent):
     def run(self):
         """
         """
-        command = self.queue_plugin_command.get()
-        print('Plugin runner execute : {}'.format(command))
-        command = command.split(' ')
-        if len(command) < 2:
-            self.queue_tts.put('You must specify one command to use the plugin ' + command[0])
+        plugin_name, command = split_string(self.queue_plugin_command.get(), ' ')
+        print('PluginRunner searching for: {} ... trying to execute: {}'.format(plugin_name, command))
+        if not command:
+            self.queue_tts.put('In order to use a plugin, you must specify one command.')
             self.queue_plugin_command.task_done()
             return
-        if self.store.get_plugin(command[0]):
-            if self.store.is_plugin_disabled(command[0]):
-                self.queue_tts.put('The plugin ' + command[0] + ' is currently disabled.')
-            else:
-                process = self.store.get_plugin_process(command[0])
-                # TODO fix
-                process.stdin.write(str.encode(str(' '.join(command[1:]))))
-                result = process.stdout.read()
-                print(result)
-                self.queue_tts.put(result)
+        if self.store.is_plugin_disabled(plugin_name):
+            self.queue_tts.put('The plugin ' + plugin_name + ' is currently disabled.')
+            self.queue_plugin_command.task_done()
+            return
+        if not self.store.get_plugin_process(plugin_name):
+            self.queue_tts.put('No plugin named ' + plugin_name + ' found.')
         else:
-            self.queue_tts.put('No plugin named ' + command[0] + ' found.')
+            # TODO improve this block of code
+            process = self.store.get_plugin_process(plugin_name)
+            process.stdin.write(command + '\n')
+            process.stdin.flush()
+            result = process.stdout.readline().rstrip()
+            self.queue_tts.put(result)
         self.queue_plugin_command.task_done()

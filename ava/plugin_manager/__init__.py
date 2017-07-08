@@ -2,9 +2,9 @@ import os
 from ..components import _BaseComponent
 from ..plugin_store import PluginStore
 from ..queues import QueuePluginManage, QueueTtS
-from avasdk.plugins.ioutils.utils import load_plugin
 from .plugin_builtins import PluginBuiltins
 from ..process import spawn_process
+from avasdk.plugins.ioutils.utils import split_string, load_plugin
 
 class PluginManager(_BaseComponent):
 
@@ -31,15 +31,14 @@ class PluginManager(_BaseComponent):
     def run(self):
         """
         """
-        command = self.queue_plugin_manage.get()
-        print('Plugin manager execute : {}'.format(command))
-        target = command.split(' ')
-        if len(target) > 1:
+        builtin, plugin = split_string(self.queue_plugin_manage.get(), ' ')
+        print('PluginManager:  builtin [{}] plugin [{}]'.format(builtin, plugin))
+        if plugin:
             try:
-                result = getattr(PluginBuiltins, target[0])(str(' '.join(target[1:])))
+                result = getattr(PluginBuiltins, builtin)(plugin)
                 self.queue_tts.put(result)
             except Exception as err:
-                self.queue_tts.put('An error occurred with the builtin: ' + target[0] + ' for ' + str(' '.join(target[1:])))
+                self.queue_tts.put('An error occurred with the builtin: ' + builtin + ' for ' + plugin + '.')
         else:
-            self.queue_tts.put('Plugin builtin [' + target[0] + '] missing 1 argument.')
+            self.queue_tts.put('Plugin builtin [' + builtin + '] missing 1 argument. Please specify a plugin to ' + builtin + '.')
         self.queue_plugin_manage.task_done()

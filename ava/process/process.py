@@ -16,5 +16,6 @@ def spawn_process(plugin):
     }.get(plugin['lang'], None)
     if not handler:
         raise NotSupportedLanguage('Error: Plugin language not supported.')
-    process = Popen(['python', os.path.join(path, handler), plugin['name']], stdin=PIPE, stdout=PIPE, stderr=STDOUT)
+    # TODO fix binary name depending on the os
+    process = Popen(['python', os.path.join(path, handler), plugin['name']], stdin=PIPE, stdout=PIPE, stderr=STDOUT, universal_newlines=True)
     return process
