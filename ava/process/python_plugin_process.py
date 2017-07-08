@@ -19,20 +19,6 @@ def main():
         command = input('')
         execute(plugin_name, command)
 
-# def import_module(plugin_name):
-#     """
-#     """
-#     path = os.path.join(os.path.expanduser("~"), ".ava", "plugins", plugin_name)
-#     with open(os.path.join(path, "manifest.json")) as json_file:
-#         manifest = json.load(json_file)
-#     if not PLUGIN.get(plugin_name):
-#         if 'build' in manifest and manifest['build'] == True:
-#             install_from_requirements(path)
-#         # TODO check
-#         mod = SourceFileLoader(plugin_name, os.path.join(path, manifest['source'])).load_module()
-#         PLUGIN[plugin_name] = getattr(sys.modules[mod.__name__], plugin_name)
-
-
 def import_module(plugin_name):
     """
     """
@@ -41,17 +27,30 @@ def import_module(plugin_name):
         manifest = json.load(json_file)
     if not PLUGIN.get(plugin_name):
         if 'build' in manifest and manifest['build'] == True:
-            print("DEBUG")
             install_from_requirements(path)
         # TODO check
-        loader = SourceFileLoader(plugin_name, os.path.join(path, manifest['source']))
-        print(loader)
-        print(loader.name)
-        mod = types.ModuleType(loader.name)
-        print(mod)
-        print(mod.__dict__)
-        loader.exec_module(mod)
-        print(loader)
+        mod = SourceFileLoader(plugin_name, os.path.join(path, manifest['source'])).load_module()
+        PLUGIN[plugin_name] = getattr(sys.modules[mod.__name__], plugin_name)
+
+# def import_module(plugin_name):
+#     """
+#     """
+#     path = os.path.join(os.path.expanduser("~"), ".ava", "plugins", plugin_name)
+#     with open(os.path.join(path, "manifest.json")) as json_file:
+#         manifest = json.load(json_file)
+#     if not PLUGIN.get(plugin_name):
+#         if 'build' in manifest and manifest['build'] == True:
+#             print("DEBUG")
+#             install_from_requirements(path)
+#         # TODO check
+#         loader = SourceFileLoader(plugin_name, os.path.join(path, manifest['source']))
+#         print(loader)
+#         print(loader.name)
+#         mod = types.ModuleType(loader.name)
+#         print(mod)
+#         print(mod.__dict__)
+#         loader.exec_module(mod)
+#         print(loader)
         # PLUGIN[plugin_name] = getattr(sys.modules[plugin_name], plugin_name)
 
 
