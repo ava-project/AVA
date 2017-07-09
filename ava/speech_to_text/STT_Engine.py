@@ -1,49 +1,66 @@
-"""
-    Speech-To-Text class handling for AVA
-
-    STT: We are using CMUSphinx opensource library
-    CMUSphinx:
-        - English language model
-        - Customize dictionnary
-"""
-
-from os import path
-from pocketsphinx.pocketsphinx import *
-from sphinxbase.sphinxbase import *
-
-MODELDIR = "/usr/local/share/pocketsphinx/model/"
-HMM_DIR = MODELDIR + "en-us/en-us"
+import json, pyaudio, wave, base64, threading
+from os.path import join, dirname
+from watson_developer_cloud import SpeechToTextV1
 
 
 class STT_Engine():
-    """
-    PocketSphinx Speech-To-Text implementation
-    """
 
     def __init__(self):
-        # Checking if Hidden Markov Model directory exists
-        if not path.exists(HMM_DIR):
-            print("hmm_dir in '%s' does not exist!"%HMM_DIR)
-            raise EnvironmentError
+        self.stt = SpeechToTextV1(
+            username = '9d526cf4-63de-47da-be7d-e5662d3cd1a9',
+            password = 'oWaCHHSTzjkO',
+            x_watson_learning_opt_out=False
+        )
+        self.listening = True
 
-        # Checking for missing files in hmm directory
-        missing_hmm_files = []
-        for missing_file in ('feat.params', 'mdef', 'means', 'noisedict',
-                      'transition_matrices', 'variances'):
-            if not path.exists(path.join(HMM_DIR, missing_file)):
-                missing_hmm_files.append(missing_file)
-        ## plus files we are partially dependent
-        mixweights = path.exists(path.join(HMM_DIR, 'mixture_weights'))
-        sendump = path.exists(path.join(HMM_DIR, 'sendump'))
+    def listen(self):
+        p = pyaudio.PyAudio()
 
-        if not mixweights and not sendump:
-            missing_hmm_files.append('mixture_weights or sendump')
-        if missing_hmm_files:
-            print("[Warning] %s : hmm files are missing in hmm directory.", ', '.join(missing_hmm_files))
+        stream = p.open(format=pyaudio.paInt16,
+                        channels=1,
+                        rate=16000,
+                        input=True,
+                        frames_per_buffer=2048)
 
-        # Decoding configuration instance and config if everything is OK
-        self.config = Decoder.default_config()
-        self.config.set_string('-hmm', path.join(HMM_DIR))
-        self.config.set_string('-lm', path.join(MODELDIR , 'en-us/en-us.lm.bin'))
-        self.config.set_string('-dict', path.join('ava/static/custom.dict'))
-        self.config.set_string('-logfn', '/dev/null')
+        self.all_datas = []
+        print ("Recording.. Press enter to finish")
+        while self.listening:
+            data = stream.read(2048)
+            self.all_datas.append(data)
+
+        stream.stop_stream()
+        stream.close()
+        self.writeToFile(p)
+        p.terminate()
+
+    def writeToFile(self, p):
+        wf = wave.open("sample.wav", "wb")
+        wf.setnchannels(1)
+        wf.setsampwidth(p.get_sample_size(pyaudio.paInt16))
+        wf.setframerate(16000)
+        wf.writeframes(b''.join(self.all_datas))
+        wf.close()
+        self.sendFile()
+
+    def sendFile(self):
+        with open('sample.wav', 'rb') as audio_file:
+            print(json.dumps(self.stt.recognize(
+                audio_file, content_type='audio/wav', timestamps=True,
+                word_confidence=True),
+                             indent=2))
+
+
+    def close(self):
+        self.listening = False
+
+# def main():
+#     try:
+#         stt_client = STT_Engine()
+#         stt_client.reading_thread = threading.Thread(target=stt_client.listen)
+#         stt_client.reading_thread.start()
+#         input()
+#     finally:
+#         stt_client.close()
+#
+# if __name__ == "__main__":
+#     main()
