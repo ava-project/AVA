@@ -1,5 +1,5 @@
 from os import path
-from .process import spawn_process
+from .process import spawn_process, ping_process
 from avasdk.plugins.ioutils.utils import load_plugin
 
 class Plugin(object):
@@ -42,6 +42,11 @@ class Plugin(object):
         """
         """
         return self.specs
+
+    def is_process_alive(self):
+        """
+        """
+        return ping_process(self.process)
 
     def restart(self):
         """

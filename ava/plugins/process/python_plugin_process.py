@@ -17,6 +17,9 @@ def main():
     while True:
         # TODO fix
         command = input('')
+        if command == 'ping':
+            print('pong')
+            continue
         execute(plugin_name, command)
 
 def import_module(plugin_name):

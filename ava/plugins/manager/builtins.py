@@ -1,6 +1,5 @@
 from ..plugin import Plugin
 from ..store import PluginStore
-from ..process import spawn_process
 from avasdk.plugins.ioutils.utils import unzip, remove_directory
 
 class PluginBuiltins(object):

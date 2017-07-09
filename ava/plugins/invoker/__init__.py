@@ -36,3 +36,8 @@ class PluginInvoker(_BaseComponent):
             result = process.stdout.readline().rstrip()
             self.queue_tts.put(result)
         self.queue_plugin_command.task_done()
+
+    def shutdown(self):
+        """
+        """
+        print('Shutting down the PluginInvoker ...')

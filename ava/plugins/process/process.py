@@ -4,6 +4,13 @@ from subprocess import Popen, PIPE, STDOUT
 class NotSupportedLanguage(Exception):
     pass
 
+def ping_process(process):
+    """
+    """
+    process.stdin.write('ping\n')
+    process.stdin.flush()
+    ret = process.stdout.readline().rstrip()
+    return True if ret == 'pong' else False
 
 def spawn_process(plugin):
     """

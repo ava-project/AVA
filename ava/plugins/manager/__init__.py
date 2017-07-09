@@ -2,7 +2,6 @@ import os
 from threading import Timer
 from ..plugin import Plugin
 from ..store import PluginStore
-from ..process import spawn_process
 from .builtins import PluginBuiltins
 from ...components import _BaseComponent
 from ...queues import QueuePluginManage, QueueTtS
@@ -14,6 +13,7 @@ class PluginManager(_BaseComponent):
         """
         """
         super().__init__()
+        self.timer = None
         self.store = PluginStore()
         self.queue_plugin_manage = QueuePluginManage()
         self.queue_tts = QueueTtS()
@@ -30,9 +30,13 @@ class PluginManager(_BaseComponent):
             self.store.add_plugin(name, Plugin(name, self.store.path))
 
     def _check_plugin_process(self):
+        """
+        """
         for _, plugin in self.store.plugins.items():
-            print(plugin.get_process())
-        Timer(5, self._check_plugin_process).start()
+            if not plugin.is_process_alive():
+                plugin.restart()
+        self.timer = Timer(60, self._check_plugin_process)
+        self.timer.start()
 
     def run(self):
         """
@@ -48,3 +52,9 @@ class PluginManager(_BaseComponent):
         else:
             self.queue_tts.put('Plugin builtin [' + builtin + '] missing 1 argument. Please specify a plugin to ' + builtin + '.')
         self.queue_plugin_manage.task_done()
+
+    def shutdown(self):
+        """
+        """
+        print('Shutting down the PluginManager ...')
+        self.timer.cancel()

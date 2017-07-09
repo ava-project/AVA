@@ -10,6 +10,9 @@ def main():
     while True:
         # TODO fix
         cmd = input('')
+        if cmd == 'ping':
+            print('pong')
+            continue
         execute(name, cmd)
 
 def import_module(name):
