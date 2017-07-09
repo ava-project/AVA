@@ -8,7 +8,7 @@ class NotSupportedLanguage(Exception):
 def spawn_process(plugin):
     """
     """
-    path = os.path.join('ava', 'process')
+    path = os.path.join('ava', 'plugins', 'process')
     handler = {
         'cpp': 'cpp_plugin_process.py',
         'go': 'golang_plugin_process.py',

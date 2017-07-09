@@ -1,29 +1,25 @@
 import os
 from threading import Lock
-from ..utils import Singleton
+from ...utils import Singleton
 
 class PluginStore(metaclass=Singleton):
     mutex = Lock()
 
     def __init__(self):
-        """
-        Initializer
+        """Initializer
 
             @param: None
         """
         self.path = os.path.join(os.path.expanduser("~"), ".ava", "plugins")
         self.plugins = {}
-        self.process = {}
         self.disabled = []
 
-    def add_plugin(self, name, plugin, process):
+    def add_plugin(self, name, plugin):
         """
         """
         PluginStore.mutex.acquire()
         if self.plugins.get(name) is None:
             self.plugins[name] = plugin
-        if self.process.get(name) is None:
-            self.process[name] = process
         PluginStore.mutex.release()
 
     def get_plugin(self, plugin):
@@ -34,23 +30,13 @@ class PluginStore(metaclass=Singleton):
         PluginStore.mutex.release()
         return result
 
-    def get_plugin_process(self, plugin):
-        """
-        """
-        PluginStore.mutex.acquire()
-        result = self.process.get(plugin)
-        PluginStore.mutex.release()
-        return result
-
     def remove_plugin(self, plugin):
         """
         """
         PluginStore.mutex.acquire()
         if self.plugins.get(plugin) is not None:
+            self.plugins.get(plugin).shutdown()
             self.plugins.pop(plugin, None)
-        if self.process.get(plugin) is not None:
-            self.process.get(plugin).kill()
-            self.process.pop(plugin, None)
         PluginStore.mutex.release()
 
     def is_plugin_disabled(self, plugin):

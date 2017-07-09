@@ -1,7 +1,7 @@
-import os
+from ..plugin import Plugin
+from ..store import PluginStore
 from ..process import spawn_process
-from ..plugin_store import PluginStore
-from avasdk.plugins.ioutils.utils import unzip, remove_directory, load_plugin
+from avasdk.plugins.ioutils.utils import unzip, remove_directory
 
 class PluginBuiltins(object):
     store = PluginStore()
@@ -16,9 +16,7 @@ class PluginBuiltins(object):
         if PluginBuiltins.store.get_plugin(name):
             return 'The plugin ' + name + ' is already installed.'
         unzip(path_to_the_plugin_to_install, PluginBuiltins.store.path)
-        plugin = load_plugin(PluginBuiltins.store.path, name)
-        process = spawn_process(plugin[name])
-        PluginBuiltins.store.add_plugin(name, plugin[name], process)
+        PluginBuiltins.store.add_plugin(name, Plugin(name, PluginBuiltins.store.path))
         return 'Installation succeeded.'
 
     @staticmethod

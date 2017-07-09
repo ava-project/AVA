@@ -1,10 +1,12 @@
 import os
-from ..components import _BaseComponent
-from ..plugin_store import PluginStore
-from ..queues import QueuePluginManage, QueueTtS
-from .plugin_builtins import PluginBuiltins
+from threading import Timer
+from ..plugin import Plugin
+from ..store import PluginStore
 from ..process import spawn_process
-from avasdk.plugins.ioutils.utils import split_string, load_plugin
+from .builtins import PluginBuiltins
+from ...components import _BaseComponent
+from ...queues import QueuePluginManage, QueueTtS
+from avasdk.plugins.ioutils.utils import split_string
 
 class PluginManager(_BaseComponent):
 
@@ -24,9 +26,7 @@ class PluginManager(_BaseComponent):
             os.makedirs(self.store.path)
             return
         for name in os.listdir(self.store.path):
-            plugin = load_plugin(self.store.path, name)
-            process = spawn_process(plugin[name])
-            self.store.add_plugin(name, plugin[name], process)
+            self.store.add_plugin(name, Plugin(name, self.store.path))
 
     def run(self):
         """
