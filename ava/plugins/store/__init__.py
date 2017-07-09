@@ -35,8 +35,7 @@ class PluginStore(metaclass=Singleton):
         """
         PluginStore.mutex.acquire()
         if self.plugins.get(plugin) is not None:
-            self.plugins.get(plugin).shutdown()
-            self.plugins.pop(plugin, None)
+            self.plugins.pop(plugin, None).shutdown()
         PluginStore.mutex.release()
 
     def is_plugin_disabled(self, plugin):
@@ -61,4 +60,13 @@ class PluginStore(metaclass=Singleton):
         """
         PluginStore.mutex.acquire()
         self.disabled.append(plugin)
+        PluginStore.mutex.release()
+
+    def clear(self):
+        """
+        """
+        PluginStore.mutex.acquire()
+        for _, plugin in self.plugins:
+            plugin.shutdown()
+        self.plugins.clear()
         PluginStore.mutex.release()

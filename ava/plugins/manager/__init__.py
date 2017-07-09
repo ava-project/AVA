@@ -58,3 +58,4 @@ class PluginManager(_BaseComponent):
         """
         print('Shutting down the PluginManager ...')
         self.timer.cancel()
+        self.store.clear()
