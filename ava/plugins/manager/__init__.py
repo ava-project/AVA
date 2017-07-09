@@ -18,6 +18,7 @@ class PluginManager(_BaseComponent):
         self.queue_plugin_manage = QueuePluginManage()
         self.queue_tts = QueueTtS()
         self._init()
+        self._check_plugin_process()
 
     def _init(self):
         """
@@ -27,6 +28,11 @@ class PluginManager(_BaseComponent):
             return
         for name in os.listdir(self.store.path):
             self.store.add_plugin(name, Plugin(name, self.store.path))
+
+    def _check_plugin_process(self):
+        for _, plugin in self.store.plugins.items():
+            print(plugin.get_process())
+        Timer(5, self._check_plugin_process).start()
 
     def run(self):
         """
