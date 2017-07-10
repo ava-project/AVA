@@ -5,9 +5,9 @@
 from ctypes import *
 import pyaudio
 
-RATE = 44100
-FPB = 2048
-CHUNK = 1024
+# RATE = 44100
+# FPB = 2048
+# CHUNK = 1024
 
 
 class RawInput:
@@ -25,21 +25,35 @@ class RawInput:
         # Set error handler
         asound.snd_lib_error_set_handler(c_error_handler)
 
+        self.record = []
+        self.done = False
+        self.listening = True
         self.audio = pyaudio.PyAudio()
-        self.stream = self.audio.open(input_device_index=0, format=pyaudio.paInt16, channels=1, rate=RATE, input=True, frames_per_buffer=FPB)
+        self.stream = self.audio.open(format=pyaudio.paInt16,
+                        channels=1,
+                        rate=16000,
+                        input=True,
+                        frames_per_buffer=2048)
 
     def __del__(self):
         """
         Destroy the instance of PyAudio
         """
+        self.stream.close()
         self.audio.terminate()
 
     def start(self):
+        self.record = []
+        self.done = False
+        self.listening = True
         self.stream.start_stream()
 
     def stop(self):
+        self.listening = False
         self.stream.stop_stream()
 
     def read(self):
-        buff = self.stream.read(CHUNK)
-        return buff
+        while self.listening:
+            data = self.stream.read(2048)
+            self.record.append(data)
+        self.done = True

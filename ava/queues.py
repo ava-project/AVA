@@ -2,6 +2,10 @@ from queue import Queue
 from .utils import Singleton
 
 
+class QueueInput(Queue, metaclass=Singleton):
+    pass
+
+
 class QueueCommand(Queue, metaclass=Singleton):
     pass
 
