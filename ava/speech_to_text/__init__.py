@@ -19,5 +19,7 @@ class SpeechToText(RunOneTime, _BaseComponent):
 
     def run(self):
         audio_stream = self.queue_input.get()
-        self.stt.recognize(audio_stream)
+        result = self.stt.recognize(audio_stream)
+        print(result)
+        self.queue_input.task_done()
         # self.queue_command.put()#CONCATENATE RESULT)

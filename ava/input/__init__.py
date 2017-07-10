@@ -37,7 +37,6 @@ class Input(_BaseComponent):
         except AttributeError:
             print('special key {0} pressed'.format(key))
 
-
     def on_release(self, key):
         if key == key.cmd:
             print('on_release')
@@ -46,6 +45,7 @@ class Input(_BaseComponent):
                 pass
             self.write_to_file(self.input_listener.record)
             return False
+
 
     def run(self):
         with keyboard.Listener(
