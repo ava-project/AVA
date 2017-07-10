@@ -13,6 +13,16 @@ class PluginInvoker(_BaseComponent):
         self.queue_plugin_command = QueuePluginCommand()
         self.queue_tts = QueueTtS()
 
+    def _handle_plugin_execution(self, plugin_name, command):
+        """
+        """
+        # TODO improve this function
+        process = self.store.get_plugin(plugin_name).get_process()
+        process.stdin.write(command + '\n')
+        process.stdin.flush()
+        result = process.stdout.readline().rstrip()
+        self.queue_tts.put(result)
+
     def run(self):
         """
         """
@@ -29,12 +39,7 @@ class PluginInvoker(_BaseComponent):
         if not self.store.get_plugin(plugin_name):
             self.queue_tts.put('No plugin named ' + plugin_name + ' found.')
         else:
-            # TODO improve this block of code
-            process = self.store.get_plugin(plugin_name).get_process()
-            process.stdin.write(command + '\n')
-            process.stdin.flush()
-            result = process.stdout.readline().rstrip()
-            self.queue_tts.put(result)
+            self._handle_plugin_execution(plugin_name, command)
         self.queue_plugin_command.task_done()
 
     def shutdown(self):

@@ -48,7 +48,8 @@ class PluginManager(_BaseComponent):
                 result = getattr(PluginBuiltins, builtin)(plugin)
                 self.queue_tts.put(result)
             except Exception as err:
-                self.queue_tts.put('An error occurred with the builtin: ' + builtin + ' for ' + plugin + '.')
+                self.queue_tts.put(str(err))
+                # self.queue_tts.put('An error occurred with the builtin: ' + builtin + ' for ' + plugin + '.')
         else:
             self.queue_tts.put('Plugin builtin [' + builtin + '] missing 1 argument. Please specify a plugin to ' + builtin + '.')
         self.queue_plugin_manage.task_done()

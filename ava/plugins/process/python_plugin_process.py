@@ -67,6 +67,7 @@ def install_from_requirements(path):
 def execute(plugin_name, command):
     """
     """
+    # toto()
     if PLUGIN.get(plugin_name):
         command_name, args = split_string(command, ' ')
         plugin = PLUGIN.get(plugin_name)

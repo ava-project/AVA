@@ -23,13 +23,13 @@ def import_module(name):
         manifest = json.load(json_file)
     if not PLUGIN.get(name):
         if 'build' in manifest and manifest['build'] == True:
-            create_module(path, name)
-        PLUGIN[name] = getattr(importlib.import_module(name), 'hello')
+            create_module(path)
+        PLUGIN[name] = getattr(importlib.import_module(name), manifest['commands'][0]['name'])
 
-def create_module(path, name):
+def create_module(path):
     """
     """
-    setup = os.path.join(path, name, 'setup.py')
+    setup = os.path.join(path, 'setup.py')
     subprocess.call(['python', setup, 'install'])
 
 def execute(name, command):
@@ -38,8 +38,8 @@ def execute(name, command):
     if PLUGIN.get(name):
         cmd = command.split(' ')
         plugin = PLUGIN.get(name)
-        if cmd[0] in plugin.__dict__:
-            plugin.__dict__[cmd[0]](plugin, ' '.join(cmd[1:]) if len(cmd) > 1 else '')
+        if cmd[0] in plugin.__name__:
+            plugin(' '.join(cmd[1:]) if len(cmd) > 1 else '')
             return
         print('The plugin ', name, ' cannot handle the following command: ', cmd[0], flush=False)
 

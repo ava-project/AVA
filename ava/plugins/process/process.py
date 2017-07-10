@@ -1,4 +1,5 @@
 import os
+import datetime
 from subprocess import Popen, PIPE, STDOUT
 
 class NotSupportedLanguage(Exception):
@@ -15,14 +16,19 @@ def ping_process(process):
 def spawn_process(plugin):
     """
     """
+    name = plugin.get_name()
+    # log = plugin.get_log_file()
+    lang = plugin.get_specs()['lang']
     path = os.path.join('ava', 'plugins', 'process')
     handler = {
         'cpp': 'cpp_plugin_process.py',
         'go': 'golang_plugin_process.py',
         'py': 'python_plugin_process.py',
-    }.get(plugin['lang'], None)
+    }.get(lang, None)
     if not handler:
         raise NotSupportedLanguage('Error: Plugin language not supported.')
+    # log.write(datetime.datetime.now().strftime('### %Y-%m-%d %H:%M:%S ###\n')) and log.flush()
     # TODO fix binary name depending on the os
-    process = Popen(['python', os.path.join(path, handler), plugin['name']], stdin=PIPE, stdout=PIPE, stderr=STDOUT, universal_newlines=True)
+    # process = Popen(['python', os.path.join(path, handler), name], stdin=PIPE, stdout=PIPE, stderr=log, universal_newlines=True)
+    process = Popen(['python', os.path.join(path, handler), name], stdin=PIPE, stdout=PIPE, stderr=STDOUT, universal_newlines=True)
     return process

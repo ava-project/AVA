@@ -11,6 +11,7 @@ class Plugin(object):
             @param:
                 name: the plugin name (string)
         """
+        self.log = None
         self.name = name
         self.path = path
         self.process = None
@@ -20,8 +21,14 @@ class Plugin(object):
     def _init(self):
         """
         """
+        # self.log = open(path.join(self.get_path(), '.log'), 'w+')
         self.specs = load_plugin(self.path, self.name)[self.name]
-        self.process = spawn_process(self.specs)
+        self.process = spawn_process(self)
+
+    def get_log_file(self):
+        """
+        """
+        return self.log
 
     def get_name(self):
         """
@@ -51,10 +58,11 @@ class Plugin(object):
     def restart(self):
         """
         """
-        self.process = spawn_process(self.specs)
+        self.process = spawn_process(self)
 
     def shutdown(self):
         """
         """
+        # self.log.close()
         self.process.kill()
         self.process = None
