@@ -22,23 +22,24 @@ class STT_Engine():
                         input=True,
                         frames_per_buffer=2048)
 
-        self.all_datas = []
+        all_datas = []
         print ("Recording.. Press enter to finish")
         while self.listening:
             data = stream.read(2048)
-            self.all_datas.append(data)
+            all_datas.append(data)
 
         stream.stop_stream()
         stream.close()
-        self.writeToFile(p)
+        self.listening = True
+        self.writeToFile(p, all_datas)
         p.terminate()
 
-    def writeToFile(self, p):
+    def writeToFile(self, p, all_datas):
         wf = wave.open("sample.wav", "wb")
         wf.setnchannels(1)
         wf.setsampwidth(p.get_sample_size(pyaudio.paInt16))
         wf.setframerate(16000)
-        wf.writeframes(b''.join(self.all_datas))
+        wf.writeframes(b''.join(all_datas))
         wf.close()
         self.sendFile()
 

@@ -10,7 +10,7 @@ from .STT_Engine import STT_Engine
 
 import threading
 
-class SpeechToText(RunOneTime, _BaseComponent):
+class SpeechToText(_BaseComponent):
 
     def __init__(self):
         super().__init__()
@@ -20,6 +20,7 @@ class SpeechToText(RunOneTime, _BaseComponent):
     def on_press(self,key):
         try:
             if key == key.f2:
+                print("on_press..")
                 self.stt.reading_thread = threading.Thread(target=self.stt.listen)
                 self.stt.reading_thread.start()
                 # maybe timeout to get the minimum stream size required (100 bytes)
@@ -29,9 +30,10 @@ class SpeechToText(RunOneTime, _BaseComponent):
 
 
     def on_release(self,key):
-        self.stt.close()
-        if key == keyboard.Key.esc:
+        if key == key.enter:
+            print("on_release..")
             # Stop listener
+            self.stt.close()
             return False
 
     def run(self):
