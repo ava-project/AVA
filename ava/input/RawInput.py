@@ -46,12 +46,13 @@ class RawInput:
 
     def read(self):
         self.start()
+        stream = self.audio.open(format=pyaudio.paInt16,
+            channels=1,
+            rate=16000,
+            input=True,
+            frames_per_buffer=2048)
         while self.listening:
-            stream = self.audio.open(format=pyaudio.paInt16,
-                channels=1,
-                rate=16000,
-                input=True,
-                frames_per_buffer=2048)
             data = stream.read(2048)
             self.record.append(data)
+        stream.close()
         self.done = True
