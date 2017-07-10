@@ -5,13 +5,13 @@ from .speech_to_text import SpeechToText
 from .plugin_manager import PluginManager
 from .plugin_runner import PluginRunner
 from .text_to_speech import TextToSpeech
-# from .input import Input
+from .input import Input
 
 class AVA(object):
 
     def run(self):
         manager = ComponentManager()
-        # manager.add_component(Input)
+        manager.add_component(Input)
         manager.add_component(Dispatcher)
         manager.add_component(BuiltinRunner)
         manager.add_component(SpeechToText)

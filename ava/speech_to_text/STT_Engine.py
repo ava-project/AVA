@@ -13,6 +13,12 @@ class STT_Engine():
         )
         # self.listening = True
 
+    def recognize(self, stream):
+        print(json.dumps(self.stt.recognize(
+            stream, content_type='audio/wav', timestamps=True,
+            word_confidence=True),
+                         indent=2))
+
     # def listen(self):
     #     p = pyaudio.PyAudio()
     #
