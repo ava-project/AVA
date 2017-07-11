@@ -14,6 +14,7 @@ class Input(_BaseComponent):
 
     def __init__(self):
         super().__init__()
+        self.activated = False
         self.input_queue = QueueInput()
         self.input_listener = RawInput()
 
@@ -29,18 +30,19 @@ class Input(_BaseComponent):
 
     def on_press(self, key):
         try:
-            if key == key.cmd:
-                print("on_press..")
-                self.input_listener.start()
+            if key == key.ctrl:
+                self.activated = True
+                print ("Voice recognition activated ! Press alt to stop it...")
                 self.input_listener.reading_thread = threading.Thread(target=self.input_listener.read)
                 self.input_listener.reading_thread.start()
         except AttributeError:
             print('special key {0} pressed'.format(key))
 
     def on_release(self, key):
-        if key == key.cmd:
-            print('on_release')
+        if key == key.alt and self.activated:
+            self.activated = False
             self.input_listener.stop()
+            print ("Voice recognition stopped !")
             while self.input_listener.done == False:
                 pass
             self.write_to_file(self.input_listener.record)
@@ -48,6 +50,7 @@ class Input(_BaseComponent):
 
 
     def run(self):
+        print ("Press Ctrl to activate the Voice Recognition...")
         with keyboard.Listener(
                 on_press=self.on_press,
                 on_release=self.on_release) as listener:

@@ -33,7 +33,6 @@ class RawInput:
         """
         Destroy the instance of PyAudio
         """
-        self.stream.close()
         self.audio.terminate()
 
     def start(self):
