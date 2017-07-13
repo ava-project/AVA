@@ -1,11 +1,13 @@
 from .components import ComponentManager
+from .input import Input
 from .dispatcher import Dispatcher
 from .builtin_runner import BuiltinRunner
+from .plugins import PluginInvoker, PluginManager
 from .speech_to_text import SpeechToText
 from .plugin_manager import PluginManager
 from .plugin_runner import PluginRunner
 from .text_to_speech import TextToSpeech
-from .input import Input
+
 
 class AVA(object):
 
@@ -16,7 +18,7 @@ class AVA(object):
         manager.add_component(BuiltinRunner)
         manager.add_component(SpeechToText)
         manager.add_component(PluginManager)
-        manager.add_component(PluginRunner)
+        manager.add_component(PluginInvoker)
         manager.add_component(TextToSpeech)
         manager.start_all()
         manager.join_all()
