@@ -5,6 +5,7 @@ from avasdk.plugins.ioutils.utils import unzip, remove_directory
 
 class PluginBuiltins(object):
     store = PluginStore()
+    builtins = ['install', 'uninstall', 'enable', 'disable']
 
     @staticmethod
     def install(path_to_the_plugin_to_install):

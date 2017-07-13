@@ -1,3 +1,3 @@
-from .process import spawn_process, ping_process
+from .process import spawn_process, ping_process, flush_process_output
 
-__all__ = ['spawn_process', 'ping_process']
+__all__ = ['spawn_process', 'ping_process', 'flush_process_output']

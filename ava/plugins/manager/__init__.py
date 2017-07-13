@@ -35,7 +35,7 @@ class PluginManager(_BaseComponent):
         for _, plugin in self.store.plugins.items():
             if not plugin.is_process_alive():
                 plugin.restart()
-        self.timer = Timer(60, self._check_plugin_process)
+        self.timer = Timer(10, self._check_plugin_process)
         self.timer.start()
 
     def run(self):
@@ -48,8 +48,7 @@ class PluginManager(_BaseComponent):
                 result = getattr(PluginBuiltins, builtin)(plugin)
                 self.queue_tts.put(result)
             except Exception as err:
-                self.queue_tts.put(str(err))
-                # self.queue_tts.put('An error occurred with the builtin: ' + builtin + ' for ' + plugin + '.')
+                self.queue_tts.put('An error occurred with the builtin: ' + builtin + ' for ' + plugin + '.')
         else:
             self.queue_tts.put('Plugin builtin [' + builtin + '] missing 1 argument. Please specify a plugin to ' + builtin + '.')
         self.queue_plugin_manage.task_done()

@@ -1,19 +1,7 @@
 import os, sys, json, importlib, subprocess
+from avasdk.plugins.ioutils.utils import split_string
 
 PLUGIN = {}
-
-def main():
-    """
-    """
-    name = sys.argv[1]
-    import_module(name)
-    while True:
-        # TODO fix
-        cmd = input('')
-        if cmd == 'ping':
-            print('pong')
-            continue
-        execute(name, cmd)
 
 def import_module(name):
     """
@@ -24,7 +12,10 @@ def import_module(name):
     if not PLUGIN.get(name):
         if 'build' in manifest and manifest['build'] == True:
             create_module(path)
-        PLUGIN[name] = getattr(importlib.import_module(name), manifest['commands'][0]['name'])
+        PLUGIN[name] = {}
+        for command in manifest['commands']:
+            PLUGIN[name][command['name']] = getattr(importlib.import_module(name), command['name'])
+    print('END_OF_IMPORT')
 
 def create_module(path):
     """
@@ -32,16 +23,35 @@ def create_module(path):
     setup = os.path.join(path, 'setup.py')
     subprocess.call(['python', setup, 'install'])
 
+def wait_for_command(plugin_name):
+    """
+    """
+    while True:
+        # TODO fix
+        command = input('')
+        if command == 'ping':
+            print('pong')
+            continue
+        execute(plugin_name, command)
+        print('END_OF_COMMAND')
+
 def execute(name, command):
     """
     """
     if PLUGIN.get(name):
-        cmd = command.split(' ')
         plugin = PLUGIN.get(name)
-        if cmd[0] in plugin.__name__:
-            plugin(' '.join(cmd[1:]) if len(cmd) > 1 else '')
+        func, args = split_string(command, ' ')
+        if plugin.get(func):
+            print(plugin[func](args if args else ''))
             return
-        print('The plugin ', name, ' cannot handle the following command: ', cmd[0], flush=False)
+        print('The plugin ', name, ' cannot handle the following command: ', func, flush=False)
 
 if __name__ == "__main__":
-    main()
+    try:
+        plugin_name = sys.argv[1]
+        import_module(plugin_name)
+        wait_for_command(plugin_name)
+    except Exception as err:
+        print(err, file=sys.stderr)
+        print(plugin_name + ' crashed. Restarting ...')
+        print('END_OF_COMMAND')

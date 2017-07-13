@@ -1,6 +1,6 @@
 from os import path
-from .process import spawn_process, ping_process
 from avasdk.plugins.ioutils.utils import load_plugin
+from .process import spawn_process, flush_process_output, ping_process
 
 class Plugin(object):
     """ Object representation of a plugin. """
@@ -21,9 +21,10 @@ class Plugin(object):
     def _init(self):
         """
         """
-        # self.log = open(path.join(self.get_path(), '.log'), 'w+')
+        self.log = open(path.join(self.get_path(), '.log'), 'w+')
         self.specs = load_plugin(self.path, self.name)[self.name]
         self.process = spawn_process(self)
+        flush_process_output(self.process, 'END_OF_IMPORT')
 
     def get_log_file(self):
         """
@@ -63,6 +64,6 @@ class Plugin(object):
     def shutdown(self):
         """
         """
-        # self.log.close()
         self.process.kill()
         self.process = None
+        self.log.close()

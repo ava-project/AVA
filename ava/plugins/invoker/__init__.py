@@ -1,4 +1,6 @@
+import os
 from ..store import PluginStore
+from ..process import flush_process_output
 from ...components import _BaseComponent
 from ...queues import QueuePluginCommand, QueueTtS
 from avasdk.plugins.ioutils.utils import split_string
@@ -16,12 +18,24 @@ class PluginInvoker(_BaseComponent):
     def _handle_plugin_execution(self, plugin_name, command):
         """
         """
-        # TODO improve this function
-        process = self.store.get_plugin(plugin_name).get_process()
-        process.stdin.write(command + '\n')
-        process.stdin.flush()
-        result = process.stdout.readline().rstrip()
-        self.queue_tts.put(result)
+        try:
+            process = self.store.get_plugin(plugin_name).get_process()
+            process.stdin.write(command + '\n')
+            process.stdin.flush()
+            ret = flush_process_output(process, 'END_OF_COMMAND')
+            if 'END_OF_IMPORT' in ret:
+                index = 0
+                target = ret.index('END_OF_IMPORT')
+                while index <= target:
+                    ret.remove(index)
+                    index += 1
+            if len(ret) > 1:
+                print('\n'.join(ret))
+                self.queue_tts.put('Result of [' + plugin_name + ' ' + command + '] has been print.')
+                return
+            self.queue_tts.put(''.join(ret))
+        except Exception as err:
+            self.queue_tts.put(plugin_name + ' crashed. Restarting ...')
 
     def run(self):
         """
