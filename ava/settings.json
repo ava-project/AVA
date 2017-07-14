@@ -1,0 +1,10 @@
+{
+    "plugin_folder_download": "./packages/download",
+    "plugin_folder_install": "./packages/installed",
+    "API_address": "https://www.ava-project.com",
+    "Model_path": "/usr/local/share/pocketsphinx/model",
+    "FileCrawler_preferences" : [ "C:\\Program Files\\",
+                                  "C:\\Program Files (x86)\\",
+                                  "C:\\Users\\Jamais\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs",
+                                  "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs"]
+}
