@@ -30,6 +30,14 @@ class PluginStore(metaclass=Singleton):
         PluginStore.mutex.release()
         return result
 
+    def get_plugin_list(self):
+        """
+        """
+        plugin_list = []
+        for plugin in self.plugins:
+            plugin_list.append(plugin.get_name())
+        return plugin_list
+
     def remove_plugin(self, plugin):
         """
         """
