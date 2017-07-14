@@ -34,7 +34,7 @@ class PluginStore(metaclass=Singleton):
         """
         """
         plugin_list = []
-        for plugin in self.plugins:
+        for field, plugin in self.plugins.items():
             plugin_list.append(plugin.get_name())
         return plugin_list
 
