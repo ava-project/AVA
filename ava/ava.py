@@ -5,8 +5,6 @@ from .dispatcher import Dispatcher
 from .builtin_runner import BuiltinRunner
 from .plugins import PluginInvoker, PluginManager
 from .speech_to_text import SpeechToText
-from .plugin_manager import PluginManager
-from .plugin_runner import PluginRunner
 from .text_to_speech import TextToSpeech
 from .input import Input
 from .config import ConfigLoader
