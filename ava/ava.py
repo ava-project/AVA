@@ -9,6 +9,7 @@ from .text_to_speech import TextToSpeech
 from .input import Input
 from .config import ConfigLoader
 from .server import DaemonServer
+from .no_vocal_test import NoVocalTest
 
 
 class AVA(object):
@@ -17,10 +18,11 @@ class AVA(object):
         config = ConfigLoader(path.dirname(path.realpath(__file__)))
         config.load('settings.json')
         manager = ComponentManager()
-        manager.add_component(Input)
+        # manager.add_component(Input)
+        # manager.add_component(SpeechToText)
+        manager.add_component(NoVocalTest)
         manager.add_component(Dispatcher)
         manager.add_component(BuiltinRunner)
-        manager.add_component(SpeechToText)
         manager.add_component(PluginManager)
         manager.add_component(PluginInvoker)
         manager.add_component(TextToSpeech)
