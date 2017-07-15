@@ -39,7 +39,7 @@ class Input(_BaseComponent):
             print('special key {0} pressed'.format(key))
 
     def on_release(self, key):
-        if key == key.cmd and self.activated:
+        if self.activated:
             self.activated = False
             self.input_listener.stop()
             print ("Voice recognition stopped !")
