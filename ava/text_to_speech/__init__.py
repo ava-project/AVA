@@ -1,7 +1,7 @@
 from ..queues import QueueTtS
 from ..components import _BaseComponent
 from gtts import gTTS
-from playsound import playsound
+from .playsound import playsound
 
 import os
 
