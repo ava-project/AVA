@@ -19,5 +19,6 @@ class TextToSpeech(_BaseComponent):
         tts = gTTS(text=sentence, lang='en')
         with NamedTemporaryFile() as audio_file:
             tts.write_to_fp(audio_file)
+            audio_file.seek(0)
             playsound(audio_file.name)
         self.queue_tts.task_done()
