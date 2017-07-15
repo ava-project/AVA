@@ -20,6 +20,7 @@ setup(
         'watson-developer-cloud',
         'avasdk',
         'pyaudio',
+        'websockets',
     ],
     include_package_data=True,
     url='https://github.com/ava-project/ava-core',
