@@ -11,7 +11,7 @@ setup(
     packages=find_packages(),
     options={
         'build_exe': {
-            'packages': ['idna', 'gtts', 'asyncio']
+            'packages': ['idna', 'gtts', 'asyncio', 'appdirs', 'packaging', '_sysconfigdata_m_darwin_darwin']
         }
     },
     author='AVA Project',
