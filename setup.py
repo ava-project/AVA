@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from setuptools import setup, find_packages
+from setuptools import find_packages
+from cx_Freeze import setup, Executable
 
 import ava
 
@@ -8,6 +9,11 @@ setup(
     name='ava',
     version=ava.__version__,
     packages=find_packages(),
+    options={
+        'build_exe': {
+            'packages': ['idna', 'gtts', 'asyncio']
+        }
+    },
     author='AVA Project',
     author_email='ava_2018@labeip.epitech.eu',
     description='The daemon of the AVA Project',
@@ -16,7 +22,6 @@ setup(
         'flask==0.12',
         'requests',
         'gtts',
-        'pygame',
         'pynput',
         'watson-developer-cloud',
         'avasdk',
@@ -39,4 +44,5 @@ setup(
             'avad = ava.ava:main',
         ],
     },
+    executables=[Executable('app.py')]
 )
