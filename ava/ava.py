@@ -10,6 +10,7 @@ from .input import Input
 from .config import ConfigLoader
 from .server import DaemonServer
 from .no_vocal_test import NoVocalTest
+from .mobile_bridge_input import MobileBridgeInput
 
 
 class AVA(object):
@@ -19,13 +20,14 @@ class AVA(object):
         config.load('settings.json')
         manager = ComponentManager()
         # manager.add_component(Input)
-        # manager.add_component(SpeechToText)
+        manager.add_component(SpeechToText)
+        manager.add_component(MobileBridgeInput)
         manager.add_component(NoVocalTest)
         manager.add_component(Dispatcher)
         manager.add_component(BuiltinRunner)
         manager.add_component(PluginManager)
         manager.add_component(PluginInvoker)
-        manager.add_component(TextToSpeech)
+        # manager.add_component(TextToSpeech)
         manager.add_component(DaemonServer)
         manager.start_all()
         manager.join_all()
