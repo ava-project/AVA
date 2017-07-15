@@ -1,7 +1,7 @@
 from ..queues import QueueTtS
 from ..components import _BaseComponent
 from gtts import gTTS
-from pygame import mixer
+from playsound import playsound
 
 import os
 
@@ -18,8 +18,6 @@ class TextToSpeech(_BaseComponent):
         # TODO change the language to match user's settings
         tts = gTTS(text=sentence, lang='en')
         tts.save("tts.mp3")
-        mixer.init()
-        mixer.music.load("tts.mp3")
-        mixer.music.play()
+        playsound("tts.mp3")
         os.remove("tts.mp3")
         self.queue_tts.task_done()
