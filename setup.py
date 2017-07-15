@@ -15,8 +15,9 @@ setup(
     install_requires=[
         'flask==0.12',
         'requests',
-        'talkey',
-	    'pynput',
+        'gtts',
+        'pygame',
+	      'pynput',
         'watson-developer-cloud',
         'avasdk',
         'pyaudio',
