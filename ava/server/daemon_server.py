@@ -1,8 +1,10 @@
+import json
 from http.server import HTTPServer
 import requests
 from .httprequest_handler import HTTPRequestHandler
 from ..queues import QueuePluginManage
 from ..config import ConfigLoader
+from ..plugins.store import PluginStore
 
 class DaemonServer():
     """
@@ -25,6 +27,7 @@ class DaemonServer():
         self._is_running = False
         self._httpd = None
         DaemonServer._queue_plugin_manage = QueuePluginManage()
+        DaemonServer._plugin_store = PluginStore()
         DaemonServer._config = ConfigLoader(None)
         DaemonServer._base_url = DaemonServer._config.get('API_address')
         DaemonServer._mock_url = "http://127.0.0.1:3000"
@@ -74,27 +77,31 @@ class DaemonServer():
         res = requests.get(DaemonServer._base_url + '/user/me.json', auth=auth)
         return res
 
-    # mock
     @staticmethod
     @HTTPRequestHandler.get('/plugins/')
     def get_plugins(request):
         """
         List of all plugins
         """
-        res = requests.get(DaemonServer._mock_url + '/plugins')
+        res = requests.Response()
+        res.status_code = 200
+        res.headers = {'content-type': 'application/json'}
+        res.encoding = 'utf-8'
+        data = '{"data": ' + json.dumps(DaemonServer._plugin_store.get_plugin_list()) + '}'
+        res._content = data.encode('utf-8')
         return res
 
-    # mock
     @staticmethod
-    @HTTPRequestHandler.get('/plugins/:id')
+    @HTTPRequestHandler.get('/plugins/:author/:name')
     def get_plugin(request):
         """
         Get a specific plugin
 
         Url param:
-            id -> plugin ID
+            author -> plugin's author
+            name -> plugin's name
         """
-        res = requests.get(DaemonServer._mock_url + '/plugins/' + request.url_vars['id'])
+        res = requests.get(DaemonServer._base_url + '/plugins/' + request.url_vars['author'] + '/' + request.url_vars['name'] + '/json')
         return res
 
     @staticmethod
