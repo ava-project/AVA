@@ -30,7 +30,7 @@ class Input(_BaseComponent):
 
     def on_press(self, key):
         try:
-            if key == key.ctrl:
+            if key == key.cmd:
                 self.activated = True
                 print ("Voice recognition activated ! Press alt to stop it...")
                 self.input_listener.reading_thread = threading.Thread(target=self.input_listener.read)
@@ -39,7 +39,7 @@ class Input(_BaseComponent):
             print('special key {0} pressed'.format(key))
 
     def on_release(self, key):
-        if key == key.alt and self.activated:
+        if key == key.cmd and self.activated:
             self.activated = False
             self.input_listener.stop()
             print ("Voice recognition stopped !")
@@ -50,7 +50,7 @@ class Input(_BaseComponent):
 
 
     def run(self):
-        print ("Press Ctrl to activate the Voice Recognition...")
+        print ("Press WINDOWS for PC or COMMAND for Mac to activate the Voice Recognition...")
         with keyboard.Listener(
                 on_press=self.on_press,
                 on_release=self.on_release) as listener:
