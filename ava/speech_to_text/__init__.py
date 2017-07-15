@@ -15,8 +15,6 @@ class SpeechToText(_BaseComponent):
         self.stt = STT_Engine()
 
     def run(self):
-        while self.queue_input.empty():
-            pass
         audio_stream = self.queue_input.get()
         print ("Sending information to be translated...")
         result = self.stt.recognize(audio_stream)
