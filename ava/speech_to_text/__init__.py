@@ -1,4 +1,4 @@
-from ..queues import QueueCommand, QueueInput
+from ..queues import QueueCommand, QueueInput, QueueTtS
 from ..components import _BaseComponent
 
 # Sub components imports :
@@ -12,13 +12,17 @@ class SpeechToText(_BaseComponent):
         super().__init__()
         self.queue_command = QueueCommand()
         self.queue_input = QueueInput()
+        self.queue_tts = QueueTtS()
         self.stt = STT_Engine()
 
     def run(self):
         audio_stream = self.queue_input.get()
         print ("Sending information to be translated...")
-        result = self.stt.recognize(audio_stream)
-        print ("Message received...")
-        if result["results"][0]["alternatives"][0]["transcript"] :
-            self.queue_command.put(result["results"][0]["alternatives"][0]["transcript"])
-            self.queue_input.task_done()
+        try:
+            result = self.stt.recognize(audio_stream)
+            print ("Message received...")
+            if result["results"][0]["alternatives"][0]["transcript"] :
+                self.queue_command.put(result["results"][0]["alternatives"][0]["transcript"])
+                self.queue_input.task_done()
+        except:
+            self.queue_tts.put("Retry your command please")

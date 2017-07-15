@@ -19,7 +19,7 @@ class AVA(object):
         config = ConfigLoader(path.dirname(path.realpath(__file__)))
         config.load('settings.json')
         manager = ComponentManager()
-        # manager.add_component(Input)
+        manager.add_component(Input)
         manager.add_component(SpeechToText)
         manager.add_component(MobileBridgeInput)
         manager.add_component(NoVocalTest)
