@@ -1,9 +1,10 @@
+from tempfile import NamedTemporaryFile
+
+from gtts import gTTS
+
+from .playsound import playsound
 from ..queues import QueueTtS
 from ..components import _BaseComponent
-from gtts import gTTS
-from .playsound import playsound
-
-import os
 
 
 class TextToSpeech(_BaseComponent):
@@ -15,9 +16,8 @@ class TextToSpeech(_BaseComponent):
     def run(self):
         sentence = self.queue_tts.get()
         print('To say out loud : {}'.format(sentence))
-        # TODO change the language to match user's settings
         tts = gTTS(text=sentence, lang='en')
-        tts.save("tts.mp3")
-        playsound("tts.mp3")
-        os.remove("tts.mp3")
+        with NamedTemporaryFile() as audio_file:
+            tts.write_to_fp(audio_file)
+            playsound(audio_file.name)
         self.queue_tts.task_done()
