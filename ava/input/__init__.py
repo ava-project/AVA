@@ -32,11 +32,11 @@ class Input(_BaseComponent):
         try:
             if key == key.cmd:
                 self.activated = True
-                print ("Voice recognition activated ! Press alt to stop it...")
+                print ("Voice recognition activated ! Release when you are done...")
                 self.input_listener.reading_thread = threading.Thread(target=self.input_listener.read)
                 self.input_listener.reading_thread.start()
         except AttributeError:
-            print('special key {0} pressed'.format(key))
+            pass
 
     def on_release(self, key):
         if self.activated:

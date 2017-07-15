@@ -17,6 +17,7 @@ class SpeechToText(_BaseComponent):
 
     def run(self):
         audio_stream = self.queue_input.get()
+        self.queue_tts.put("Wait ...")
         print ("Sending information to be translated...")
         try:
             result = self.stt.recognize(audio_stream)
@@ -24,5 +25,6 @@ class SpeechToText(_BaseComponent):
             if result["results"][0]["alternatives"][0]["transcript"] :
                 self.queue_command.put(result["results"][0]["alternatives"][0]["transcript"])
                 self.queue_input.task_done()
+                self.queue_tts.put("Okay")
         except:
             self.queue_tts.put("Retry your command please")
