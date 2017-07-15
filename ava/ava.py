@@ -27,7 +27,7 @@ class AVA(object):
         manager.add_component(BuiltinRunner)
         manager.add_component(PluginManager)
         manager.add_component(PluginInvoker)
-        # manager.add_component(TextToSpeech)
+        manager.add_component(TextToSpeech)
         manager.add_component(DaemonServer)
         manager.start_all()
         manager.join_all()
