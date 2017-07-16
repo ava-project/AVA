@@ -6,7 +6,6 @@ from .builtin_runner import BuiltinRunner
 from .plugins import PluginInvoker, PluginManager
 from .speech_to_text import SpeechToText
 from .text_to_speech import TextToSpeech
-from .input import Input
 from .config import ConfigLoader
 from .server import DaemonServer
 from .no_vocal_test import NoVocalTest

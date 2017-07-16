@@ -60,6 +60,8 @@ class DaemonServer():
         """
         Logout
         """
+        if not DaemonServer._is_log:
+            return DaemonServer._not_login()
         auth = (DaemonServer._user['_email'], DaemonServer._user['_token'])
         res = requests.get(DaemonServer._base_url + '/user/logout.json', auth=auth)
         if res.ok:
@@ -73,6 +75,8 @@ class DaemonServer():
         """
         Informations about the user
         """
+        if not DaemonServer._is_log:
+            return DaemonServer._not_login()
         auth = (DaemonServer._user['_email'], DaemonServer._user['_token'])
         res = requests.get(DaemonServer._base_url + '/user/me.json', auth=auth)
         return res
@@ -114,6 +118,8 @@ class DaemonServer():
             author -> the plugin's author
             plugin_name -> the plugin's name
         """
+        if not DaemonServer._is_log:
+            return DaemonServer._not_login()
         auth = (DaemonServer._user['_email'], DaemonServer._user['_token'])
         res = requests.get(DaemonServer._base_url + '/plugins/' + request.url_vars['author'] + '/' + request.url_vars['plugin_name'] + '/download', auth=auth)
         if res.ok:
@@ -202,6 +208,13 @@ class DaemonServer():
             for chunk in res.iter_content(chunk_size=1024):
                 if chunk:
                     dfile.write(chunk)
+
+    @staticmethod
+    def _not_login():
+        res = requests.Response()
+        res.status_code = 401
+        res._content = 'You are not login'.encode('utf-8')
+        return res
 
     def run(self, adress='127.0.0.1', port=8001):
         """
