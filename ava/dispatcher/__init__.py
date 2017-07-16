@@ -13,7 +13,7 @@ class Dispatcher(_BaseComponent):
         self.queue_builtin = QueueBuiltin()
         self.queue_plugin_manage = QueuePluginManage()
         self.queue_plugin_command = QueuePluginCommand()
-        self.builtin = ['help', 'open', 'run', 'start', 'launch']
+        self.builtin = ['exit', 'open', 'run', 'start', 'launch']
 
     def _execute_command(self, command):
         """
