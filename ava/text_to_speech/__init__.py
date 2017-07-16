@@ -21,7 +21,7 @@ class TextToSpeech(_BaseComponent):
         sentence = self.queue_tts.get()
         print('To say out loud : {}'.format(sentence))
         tts = gTTS(text=sentence, lang='en')
-        if _platform == "linux" or _platform == "linux2" or _platform == "darwin":
+        if _platform == "darwin":
             with NamedTemporaryFile() as audio_file:
                 tts.write_to_fp(audio_file)
                 audio_file.seek(0)
@@ -29,6 +29,9 @@ class TextToSpeech(_BaseComponent):
         else:
             filename = str(time.time()).split('.')[0] + ".mp3"
             tts.save(filename)
-            playsound(filename)
+            if _platform == "linux" or _platform == "linux2":
+                pass
+            else:
+                playsound(filename)
             os.remove(filename)
         self.queue_tts.task_done()
