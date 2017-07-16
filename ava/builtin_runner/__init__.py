@@ -5,6 +5,7 @@ from .FileCrawler import FileCrawler
 import os
 import sys
 import multiprocessing
+import subprocess
 
 class BuiltinRunner(_BaseComponent):
 
@@ -22,9 +23,12 @@ class BuiltinRunner(_BaseComponent):
             print('No file or application corresponding found : {}'.format(command))
         else :
             print('Builtin runner execute : {}'.format(command))
-            p = multiprocessing.Process(target=os.startfile, args=(target,))
-            p.daemon = True
-            p.start()
+            if (os.name == 'nt') :
+                p = multiprocessing.Process(target=os.startfile, args=(target,))
+                p.daemon = True
+                p.start()
+            else:
+                p = subprocess.Popen(target, shell=False)
         self.queue_tts.put('task completed')
         self.queue_builtin.task_done()
 
