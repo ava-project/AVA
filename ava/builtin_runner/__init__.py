@@ -23,8 +23,8 @@ class BuiltinRunner(_BaseComponent):
         else :
             print('Builtin runner execute : {}'.format(command))
             p = multiprocessing.Process(target=os.startfile, args=(target,))
+            p.daemon = True
             p.start()
-            p.join()
         self.queue_tts.put('task completed')
         self.queue_builtin.task_done()
 
