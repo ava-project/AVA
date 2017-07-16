@@ -28,7 +28,7 @@ class BuiltinRunner(_BaseComponent):
         self.queue_tts.put('task completed')
         self.queue_builtin.task_done()
 
-    def execute order(self, command):
+    def execute_order(self, command):
         command_list = command.rsplit(' ')
         order = command_list[0]
         if order == 'exit':
