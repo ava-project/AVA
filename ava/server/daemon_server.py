@@ -1,4 +1,5 @@
 import json
+from os import path, makedirs
 from http.server import HTTPServer
 import requests
 from .httprequest_handler import HTTPRequestHandler
@@ -124,9 +125,13 @@ class DaemonServer():
         res = requests.get(DaemonServer._base_url + '/plugins/' + request.url_vars['author'] + '/' + request.url_vars['plugin_name'] + '/download', auth=auth)
         if res.ok:
             download_url = res.json()['url']
-            download_path = DaemonServer._config.get('plugin_folder_download')
-            download_path = DaemonServer._config.resolve_path_from_root(download_path, request.url_vars['plugin_name'])
+            download_folder = path.join(DaemonServer._plugin_store.path, 'download')
+            if not path.exists(download_folder):
+                makedirs(download_folder)
+            download_path = DaemonServer._config.resolve_path_from_root(download_folder, request.url_vars['plugin_name'])
             DaemonServer.__download_file(download_path, download_url, extension='.zip')
+            plugin_path = DaemonServer._config.resolve_path_from_root(download_folder, request.url_vars['plugin_name'] + '.zip')
+            DaemonServer._queue_plugin_manage.put('install ' + plugin_path)
         return res
 
     @staticmethod
