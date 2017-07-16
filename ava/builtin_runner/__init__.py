@@ -3,6 +3,7 @@ from ..components import _BaseComponent
 from .FileCrawler import FileCrawler
 
 import os
+import sys
 import multiprocessing
 
 class BuiltinRunner(_BaseComponent):
@@ -16,7 +17,7 @@ class BuiltinRunner(_BaseComponent):
     def run(self):
         command = self.queue_builtin.get()
         command_list = command.rsplit()
-        target = self.execute_file(command);
+        target = self.execute_order(command);
         if target is None :
             print('No file or application corresponding found : {}'.format(command))
         else :
@@ -27,12 +28,12 @@ class BuiltinRunner(_BaseComponent):
         self.queue_tts.put('task completed')
         self.queue_builtin.task_done()
 
-    def execute_file(self, command) :
+    def execute_order(self, command):
         command_list = command.rsplit(' ')
         order = command_list[0]
-        if order == 'help':
-            return 'help'
-        elif (len(command_list) > 1) :
+        if order == 'exit':
+            os._exit(0)
+        elif (len(command_list) > 1):
             if order == 'open' :
                 return self.file_crawler.find(command_list[1], False)
             else :
