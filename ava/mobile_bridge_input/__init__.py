@@ -36,9 +36,12 @@ class MobileBridgeInput(RunOneTime, _BaseComponent):
         self.input_queue.put(audio_file)
 
     async def listener(self, websocket, path):
-        audio = await websocket.recv()
-        print('Audio from mobile deviced received')
-        self.write_to_file(audio)
+        try:
+            audio = await websocket.recv()
+            print('Audio from mobile deviced received')
+            self.write_to_file(audio)
+        except:
+            pass
 
     def run(self):
         start_server = websockets.serve(self.listener, '0.0.0.0', 8765)
