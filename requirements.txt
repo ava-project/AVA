@@ -1,0 +1,9 @@
+flask==0.12
+requests
+gtts
+pynput
+watson-developer-cloud
+avasdk
+playsound
+websockets
+cx_Freeze

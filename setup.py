@@ -2,8 +2,23 @@
 
 from setuptools import find_packages
 from cx_Freeze import setup, Executable
+from sys import platform
 
 import ava
+
+
+# additionnal packages for cx_Freeze
+build_exe_packages = ['idna', 'gtts', 'asyncio']
+if platform == "darwin":
+    build_exe_packages.append('appdirs')
+    build_exe_packages.append('packaging')
+    build_exe_packages.append('_sysconfigdata_m_darwin_darwin')
+
+
+# project requirements from pip
+with open('requirements.txt') as requirement_file:
+    requirements = requirement_file.read().splitlines()
+
 
 setup(
     name='ava',
@@ -11,23 +26,14 @@ setup(
     packages=find_packages(),
     options={
         'build_exe': {
-            'packages': ['idna', 'gtts', 'asyncio', 'appdirs', 'packaging', '_sysconfigdata_m_darwin_darwin']
+            'packages': build_exe_packages,
         }
     },
     author='AVA Project',
     author_email='ava_2018@labeip.epitech.eu',
     description='The daemon of the AVA Project',
     long_description=open('README.md').read(),
-    install_requires=[
-        'flask==0.12',
-        'requests',
-        'gtts',
-        'pynput',
-        'watson-developer-cloud',
-        'avasdk',
-        'playsound',
-        'websockets',
-    ],
+    install_requires=requirements,
     include_package_data=True,
     url='https://github.com/ava-project/ava-core',
     classifiers=[
