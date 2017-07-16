@@ -28,7 +28,7 @@ class BuiltinRunner(_BaseComponent):
                 p.daemon = True
                 p.start()
             else:
-                p = subprocess.Popen(target, shell=False)
+                p = subprocess.Popen(target, shell=True)
         self.queue_tts.put('task completed')
         self.queue_builtin.task_done()
 
