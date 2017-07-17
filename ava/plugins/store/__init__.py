@@ -35,7 +35,11 @@ class PluginStore(metaclass=Singleton):
         """
         plugin_list = []
         for field, plugin in self.plugins.items():
-            plugin_list.append(plugin.get_name())
+            dictionary = {}
+            dictionary['name'] = plugin.get_name()
+            dictionary['version'] = plugin.get_specs()['version']
+            dictionary['description'] = plugin.get_specs()['description']
+            plugin_list.append(dictionary)
         return plugin_list
 
     def remove_plugin(self, plugin):
