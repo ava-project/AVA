@@ -30,7 +30,7 @@ class Input(_BaseComponent):
 
     def on_press(self, key):
         try:
-            if key == key.cmd:
+            if key == key.shift and not self.activated:
                 self.activated = True
                 print ("Voice recognition activated ! Release when you are done...")
                 self.input_listener.reading_thread = threading.Thread(target=self.input_listener.read)
