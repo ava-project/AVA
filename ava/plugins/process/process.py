@@ -1,4 +1,5 @@
 import os
+import sys
 import datetime
 from subprocess import Popen, PIPE, STDOUT
 
@@ -35,12 +36,15 @@ def spawn_process(plugin):
     lang = plugin.get_specs()['lang']
     path = os.path.join('ava', 'plugins', 'process')
     handler = {
-        'cpp': 'cpp_plugin_process.py',
-        'go': 'golang_plugin_process.py',
-        'py': 'python_plugin_process.py',
+        'cpp': 'cpp_main',
+        'py': 'python_main.py',
     }.get(lang, None)
     if not handler:
-        raise NotSupportedLanguage('Error: Plugin language not supported.')
-    # TODO fix binary name depending on the os
-    process = Popen(['python3', os.path.join(path, handler), name], stdin=PIPE, stdout=PIPE, stderr=None, universal_newlines=True)
+        raise NotSupportedLanguage('Plugin language not supported.')
+    process = {
+        # 'cpp': Popen([os.path.join(path, handler)], stdin=PIPE, stdout=PIPE, stderr=None),
+        'py': Popen([sys.executable, os.path.join(path, handler), name], stdin=PIPE, stdout=PIPE, stderr=None, universal_newlines=True),
+    }.get(lang, None)
+    if not process:
+        raise RuntimeError('Spawning a dedicated process for ' + name + ' failed.')
     return process

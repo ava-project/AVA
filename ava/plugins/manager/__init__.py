@@ -29,7 +29,11 @@ class PluginManager(_BaseComponent):
         for name in os.listdir(self.store.path):
             if name in ['__MACOSX', '.DS_Store']:
                 continue
-            self.store.add_plugin(name, Plugin(name, self.store.path))
+            try:
+                self.store.add_plugin(name, Plugin(name, self.store.path))
+            except Exception as err:
+                print(str(err))
+                continue
 
     def _check_plugin_process(self):
         """
@@ -50,6 +54,7 @@ class PluginManager(_BaseComponent):
                 result = getattr(PluginBuiltins, builtin)(plugin)
                 self.queue_tts.put(result)
             except Exception as err:
+                print(str(err))
                 self.queue_tts.put('An error occurred with the builtin: ' + builtin + ' for ' + plugin + '.')
         else:
             self.queue_tts.put('Plugin builtin [' + builtin + '] missing 1 argument. Please specify a plugin to ' + builtin + '.')
