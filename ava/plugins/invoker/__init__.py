@@ -54,42 +54,32 @@ class PluginInvoker(_BaseComponent):
         process.stdin.flush()
         self._process_result_of_plugin_execution(event['action'], command, process)
 
-    def _invoke_plugin(self, event):
-        """
-        """
-        try:
-            waiting, plugin_name = self.state.is_plugin_waiting_for_user_interaction()
-            if waiting:
-                self._handle_expected_event(plugin_name, event)
-            else:
-                self._handle_common_event(event)
-        except Exception as err:
-            self.queue_tts.put(plugin_name + ' crashed. Restarting ...')
-
     def _process_event(self, event):
         """
         """
         if not event['target']:
             self.queue_tts.put('In order to use a plugin, you must specify one command.')
-            self.queue_plugin_command.task_done()
             return
         if self.store.is_plugin_disabled(event['action']):
             self.queue_tts.put('The plugin ' + event['action'] + ' is currently disabled.')
-            self.queue_plugin_command.task_done()
             return
         if not self.store.get_plugin(event['action']):
             self.queue_tts.put('No plugin named ' + event['action'] + ' found.')
         else:
-            self._invoke_plugin(event)
-        self.queue_plugin_command.task_done()
+            try:
+                self._handle_common_event(event)
+            except Exception as err:
+                self.queue_tts.put(event['action'] + ' crashed. Restarting ...')
 
     def _waiting_for_a_specific_event(self, event):
         """
         """
-        waiting, _ = self.state.is_plugin_waiting_for_user_interaction()
+        waiting, plugin_name = self.state.is_plugin_waiting_for_user_interaction()
         if waiting:
-            self._invoke_plugin(event)
-            self.queue_plugin_command.task_done()
+            try:
+                self._handle_expected_event(plugin_name, event)
+            except Exception as err:
+                self.queue_tts.put(plugin_name + ' crashed. Restarting ...')
             return True
         return False
 
@@ -100,6 +90,7 @@ class PluginInvoker(_BaseComponent):
         print('PluginInvoker current event: ', event)
         if not self._waiting_for_a_specific_event(event):
             self._process_event(event)
+        self.queue_plugin_command.task_done()
 
     def shutdown(self):
         """
