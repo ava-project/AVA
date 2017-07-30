@@ -22,8 +22,7 @@ class Plugin(object):
         """
         self.specs = load_plugin(self.path, self.name)[self.name]
         self.process = spawn_process(self)
-        if self.specs['lang'] == 'py':
-            flush_process_output(self.process, 'END_OF_IMPORT')
+        flush_process_output(self.process, 'END_OF_IMPORT')
 
     def get_name(self):
         """

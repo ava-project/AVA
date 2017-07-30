@@ -17,68 +17,63 @@ class PluginStore(metaclass=Singleton):
     def add_plugin(self, name, plugin):
         """
         """
-        PluginStore.mutex.acquire()
-        if self.plugins.get(name) is None:
-            self.plugins[name] = plugin
-        PluginStore.mutex.release()
+        with PluginStore.mutex:
+            if self.plugins.get(name) is None:
+                self.plugins[name] = plugin
 
     def get_plugin(self, plugin):
         """
         """
-        PluginStore.mutex.acquire()
-        result = self.plugins.get(plugin)
-        PluginStore.mutex.release()
+        result = None
+        with PluginStore.mutex:
+            result = self.plugins.get(plugin)
         return result
 
     def get_plugin_list(self):
         """
         """
         plugin_list = []
-        for field, plugin in self.plugins.items():
-            dictionary = {}
-            dictionary['name'] = plugin.get_name()
-            dictionary['version'] = plugin.get_specs()['version']
-            dictionary['description'] = plugin.get_specs()['description']
-            plugin_list.append(dictionary)
+        with PluginStore.mutex:
+            for field, plugin in self.plugins.items():
+                dictionary = {}
+                dictionary['name'] = plugin.get_name()
+                dictionary['version'] = plugin.get_specs()['version']
+                dictionary['description'] = plugin.get_specs()['description']
+                plugin_list.append(dictionary)
         return plugin_list
 
     def remove_plugin(self, plugin):
         """
         """
-        PluginStore.mutex.acquire()
-        if self.plugins.get(plugin) is not None:
-            self.plugins.pop(plugin, None).shutdown()
-        PluginStore.mutex.release()
+        with PluginStore.mutex:
+            if self.plugins.get(plugin) is not None:
+                self.plugins.pop(plugin, None).shutdown()
 
     def is_plugin_disabled(self, plugin):
         """
         """
         result = False
-        PluginStore.mutex.acquire()
-        if plugin in self.disabled:
-            result = True
-        PluginStore.mutex.release()
+        with PluginStore.mutex:
+            if plugin in self.disabled:
+                result = True
         return result
 
     def enable_plugin(self, plugin):
         """
         """
-        PluginStore.mutex.acquire()
-        self.disabled.remove(plugin)
-        PluginStore.mutex.release()
+        with PluginStore.mutex:
+            self.disabled.remove(plugin)
 
     def disable_plugin(self, plugin):
         """
         """
-        PluginStore.mutex.acquire()
-        self.disabled.append(plugin)
-        PluginStore.mutex.release()
+        with PluginStore.mutex:
+            self.disabled.append(plugin)
 
     def clear(self):
         """
         """
-        PluginStore.mutex.acquire()
-        for _, plugin in self.plugins:
-            plugin.shutdown()
-        self.plugins.clear()
-        PluginStore.mutex.release()
+        with PluginStore.mutex:
+            for _, plugin in self.plugins:
+                plugin.shutdown()
+            self.plugins.clear()

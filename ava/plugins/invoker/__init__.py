@@ -1,6 +1,7 @@
 import os
 from ..store import PluginStore
 from ..process import flush_process_output
+from ...state import State
 from ...components import _BaseComponent
 from ...queues import QueuePluginCommand, QueueTtS
 from avasdk.plugins.ioutils.utils import split_string
@@ -11,6 +12,7 @@ class PluginInvoker(_BaseComponent):
         """
         """
         super().__init__()
+        self.state = State()
         self.store = PluginStore()
         self.queue_plugin_command = QueuePluginCommand()
         self.queue_tts = QueueTtS()
@@ -19,6 +21,10 @@ class PluginInvoker(_BaseComponent):
         """
         """
         try:
+            plugin, state = self.state.get_plugin_state()
+            if state:
+                print('Command: {} for plugin: {}'.format(command, plugin))
+                self.state.set_plugin_state()
             process = self.store.get_plugin(plugin_name).get_process()
             process.stdin.write(command + '\n')
             process.stdin.flush()
@@ -40,7 +46,13 @@ class PluginInvoker(_BaseComponent):
     def run(self):
         """
         """
-        plugin_name, command = split_string(self.queue_plugin_command.get(), ' ')
+        event = self.queue_plugin_command.get()
+        plugin, state = self.state.get_plugin_state()
+        if state:
+            self._handle_plugin_execution(plugin, event)
+            self.queue_plugin_command.task_done()
+            return
+        plugin_name, command = split_string(event, ' ')
         print('PluginInvoker searching for: {} ... trying to execute: {}'.format(plugin_name, command))
         if not command:
             self.queue_tts.put('In order to use a plugin, you must specify one command.')

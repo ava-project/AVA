@@ -27,7 +27,7 @@ class PluginManager(_BaseComponent):
             os.makedirs(self.store.path)
             return
         for name in os.listdir(self.store.path):
-            if name in ['__MACOSX', '.DS_Store']:
+            if name in ['__pycache__', '__MACOSX', '.DS_Store']:
                 continue
             try:
                 self.store.add_plugin(name, Plugin(name, self.store.path))

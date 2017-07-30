@@ -1,4 +1,5 @@
 from ..components import _BaseComponent
+from ..state import State
 from ..plugins import PluginBuiltins
 from ..queues import QueueCommand, QueuePluginCommand, QueuePluginManage, QueueBuiltin
 
@@ -9,6 +10,7 @@ class Dispatcher(_BaseComponent):
         """
         """
         super().__init__()
+        self.state = State()
         self.queue_command = QueueCommand()
         self.queue_builtin = QueueBuiltin()
         self.queue_plugin_manage = QueuePluginManage()
@@ -18,6 +20,10 @@ class Dispatcher(_BaseComponent):
     def _execute_command(self, command):
         """
         """
+        _, state = self.state.get_plugin_state()
+        if state:
+            self.queue_plugin_command.put(command)
+            return
         cmd = command.split(' ')
         # TODO improve the following statements
         if any(x in cmd[0] for x in self.builtin):
