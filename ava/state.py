@@ -11,18 +11,25 @@ class State(metaclass=Singleton):
         """
         self.plugin = {}
         self.plugin['name'] = None
-        self.plugin['state'] = False
+        self.plugin['interaction_required'] = False
 
-
-    def get_plugin_state(self):
+    def plugin_requires_user_interaction(self, name):
         """
         """
-        with State.plugin_state_mutex:
-            return self.plugin['name'], self.plugin['state']
-
-    def set_plugin_state(self, name=None):
-        """
-        """
+        assert name is not None
         with State.plugin_state_mutex:
             self.plugin['name'] = name
-            self.plugin['state'] = True if name else False
+            self.plugin['interaction_required'] = True
+
+    def plugin_stops_waiting_for_user_interaction(self):
+        """
+        """
+        with State.plugin_state_mutex:
+            self.plugin['name'] = None
+            self.plugin['interaction_required'] = False
+
+    def is_plugin_waiting_for_user_interaction(self):
+        """
+        """
+        with State.plugin_state_mutex:
+            return self.plugin['interaction_required'], self.plugin['name']
