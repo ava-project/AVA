@@ -19,7 +19,7 @@ def import_module(plugin_name):
             install_from_requirements(path)
         mod = SourceFileLoader(plugin_name, os.path.join(path, manifest['source'])).load_module()
         PLUGIN[plugin_name] = getattr(sys.modules[mod.__name__], plugin_name)
-    print('END_OF_IMPORT')
+    print('__END_OF_IMPORT__')
 
 def install_from_requirements(path):
     """
@@ -36,7 +36,7 @@ def wait_for_command(plugin_name):
             print('pong')
             continue
         execute(plugin_name, command)
-        print('END_OF_COMMAND')
+        print('__END_OF_RESPONSE__')
 
 def execute(plugin_name, command):
     """
@@ -58,4 +58,4 @@ if __name__ == "__main__":
     except Exception as err:
         print(err, file=sys.stderr)
         print(plugin_name + ' crashed. Restarting ...')
-        print('END_OF_COMMAND')
+        print('__END_OF_RESPONSE__')

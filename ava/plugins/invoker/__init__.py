@@ -1,7 +1,9 @@
 import os
+from ...state import State
 from ..store import PluginStore
 from ..process import flush_process_output
-from ...state import State
+from ..process import clean_outpout_after_runtime_import
+from ..process import multi_lines_output_handler
 from ...components import _BaseComponent
 from ...queues import QueuePluginCommand, QueueTtS
 from avasdk.plugins.ioutils.utils import split_string
@@ -20,20 +22,15 @@ class PluginInvoker(_BaseComponent):
     def _process_result_of_plugin_execution(self, plugin_name, command, process):
         """
         """
-        # TODO Implement request interaction from plugin
-        # Improve this block
-        ret = flush_process_output(process, 'END_OF_COMMAND')
-        if 'END_OF_IMPORT' in ret:
-            index = 0
-            target = ret.index('END_OF_IMPORT')
-            while index <= target:
-                ret.remove(index)
-                index += 1
-        if len(ret) > 1:
-            print('\n'.join(ret))
+        ret = flush_process_output(process, ['__END_OF__REQUEST__', '__END_OF_RESPONSE__'])
+        output = clean_outpout_after_runtime_import(ret)
+        # TODO implement request handling here
+        result, multi_lines = multi_lines_output_handler(output)
+        if multi_lines:
+            print(result)
             self.queue_tts.put('Result of [' + plugin_name + ' ' + command + '] has been print.')
-            return
-        self.queue_tts.put(''.join(ret))
+        else:
+            self.queue_tts.put(result)
 
     def _handle_expected_event(self, plugin_name, event):
         """

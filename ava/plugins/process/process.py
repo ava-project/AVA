@@ -6,6 +6,32 @@ from subprocess import Popen, PIPE, STDOUT
 class NotSupportedLanguage(Exception):
     pass
 
+def multi_lines_output_handler(output):
+    """
+    """
+    return '\n'.join(output) if len(output) > 1 else ''.join(output), True if len(output) > 1 else False
+
+def clean_outpout_after_runtime_import(output):
+    """
+    """
+    if '__END_OF_IMPORT__' in output:
+        index = 0
+        target = output.index('__END_OF_IMPORT__')
+        while index <= target:
+            output.remove(index)
+            index += 1
+    return output
+
+def flush_process_output(process, tokens):
+    """
+    """
+    output = []
+    while True:
+        line = process.stdout.readline().rstrip()
+        if any(x in line for x in tokens):
+            break
+        output.append(line)
+    return output
 
 def ping_process(process):
     """
@@ -17,17 +43,6 @@ def ping_process(process):
         return True if ret == 'pong' else False
     except Exception:
         return False
-
-def flush_process_output(process, token):
-    """
-    """
-    output = []
-    while True:
-        line = process.stdout.readline().rstrip()
-        if line == token:
-            break
-        output.append(line)
-    return output
 
 def spawn_process(plugin):
     """

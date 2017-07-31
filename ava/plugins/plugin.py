@@ -22,7 +22,7 @@ class Plugin(object):
         """
         self.specs = load_plugin(self.path, self.name)[self.name]
         self.process = spawn_process(self)
-        flush_process_output(self.process, 'END_OF_IMPORT')
+        _  = flush_process_output(self.process, ['__END_OF_IMPORT__'])
 
     def get_name(self):
         """
