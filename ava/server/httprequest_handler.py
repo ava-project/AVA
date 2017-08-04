@@ -62,6 +62,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
         if func is not None:
             response = func(self)
             self.send_response(response.status_code)
+            self.send_header('Access-Control-Allow-Origin', 'http://localhost:9080')
             self.send_header('Content-type', 'application/json')
             self.end_headers()
             self.wfile.write(response.text.encode())
@@ -83,6 +84,15 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
                 self.url_vars = route.get_url_var(path)
                 return routes_method[route]
         return None
+
+    def do_OPTIONS(self):
+        self.send_response(200, 'ok')
+        self.send_header('Access-Control-Allow-Credentials', 'true')
+        self.send_header('Access-Control-Allow-Origin', 'http://localhost:9080')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', 'X-Requested-With')
+        self.send_header('Access-Control-Allow-Headers', 'Content-type')
+        self.send_header('Access-Control-Allow-Headers', 'access-control-allow-origin')
 
     def do_GET(self):
         """
