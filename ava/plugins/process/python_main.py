@@ -15,6 +15,7 @@ def import_module(plugin_name):
     path = os.path.join(os.path.expanduser("~"), ".ava", "plugins", plugin_name)
     with open(os.path.join(path, "manifest.json")) as json_file:
         manifest = json.load(json_file)
+    assert manifest is not None and 'source' in manifest
     if not PLUGIN.get(plugin_name):
         if 'build' in manifest and manifest['build'] == True:
             install_from_requirements(path)
@@ -32,11 +33,7 @@ def wait_for_command(plugin_name):
     """
     """
     while True:
-        command = input('')
-        if command == 'ping':
-            print('pong')
-            continue
-        execute(plugin_name, command)
+        execute(plugin_name, input())
         log(response=True)
 
 def execute(plugin_name, command):
@@ -48,7 +45,9 @@ def execute(plugin_name, command):
         if command_name in plugin.__dict__:
             plugin.__dict__[command_name](plugin, args if args else None)
             return
-        print('The plugin ' +  plugin_name + ' cannot handle the following command: ' + command_name, flush=False)
+        print('The plugin {} cannot handle the following command: {}'.format(plugin_name, command_name), flush=False)
+    else:
+        raise RuntimeError('Unexpected error occured.')
 
 
 if __name__ == "__main__":

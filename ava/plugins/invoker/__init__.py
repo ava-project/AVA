@@ -4,7 +4,7 @@ import select
 import threading
 from ...state import State
 from ..store import PluginStore
-from ..process import flush_process_output
+from ..process import flush_stdout
 from ..process import multi_lines_output_handler
 from ...components import _BaseComponent
 from ...queues import QueuePluginCommand, QueueTtS
@@ -35,9 +35,11 @@ class PluginInvoker(_BaseComponent):
     def _process_result(self, plugin_name, process):
         """
         """
-        output, import_flushed = flush_process_output(process)
+        output, import_flushed = flush_stdout(process)
         if ERROR in output:
-            self.queue_tts.put('Plugin ' + plugin_name + 'j ust crashed... Restarting')
+            self.queue_tts.put('Plugin {} just crashed... Restarting'.format(plugin_name))
+            self.store.get_plugin(plugin_name).kill()
+            self.store.get_plugin(plugin_name).restart()
             return
         if IMPORT in output:
             return
@@ -51,7 +53,7 @@ class PluginInvoker(_BaseComponent):
         result, multi_lines = multi_lines_output_handler(output)
         if multi_lines:
             print(result)
-            self.queue_tts.put('Result of [' + plugin_name + '] has been print.')
+            self.queue_tts.put('Result of [{}] has been print.'.format(plugin_name))
         else:
             self.queue_tts.put(result)
 
@@ -88,6 +90,7 @@ class PluginInvoker(_BaseComponent):
             command = ' '.join('{}'.format(value) for key, value in event.items() if key != 'action' and value)
         assert plugin_name is not None
         process = self.store.get_plugin(plugin_name).get_process()
+        assert process is not None
         process.stdin.write(command + '\n')
         process.stdin.flush()
 
@@ -102,10 +105,10 @@ class PluginInvoker(_BaseComponent):
             self.queue_tts.put('In order to use a plugin, you must specify one command.')
             return
         if self.store.is_plugin_disabled(event['action']):
-            self.queue_tts.put('The plugin ' + event['action'] + ' is currently disabled.')
+            self.queue_tts.put('The plugin {} is currently disabled.'.format(event['action']))
             return
         if not self.store.get_plugin(event['action']):
-            self.queue_tts.put('No plugin named ' + event['action'] + ' found.')
+            self.queue_tts.put('No plugin named {} found.'.format(event['action']))
             return
         self._exec_event(event)
 
@@ -130,5 +133,6 @@ class PluginInvoker(_BaseComponent):
         """
         """
         print('Shutting down the PluginInvoker ...')
-        assert self.observer is not None
+        assert self.observer is not None and not self.stop_observing.is_set()
         self.stop_observing.set()
+        self.observer.join()

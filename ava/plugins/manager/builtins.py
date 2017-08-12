@@ -15,7 +15,7 @@ class PluginBuiltins(object):
         name = name[:name.rfind('.zip')]
         name = name[1 + name.rfind(os.sep):]
         if PluginBuiltins.store.get_plugin(name):
-            return 'The plugin ' + name + ' is already installed.'
+            return 'The plugin {} is already installed.'.format(name)
         unzip(path_to_the_plugin_to_install, PluginBuiltins.store.path)
         PluginBuiltins.store.add_plugin(name, Plugin(name, PluginBuiltins.store.path))
         return 'Installation succeeded.'
@@ -26,28 +26,28 @@ class PluginBuiltins(object):
         """
         PluginBuiltins.store.remove_plugin(plugin_to_uninstall)
         remove_directory(os.path.join(PluginBuiltins.store.path, plugin_to_uninstall))
-        return 'Uninstalling the ' + plugin_to_uninstall + ' plugin succeeded.'
+        return 'Uninstalling the {} plugin succeeded.'.format(plugin_to_uninstall)
 
     @staticmethod
     def enable(plugin_to_enable):
         """
         """
         if not PluginBuiltins.store.get_plugin(plugin_to_enable):
-            return 'No plugin named ' + plugin_to_enable + ' found.'
+            return 'No plugin named {} found.'.format(plugin_to_enable)
         if PluginBuiltins.store.is_plugin_disabled(plugin_to_enable):
             PluginBuiltins.store.enable_plugin(plugin_to_enable)
-            return 'Plugin ' + plugin_to_enable + ' enabled.'
+            return 'Plugin {} enabled.'.format(plugin_to_enable)
         else:
-            return 'Plugin ' + plugin_to_enable + ' is already enabled.'
+            return 'Plugin {} is already enabled.'.format(plugin_to_enable)
 
     @staticmethod
     def disable(plugin_to_disable):
         """
         """
         if not PluginBuiltins.store.get_plugin(plugin_to_disable):
-            return 'No plugin named ' + plugin_to_disable + ' found.'
+            return 'No plugin named {} found.'.format(plugin_to_disable)
         if not PluginBuiltins.store.is_plugin_disabled(plugin_to_disable):
             PluginBuiltins.store.disable_plugin(plugin_to_disable)
-            return 'Plugin ' + plugin_to_disable + ' disabled.'
+            return 'Plugin {} disabled.'.format(plugin_to_disable)
         else:
-            return 'Plugin ' + plugin_to_disable + ' is already disabled.'
+            return 'Plugin {} is already disabled.'.format(plugin_to_disable)

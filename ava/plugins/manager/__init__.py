@@ -17,7 +17,7 @@ class PluginManager(_BaseComponent):
         self.queue_plugin_manage = QueuePluginManage()
         self.queue_tts = QueueTtS()
         self._init()
-        # self._check_plugin_process()
+        self._observe()
 
     def _init(self):
         """
@@ -34,29 +34,30 @@ class PluginManager(_BaseComponent):
                 print(str(err))
                 continue
 
-    def _check_plugin_process(self):
+    def _observe(self):
         """
         """
         for _, plugin in self.store.plugins.items():
-            if not plugin.is_process_alive():
+            if plugin.get_process() is None:
                 plugin.restart()
-        self.timer = Timer(10, self._check_plugin_process)
+        self.timer = Timer(60, self._observe)
         self.timer.start()
 
     def run(self):
         """
         """
         event = self.queue_plugin_manage.get()
-        print('PluginManager:  builtin [{}] plugin [{}]'.format(event['action'], event['target']))
-        if event['target']:
+        plugin = event['target']
+        builtin = event['action']
+        print('PluginManager: {} {}'.format(builtin, plugin))
+        if plugin:
             try:
-                result = getattr(PluginBuiltins, event['action'])(event['target'])
-                self.queue_tts.put(result)
+                self.queue_tts.put(getattr(PluginBuiltins, builtin)(plugin))
             except Exception as err:
                 print(str(err))
-                self.queue_tts.put('An error occurred with the builtin: ' + event['action'] + ' for ' + event['target'] + '.')
+                self.queue_tts.put('An error occurred with the builtin: {} for {}.'.format(builtin, plugin))
         else:
-            self.queue_tts.put('Plugin builtin [' + event['action'] + '] missing 1 argument. Please specify a plugin to ' + event['action'] + '.')
+            self.queue_tts.put('Plugin builtin [{}] missing 1 argument. Please specify a plugin to {}.'.format(builtin, builtin))
         self.queue_plugin_manage.task_done()
 
     def shutdown(self):

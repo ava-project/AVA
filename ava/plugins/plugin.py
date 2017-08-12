@@ -1,6 +1,6 @@
 from os import path
+from .process import spawn
 from avasdk.plugins.ioutils.utils import load_plugin
-from .process import spawn, flush_process_output, ping_process
 
 class Plugin(object):
     """ Object representation of a plugin. """
@@ -43,18 +43,20 @@ class Plugin(object):
         """
         return self.specs
 
-    def is_process_alive(self):
+    def kill(self):
         """
         """
-        return ping_process(self.process)
+        self.process.kill()
+        self.process = None
 
     def restart(self):
         """
         """
-        self.process = spawn_process(self)
+        assert self.process is None
+        self.process = spawn(self)
 
     def shutdown(self):
         """
         """
-        self.process.kill()
+        self.process.terminate()
         self.process = None
