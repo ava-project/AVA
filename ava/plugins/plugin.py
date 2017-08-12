@@ -1,6 +1,6 @@
 from os import path
 from avasdk.plugins.ioutils.utils import load_plugin
-from .process import spawn_process, flush_process_output, ping_process
+from .process import spawn, flush_process_output, ping_process
 
 class Plugin(object):
     """ Object representation of a plugin. """
@@ -21,8 +21,7 @@ class Plugin(object):
         """
         """
         self.specs = load_plugin(self.path, self.name)[self.name]
-        self.process = spawn_process(self)
-        _  = flush_process_output(self.process, ['__END_OF_IMPORT__'])
+        self.process = spawn(self)
 
     def get_name(self):
         """

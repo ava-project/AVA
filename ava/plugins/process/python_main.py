@@ -5,6 +5,7 @@ import json
 import types
 from importlib.machinery import SourceFileLoader
 from avasdk.plugins.ioutils.utils import split_string
+from avasdk.plugins.log import ERROR, IMPORT, RESPONSE, DELIMITER, log
 
 PLUGIN = {}
 
@@ -19,7 +20,7 @@ def import_module(plugin_name):
             install_from_requirements(path)
         mod = SourceFileLoader(plugin_name, os.path.join(path, manifest['source'])).load_module()
         PLUGIN[plugin_name] = getattr(sys.modules[mod.__name__], plugin_name)
-    print('__END_OF_IMPORT__')
+    log(importing=True)
 
 def install_from_requirements(path):
     """
@@ -36,7 +37,7 @@ def wait_for_command(plugin_name):
             print('pong')
             continue
         execute(plugin_name, command)
-        print('__END_OF_RESPONSE__')
+        log(response=True)
 
 def execute(plugin_name, command):
     """
@@ -55,7 +56,5 @@ if __name__ == "__main__":
         plugin_name = sys.argv[1]
         import_module(plugin_name)
         wait_for_command(plugin_name)
-    except Exception as err:
-        print(err, file=sys.stderr)
-        print(plugin_name + ' crashed. Restarting ...')
-        print('__END_OF_RESPONSE__')
+    except:
+        log(error=True)

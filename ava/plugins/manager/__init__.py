@@ -17,7 +17,7 @@ class PluginManager(_BaseComponent):
         self.queue_plugin_manage = QueuePluginManage()
         self.queue_tts = QueueTtS()
         self._init()
-        self._check_plugin_process()
+        # self._check_plugin_process()
 
     def _init(self):
         """
