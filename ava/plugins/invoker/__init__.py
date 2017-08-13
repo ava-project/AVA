@@ -112,8 +112,8 @@ class PluginInvoker(_BaseComponent):
         assert plugin_name is not None
         process = self.store.get_plugin(plugin_name).get_process()
         assert process is not None
-        process.stdin.write(command + '\n')
-        process.stdin.flush()
+        process.stdin.write(command + '\n');
+        process.stdin.flush();
 
     def _process_event(self, event):
         """Handler to dertimine what kind of event, the invoker is currently dealing with.
