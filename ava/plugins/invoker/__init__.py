@@ -1,6 +1,7 @@
 import os
 import ast
 import select
+import platform
 import threading
 from ...state import State
 from ..store import PluginStore
@@ -73,22 +74,26 @@ class PluginInvoker(_BaseComponent):
             Poll each plugin process stdout to detect when there is data to read.
         """
         while not self.stop_observing.is_set():
-            OBSERVED = {}
-            POLL = select.poll()
-            READ_ONLY = select.POLLIN | select.POLLPRI | select.POLLHUP | select.POLLERR
-            for _, plugin in self.store.plugins.items():
-                fd = int(plugin.get_process().stdout.name)
-                OBSERVED[fd] = plugin.get_process()
-                POLL.register(fd, READ_ONLY)
-            try:
-                result = POLL.poll(0)
-            except:
-                raise
-            for fd, _ in result:
-                if OBSERVED.get(fd) is None:
-                    continue
-                p = OBSERVED.get(fd)
-                self._process_result(''.join('{}'.format(k) for k, v in self.store.plugins.items() if p == v.get_process()), p)
+            if platform.system() == 'Windows':
+                pass
+            else:
+                OBSERVED = {}
+                POLL = select.poll()
+                READ_ONLY = select.POLLIN | select.POLLPRI | select.POLLHUP | select.POLLERR
+                for _, plugin in self.store.plugins.items():
+                    fd = int(plugin.get_process().stdout.name)
+                    OBSERVED[fd] = plugin.get_process()
+                    POLL.register(fd, READ_ONLY)
+                try:
+                    result = POLL.poll(0)
+                except:
+                    raise
+                for fd, _ in result:
+                    if OBSERVED.get(fd) is None:
+                        continue
+                    p = OBSERVED.get(fd)
+                    self._process_result(''.join('{}'.format(k) for k, v in self.store.plugins.items() if p == v.get_process()), p)
+
 
     def _exec_event(self, event, expected=False, plugin_name=None):
         """Execute an event related to a plugin feature.
