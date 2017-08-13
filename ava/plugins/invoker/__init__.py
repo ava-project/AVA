@@ -11,6 +11,8 @@ from ...queues import QueuePluginCommand, QueueTtS
 from avasdk.plugins.log import ERROR, IMPORT, REQUEST, RESPONSE
 
 def daemon(fn):
+    """@decorator
+    """
     def wrapper(*args, **kwargs):
         thread = threading.Thread(target=fn, args=args, kwargs=kwargs)
         thread.daemon = True
@@ -19,9 +21,12 @@ def daemon(fn):
     return wrapper
 
 class PluginInvoker(_BaseComponent):
+    """The entity responsible of executing the according plugin depending on the
+        user's input.
+    """
 
     def __init__(self):
-        """
+        """Initializer.
         """
         super().__init__()
         self.observer = None
@@ -33,7 +38,12 @@ class PluginInvoker(_BaseComponent):
         self.queue_tts = QueueTtS()
 
     def _process_result(self, plugin_name, process):
-        """
+        """This functions flushes the stdout of the given process and process the
+            data read.
+
+            @param:
+                - plugin_name: The name of the plugin (string).
+                - process: The process object (subprocess.Popen)
         """
         output, import_flushed = flush_stdout(process)
         if ERROR in output:
@@ -59,7 +69,8 @@ class PluginInvoker(_BaseComponent):
 
     @daemon
     def _observe(self):
-        """
+        """Thread routine
+            Poll each plugin process stdout to detect when there is data to read.
         """
         while not self.stop_observing.is_set():
             OBSERVED = {}
@@ -80,7 +91,12 @@ class PluginInvoker(_BaseComponent):
                 self._process_result(''.join('{}'.format(k) for k, v in self.store.plugins.items() if p == v.get_process()), p)
 
     def _exec_event(self, event, expected=False, plugin_name=None):
-        """
+        """Execute an event related to a plugin feature.
+
+            @param:
+                - event: A dictionary containing the event to execute (dictionary).
+                optional: - exepected: A boolean to determine if this specific event is expected. (boolean).
+                optional: - plugin_name: The name of the plugin waiting for an user input (string).
         """
         if expected:
             self.state.plugin_stops_waiting_for_user_interaction()
@@ -95,7 +111,10 @@ class PluginInvoker(_BaseComponent):
         process.stdin.flush()
 
     def _process_event(self, event):
-        """
+        """Handler to dertimine what kind of event, the invoker is currently dealing with.
+
+            @param:
+                - event: A dictionary containing the event to proceed (dictionary).
         """
         waiting, plugin = self.state.is_plugin_waiting_for_user_interaction()
         if waiting:
@@ -113,7 +132,9 @@ class PluginInvoker(_BaseComponent):
         self._exec_event(event)
 
     def run(self):
-        """
+        """The main function of the invoker.
+            Waiting on self.queue_plugin_command, when an event is enqueued, this
+            function processes end executes it.
         """
         try:
             if not self.observing:
@@ -130,7 +151,7 @@ class PluginInvoker(_BaseComponent):
             raise
 
     def shutdown(self):
-        """
+        """Shutdown gracefully the invoker.
         """
         print('Shutting down the PluginInvoker ...')
         assert self.observer is not None and not self.stop_observing.is_set()

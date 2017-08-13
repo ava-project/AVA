@@ -61,7 +61,7 @@ class PluginManager(_BaseComponent):
             if plugin:
                 try:
                     self.queue_tts.put(getattr(PluginBuiltins, builtin)(plugin))
-                except Exception as err:
+                except:
                     self.queue_tts.put('An error occurred with the builtin: {} for {}.'.format(builtin, plugin))
                     raise
             else:
