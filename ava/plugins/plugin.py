@@ -17,16 +17,6 @@ class Plugin(object):
         self.path = path
         self.specs = load_plugin(self.path, self.name)[self.name]
         self.process = spawn(self)
-        # self.specs = {}
-        # self.process = None
-        # self._init()
-
-    # def _init(self):
-    #     """
-    #
-    #     """
-    #     self.specs = load_plugin(self.path, self.name)[self.name]
-    #     self.process = spawn(self)
 
     def get_name(self):
         """Returns a string with the name of the plugin.
