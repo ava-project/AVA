@@ -48,3 +48,8 @@ class MobileBridgeInput(RunOneTime, _BaseComponent):
         print("Mobile Bridge listening on {}:8765".format(self.get_ip_address()))
         self.loop.run_until_complete(start_server)
         self.loop.run_forever()
+
+    def shutdown(self):
+        print('Shutting the MobileBridgeInput')
+        self.loop.stop()
+        self.loop.close()

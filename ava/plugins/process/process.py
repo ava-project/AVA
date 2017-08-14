@@ -32,10 +32,10 @@ def flush_stdout(process):
     return:
         - the output flushed (array).
     """
-    assert process is not None
     output = []
     while True:
         try:
+            assert process is not None and not process.stdout.closed
             line = process.stdout.readline().rstrip()
         except:
             raise

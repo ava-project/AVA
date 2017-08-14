@@ -12,7 +12,7 @@ class PluginStore(metaclass=Singleton):
     mutex = Lock()
 
     def __init__(self):
-        """Initializer
+        """Initializer.
 
         info:
             - DO NOT use these attributes directly. In order to ensure the

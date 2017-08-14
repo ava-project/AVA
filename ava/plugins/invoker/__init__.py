@@ -56,51 +56,46 @@ class PluginInvoker(_BaseComponent):
             self.queue_tts.put(ast.literal_eval(''.join(output)).get('tts'))
             return
         output.remove(RESPONSE)
-        # TODO improve this part
         result, multi_lines = multi_lines_output_handler(output)
         if multi_lines:
+            # TODO Spawn a window and print the multi lines output
             print(result)
             self.queue_tts.put('Result of [{}] has been print.'.format(plugin_name))
         else:
             self.queue_tts.put(result)
 
+    def _windows_detect_events(self):
+        """
+        """
+        pass
+
+    def _unix_detect_events(self):
+        """Poll stdout for each plugin's process to detect when there is data to read."""
+        OBSERVED = {}
+        POLL = select.poll()
+        READ_ONLY = select.POLLIN | select.POLLPRI | select.POLLHUP | select.POLLERR
+        for _, plugin in self.store.plugins.items():
+            fd = int(plugin.get_process().stdout.name)
+            OBSERVED[fd] = plugin.get_process()
+            POLL.register(fd, READ_ONLY)
+        try:
+            result = POLL.poll(0)
+        except:
+            raise
+        for fd, _ in result:
+            if OBSERVED.get(fd) is None:
+                continue
+            p = OBSERVED.get(fd)
+            self._process_result(''.join('{}'.format(k) for k, v in self.store.plugins.items() if p == v.get_process()), p)
+
     @daemon
     def _observe(self):
-        """Thread routine. Polls each plugin process stdout to detect when there is data to read."""
+        """Thread routine."""
         while not self.stop_observing.is_set():
             if platform.system() == 'Windows':
-                FDS = []
-                OBSERVED = {}
-                for _, plugin in self.store.plugins.items():
-                    fd = int(plugin.get_process().stdout.name)
-                    OBSERVED[fd] = plugin.get_process()
-                    FDS.append(fd)
-                try:
-                    rlist, wlist, xlist = select.select(FDS, [], [], 0)
-                except:
-                    raise
-                for fd, _ in rlist:
-                    if OBSERVED.get(fd) is None:
-                        continue
-                    p = OBSERVED.get(fd)
-                    self._process_result(''.join('{}'.format(k) for k, v in self.store.plugins.items() if p == v.get_process()), p)
+                self._windows_detect_events()
             else:
-                OBSERVED = {}
-                POLL = select.poll()
-                READ_ONLY = select.POLLIN | select.POLLPRI | select.POLLHUP | select.POLLERR
-                for _, plugin in self.store.plugins.items():
-                    fd = int(plugin.get_process().stdout.name)
-                    OBSERVED[fd] = plugin.get_process()
-                    POLL.register(fd, READ_ONLY)
-                try:
-                    result = POLL.poll(0)
-                except:
-                    raise
-                for fd, _ in result:
-                    if OBSERVED.get(fd) is None:
-                        continue
-                    p = OBSERVED.get(fd)
-                    self._process_result(''.join('{}'.format(k) for k, v in self.store.plugins.items() if p == v.get_process()), p)
+                self._unix_detect_events()
 
 
     def _exec_event(self, event, expected=False, plugin_name=None):
@@ -119,7 +114,7 @@ class PluginInvoker(_BaseComponent):
             command = ' '.join('{}'.format(value) for key, value in event.items() if key != 'action' and value)
         assert plugin_name is not None
         process = self.store.get_plugin(plugin_name).get_process()
-        assert process is not None
+        assert process is not None and not process.stdin.closed
         process.stdin.write(command + '\n')
         process.stdin.flush()
 
@@ -145,9 +140,9 @@ class PluginInvoker(_BaseComponent):
         self._exec_event(event)
 
     def run(self):
-        """The main function of the invoker.
-            Waiting on self.queue_plugin_command, when an event is enqueued, this
-            function processes end executes it.
+        """The main function of the PluginInvoker.
+            This function is blocked, waiting on the queue.Queue 'self.queue_plugin_command'
+            for an event.
         """
         try:
             if not self.observing:
@@ -157,14 +152,13 @@ class PluginInvoker(_BaseComponent):
             print('PluginInvoker current event: ', event)
             self._process_event(event)
             self.queue_plugin_command.task_done()
-        except Exception as err:
+        except:
             import traceback
             traceback.print_exc()
-            self.queue_tts.put(str(err))
             raise
 
     def shutdown(self):
-        """Shutdown gracefully the invoker."""
+        """Shutdown gracefully the PluginInvoker."""
         print('Shutting down the PluginInvoker ...')
         assert self.observer is not None and not self.stop_observing.is_set()
         self.stop_observing.set()

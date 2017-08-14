@@ -25,7 +25,10 @@ class PluginManager(_BaseComponent):
         self._observe()
 
     def _init(self):
-        """Loads the plugins."""
+        """Initialize the folder where the future plugin will be installed. Run through this folder
+        and load all the plugins in order to add them to the Store and make them available for the
+        whole program.
+        """
         if not os.path.exists(self.store.path):
             os.makedirs(self.store.path)
             return
@@ -39,7 +42,7 @@ class PluginManager(_BaseComponent):
                 continue
 
     def _observe(self):
-        """Handler to constantly watch each plugin process and ensure that they are always functional."""
+        """Handler to constantly observe each plugin's process and ensure that they are always functional."""
         for _, plugin in self.store.plugins.items():
             if plugin.get_process() is None:
                 plugin.restart()
@@ -47,7 +50,9 @@ class PluginManager(_BaseComponent):
         self.timer.start()
 
     def run(self):
-        """The main function of the manager. This function is blocked on self.queue_plugin_manage until an event is enqueued."""
+        """The main function of the manager. This function is blocked on the queue.queue
+        'self.queue_plugin_manage', waiting for an event.
+        """
         try:
             event = self.queue_plugin_manage.get()
             plugin = event['target']

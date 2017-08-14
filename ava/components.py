@@ -22,7 +22,6 @@ class ComponentManager(object):
     def __init__(self):
         self.threads = []
         self.event = Event()
-        print(self.event)
 
     def shutdown(self):
         self.event.set()
@@ -34,12 +33,12 @@ class ComponentManager(object):
 
     def _worker(self, Component, event):
         component = Component()
-        print(event)
         if getattr(component, 'setup', None):
             component.setup()
         if getattr(component, 'loop_on_run', True):
             while not event.is_set():
                 component.run()
+            print('AVANT Shutdown')
             component.shutdown()
         else:
             component.run()

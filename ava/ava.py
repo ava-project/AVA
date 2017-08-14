@@ -42,11 +42,11 @@ def main():
     ava = AVA()
     try:
         ava.run()
-    except (KeyboardInterrupt):
+    except (Exception, KeyboardInterrupt, BrokenPipeError, IOError) as err:
+        print(str(err))
         sys.stderr.close()
         ava.stop()
-        sleep(5)
-
+        sleep(10)
 
 if __name__ == "__main__":
     main()

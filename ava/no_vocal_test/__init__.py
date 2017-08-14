@@ -10,6 +10,9 @@ class NoVocalTest(_BaseComponent):
         self.queue_command = QueueCommand()
 
     def run(self):
-        print("Type command and press ENTER ...")
+        print("Type a command and press ENTER ...")
         cmd = input()
         self.queue_command.put(cmd)
+
+    def shutdown(self):
+        print('Shutting down NoVocalTest')

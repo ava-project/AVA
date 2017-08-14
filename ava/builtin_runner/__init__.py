@@ -16,7 +16,8 @@ class BuiltinRunner(_BaseComponent):
         self.file_crawler = FileCrawler()
 
     def run(self):
-        command = self.queue_builtin.get()
+        event = self.queue_builtin.get()
+        command = ' '.join('{}'.format(value) for key, value in event.items() if value)
         command_list = command.rsplit()
         target = self.execute_order(command);
         if target is None :
@@ -42,3 +43,6 @@ class BuiltinRunner(_BaseComponent):
                 return self.file_crawler.find(command_list[1], False)
             else :
                 return self.file_crawler.find(command_list[1])
+
+    def shutdown(self):
+        print('Shutting down the BuiltinRunner')

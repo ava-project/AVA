@@ -10,7 +10,7 @@ class Plugin(object):
 
         params:
             - name: the plugin name (string).
-            - path: the path towards the plugin folder (string).
+            - path: the path towards the plugin folder containing the plugin source code (string).
         """
         self.name = name
         self.path = path
@@ -29,7 +29,7 @@ class Plugin(object):
         return self.name
 
     def get_path(self):
-        """Returns a string with the .path towards the plugin folder.
+        """Returns a string with the path towards the plugin folder containing the plugin source code.
 
         return
             - string.
@@ -45,7 +45,7 @@ class Plugin(object):
         return self.process
 
     def get_specs(self):
-        """Returns a dictionary containing all plugin specifications extracted
+        """Returns a dictionary containing all the plugin specifications extracted
             from its manifest.json.
 
             @return:
@@ -56,13 +56,15 @@ class Plugin(object):
     def kill(self):
         """Kill the plugin by killing its process. The subprocess.Popen object is set back to None."""
         try:
+            self.process.stdin.close()
+            self.process.stdout.close()
             self.process.kill()
             self.process = None
         except:
             raise
 
     def restart(self):
-        """Restart the plugin by spawning a new dedicated process.s"""
+        """Restart the plugin by spawning a new dedicated processs."""
         assert self.process is None
         try:
             self.process = spawn(self)
@@ -72,6 +74,8 @@ class Plugin(object):
     def shutdown(self):
         """Shutdown the plugin gracefully."""
         try:
+            self.process.stdin.close()
+            self.process.stdout.close()
             self.process.terminate()
             self.process = None
         except:

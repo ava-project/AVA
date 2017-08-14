@@ -235,7 +235,7 @@ class DaemonServer():
         print('DaemonServer is listening on %s:%d' % (adress, port))
         self._httpd.serve_forever()
 
-    def stop(self):
+    def shutdown(self):
         """
         Stop the DaemonServer
         """

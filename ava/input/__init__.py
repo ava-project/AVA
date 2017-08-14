@@ -55,3 +55,6 @@ class Input(_BaseComponent):
                 on_press=self.on_press,
                 on_release=self.on_release) as listener:
             listener.join()
+
+    def shutdown(self):
+        print('Shutting down the Input')
