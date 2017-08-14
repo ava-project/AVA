@@ -1,4 +1,4 @@
-from threading import Thread
+from threading import Thread, Event
 
 
 class _BaseComponent(object):
@@ -21,19 +21,26 @@ class ComponentManager(object):
 
     def __init__(self):
         self.threads = []
+        self.event = Event()
+        print(self.event)
+
+    def shutdown(self):
+        self.event.set()
 
     def add_component(self, Component):
-        t = Thread(target=self._worker, args=(Component,))
+        t = Thread(target=self._worker, args=(Component, self.event))
         t.daemon = True
         self.threads.append(t)
 
-    def _worker(self, Component):
+    def _worker(self, Component, event):
         component = Component()
+        print(event)
         if getattr(component, 'setup', None):
             component.setup()
         if getattr(component, 'loop_on_run', True):
-            while True:
+            while not event.is_set():
                 component.run()
+            component.shutdown()
         else:
             component.run()
         print('Component {} exit'.format(Component.__name__))

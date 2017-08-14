@@ -1,4 +1,6 @@
+import sys
 from os import path
+from time import sleep
 from .components import ComponentManager
 from .input import Input
 from .dispatcher import Dispatcher
@@ -13,33 +15,37 @@ from .mobile_bridge_input import MobileBridgeInput
 
 
 class AVA(object):
+    def __init__(self):
+        self.manager = ComponentManager()
+        self.config = ConfigLoader(path.dirname(path.realpath(__file__)))
 
     def run(self):
-        config = ConfigLoader(path.dirname(path.realpath(__file__)))
-        config.load('settings.json')
-        manager = ComponentManager()
-        manager.add_component(Input)
-        manager.add_component(SpeechToText)
-        manager.add_component(MobileBridgeInput)
-        manager.add_component(NoVocalTest)
-        manager.add_component(Dispatcher)
-        manager.add_component(BuiltinRunner)
-        manager.add_component(PluginManager)
-        manager.add_component(PluginInvoker)
-        manager.add_component(TextToSpeech)
-        manager.add_component(DaemonServer)
-        manager.start_all()
-        manager.join_all()
+        self.config.load('settings.json')
+        self.manager.add_component(Input)
+        self.manager.add_component(SpeechToText)
+        self.manager.add_component(MobileBridgeInput)
+        self.manager.add_component(NoVocalTest)
+        self.manager.add_component(Dispatcher)
+        self.manager.add_component(BuiltinRunner)
+        self.manager.add_component(PluginManager)
+        self.manager.add_component(PluginInvoker)
+        self.manager.add_component(TextToSpeech)
+        self.manager.add_component(DaemonServer)
+        self.manager.start_all()
+        self.manager.join_all()
 
     def stop(self):
         print('Exiting AVA')
+        self.manager.shutdown()
 
 def main():
-    test = AVA()
+    ava = AVA()
     try:
-        test.run()
+        ava.run()
     except (KeyboardInterrupt):
-        test.stop()
+        sys.stderr.close()
+        ava.stop()
+        sleep(5)
 
 
 if __name__ == "__main__":

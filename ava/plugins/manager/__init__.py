@@ -1,4 +1,5 @@
 import os
+import errno
 from threading import Timer
 from ..plugin import Plugin
 from ..store import PluginStore
@@ -10,12 +11,11 @@ class PluginManager(_BaseComponent):
     """The entity responsible of managing the plugins. By this, we mean the management
         of the installation, uninstallation, activation, deactivation of a plugin.
         Furthermore, the manager constantly observes the process of each plugin in order
-        to ensure that they are functional
+        to ensure that they are functional.
     """
 
     def __init__(self):
-        """Initializer
-        """
+        """Initializer."""
         super().__init__()
         self.timer = None
         self.store = PluginStore()
@@ -25,8 +25,7 @@ class PluginManager(_BaseComponent):
         self._observe()
 
     def _init(self):
-        """Loads the plugins.
-        """
+        """Loads the plugins."""
         if not os.path.exists(self.store.path):
             os.makedirs(self.store.path)
             return
@@ -40,9 +39,7 @@ class PluginManager(_BaseComponent):
                 continue
 
     def _observe(self):
-        """Handler to constantly watch each plugin process and ensure that they
-            are always functional.
-        """
+        """Handler to constantly watch each plugin process and ensure that they are always functional."""
         for _, plugin in self.store.plugins.items():
             if plugin.get_process() is None:
                 plugin.restart()
@@ -50,9 +47,7 @@ class PluginManager(_BaseComponent):
         self.timer.start()
 
     def run(self):
-        """The main function of the manager. This function is blocked on self.queue_plugin_manage
-            until an event is enqueued.
-        """
+        """The main function of the manager. This function is blocked on self.queue_plugin_manage until an event is enqueued."""
         try:
             event = self.queue_plugin_manage.get()
             plugin = event['target']
@@ -73,8 +68,10 @@ class PluginManager(_BaseComponent):
             raise
 
     def shutdown(self):
-        """Shutdown gracefully the manager.
-        """
+        """Shutdown gracefully the manager."""
         print('Shutting down the PluginManager ...')
-        self.timer.cancel()
-        self.store.clear()
+        try:
+            self.timer.cancel()
+            self.store.clear()
+        except:
+            raise

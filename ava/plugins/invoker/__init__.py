@@ -12,8 +12,7 @@ from ...queues import QueuePluginCommand, QueueTtS
 from avasdk.plugins.log import ERROR, IMPORT, REQUEST, RESPONSE
 
 def daemon(fn):
-    """@decorator
-    """
+    """@decorator"""
     def wrapper(*args, **kwargs):
         thread = threading.Thread(target=fn, args=args, kwargs=kwargs)
         thread.daemon = True
@@ -22,13 +21,10 @@ def daemon(fn):
     return wrapper
 
 class PluginInvoker(_BaseComponent):
-    """The entity responsible of executing the according plugin depending on the
-        user's input.
-    """
+    """The entity responsible of executing the according plugin depending on the user's input."""
 
     def __init__(self):
-        """Initializer.
-        """
+        """Initializer."""
         super().__init__()
         self.observer = None
         self.observing = False
@@ -42,9 +38,9 @@ class PluginInvoker(_BaseComponent):
         """This functions flushes the stdout of the given process and process the
             data read.
 
-            @param:
-                - plugin_name: The name of the plugin (string).
-                - process: The process object (subprocess.Popen)
+        params:
+            - plugin_name: The name of the plugin (string).
+            - process: The process object (subprocess.Popen)
         """
         output, import_flushed = flush_stdout(process)
         if ERROR in output:
@@ -70,12 +66,24 @@ class PluginInvoker(_BaseComponent):
 
     @daemon
     def _observe(self):
-        """Thread routine
-            Poll each plugin process stdout to detect when there is data to read.
-        """
+        """Thread routine. Polls each plugin process stdout to detect when there is data to read."""
         while not self.stop_observing.is_set():
             if platform.system() == 'Windows':
-                pass
+                FDS = []
+                OBSERVED = {}
+                for _, plugin in self.store.plugins.items():
+                    fd = int(plugin.get_process().stdout.name)
+                    OBSERVED[fd] = plugin.get_process()
+                    FDS.append(fd)
+                try:
+                    rlist, wlist, xlist = select.select(FDS, [], [], 0)
+                except:
+                    raise
+                for fd, _ in rlist:
+                    if OBSERVED.get(fd) is None:
+                        continue
+                    p = OBSERVED.get(fd)
+                    self._process_result(''.join('{}'.format(k) for k, v in self.store.plugins.items() if p == v.get_process()), p)
             else:
                 OBSERVED = {}
                 POLL = select.poll()
@@ -98,10 +106,10 @@ class PluginInvoker(_BaseComponent):
     def _exec_event(self, event, expected=False, plugin_name=None):
         """Execute an event related to a plugin feature.
 
-            @param:
-                - event: A dictionary containing the event to execute (dictionary).
-                optional: - exepected: A boolean to determine if this specific event is expected. (boolean).
-                optional: - plugin_name: The name of the plugin waiting for an user input (string).
+        params:
+            - event: A dictionary containing the event to execute (dictionary).
+            - exepected (optional): A boolean to determine if this specific event is expected. (boolean).
+            - plugin_name (optional): The name of the plugin waiting for an user input (string).
         """
         if expected:
             self.state.plugin_stops_waiting_for_user_interaction()
@@ -112,14 +120,14 @@ class PluginInvoker(_BaseComponent):
         assert plugin_name is not None
         process = self.store.get_plugin(plugin_name).get_process()
         assert process is not None
-        process.stdin.write(command + '\n');
-        process.stdin.flush();
+        process.stdin.write(command + '\n')
+        process.stdin.flush()
 
     def _process_event(self, event):
         """Handler to dertimine what kind of event, the invoker is currently dealing with.
 
-            @param:
-                - event: A dictionary containing the event to proceed (dictionary).
+        param:
+            - event: A dictionary containing the event to proceed (dictionary).
         """
         waiting, plugin = self.state.is_plugin_waiting_for_user_interaction()
         if waiting:
@@ -149,15 +157,14 @@ class PluginInvoker(_BaseComponent):
             print('PluginInvoker current event: ', event)
             self._process_event(event)
             self.queue_plugin_command.task_done()
-        except:
+        except Exception as err:
             import traceback
             traceback.print_exc()
-            self.queue_tts.put('RuntimeError')
+            self.queue_tts.put(str(err))
             raise
 
     def shutdown(self):
-        """Shutdown gracefully the invoker.
-        """
+        """Shutdown gracefully the invoker."""
         print('Shutting down the PluginInvoker ...')
         assert self.observer is not None and not self.stop_observing.is_set()
         self.stop_observing.set()

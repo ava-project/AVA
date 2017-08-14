@@ -35,3 +35,6 @@ class TextToSpeech(_BaseComponent):
                 playsound(filename)
             os.remove(filename)
         self.queue_tts.task_done()
+
+    def shutdown(self):
+        print('Shutting down the TextToSpeech')

@@ -3,42 +3,44 @@ from .process import spawn
 from avasdk.plugins.ioutils.utils import load_plugin
 
 class Plugin(object):
-    """Object representation of a plugin.
-    """
+    """Object representation of a plugin."""
 
     def __init__(self, name, path):
         """Initializer
 
-            @params:
-                - name: the plugin name (string).
-                - path: the path towards the plugin folder (string).
+        params:
+            - name: the plugin name (string).
+            - path: the path towards the plugin folder (string).
         """
         self.name = name
         self.path = path
-        self.specs = load_plugin(self.path, self.name)[self.name]
-        self.process = spawn(self)
+        try:
+            self.specs = load_plugin(self.path, self.name)[self.name]
+            self.process = spawn(self)
+        except:
+            raise
 
     def get_name(self):
         """Returns a string with the name of the plugin.
 
-            @return:
-                - string.
+        return:
+            - string.
         """
         return self.name
 
     def get_path(self):
-        """Returns a string with the .path towads the plugin folder.
+        """Returns a string with the .path towards the plugin folder.
 
-            @return
-                string.
+        return
+            - string.
         """
         return path.join(self.path, self.name)
 
     def get_process(self):
         """Returns the process in wich the plugin is executed.
 
-            @return
-                subprocess.Popen object.
+        return
+            - subprocess.Popen object.
         """
         return self.process
 
@@ -52,20 +54,25 @@ class Plugin(object):
         return self.specs
 
     def kill(self):
-        """Kill the plugin by killing its process.
-            The subprocess.Popen object is set back to None.
-        """
-        self.process.kill()
-        self.process = None
+        """Kill the plugin by killing its process. The subprocess.Popen object is set back to None."""
+        try:
+            self.process.kill()
+            self.process = None
+        except:
+            raise
 
     def restart(self):
-        """Restart the plugin by spawning a new dedicated process.
-        """
+        """Restart the plugin by spawning a new dedicated process.s"""
         assert self.process is None
-        self.process = spawn(self)
+        try:
+            self.process = spawn(self)
+        except:
+            raise
 
     def shutdown(self):
-        """Shutdown the plugin gracefully.
-        """
-        self.process.terminate()
-        self.process = None
+        """Shutdown the plugin gracefully."""
+        try:
+            self.process.terminate()
+            self.process = None
+        except:
+            raise
