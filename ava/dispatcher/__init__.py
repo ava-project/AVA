@@ -30,8 +30,16 @@ class Dispatcher(_BaseComponent):
     def run(self):
         """
         """
-        command = self.queue_command.get()
-        print('Vocal interpretor send : {}'.format(command))
-        print('Dispatching ...')
-        self._execute_command(command)
-        self.queue_command.task_done()
+        while self._is_init:
+            command = self.queue_command.get()
+            if command is None:
+                break
+            print('Vocal interpretor send : {}'.format(command))
+            print('Dispatching ...')
+            self._execute_command(command)
+            self.queue_command.task_done()
+
+    def stop(self):
+        print('Stopping {0}...'.format(self.__class__.__name__))
+        self._is_init = False
+        self.queue_command.put(None)

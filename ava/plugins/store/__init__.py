@@ -74,7 +74,7 @@ class PluginStore(metaclass=Singleton):
         """
         """
         PluginStore.mutex.acquire()
-        for _, plugin in self.plugins:
+        for _, plugin in self.plugins.items():
             plugin.shutdown()
         self.plugins.clear()
         PluginStore.mutex.release()

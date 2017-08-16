@@ -18,20 +18,28 @@ class TextToSpeech(_BaseComponent):
         self.queue_tts = QueueTtS()
 
     def run(self):
-        sentence = self.queue_tts.get()
-        print('To say out loud : {}'.format(sentence))
-        tts = gTTS(text=sentence, lang='en')
-        if _platform == "darwin":
-            with NamedTemporaryFile() as audio_file:
-                tts.write_to_fp(audio_file)
-                audio_file.seek(0)
-                playsound(audio_file.name)
-        else:
-            filename = str(time.time()).split('.')[0] + ".mp3"
-            tts.save(filename)
-            if _platform == "linux" or _platform == "linux2":
-                pass
+        while self._is_init:
+            sentence = self.queue_tts.get()
+            if sentence is None:
+                break
+            print('To say out loud : {}'.format(sentence))
+            tts = gTTS(text=sentence, lang='en')
+            if _platform == "darwin":
+                with NamedTemporaryFile() as audio_file:
+                    tts.write_to_fp(audio_file)
+                    audio_file.seek(0)
+                    playsound(audio_file.name)
             else:
-                playsound(filename)
-            os.remove(filename)
-        self.queue_tts.task_done()
+                filename = str(time.time()).split('.')[0] + ".mp3"
+                tts.save(filename)
+                if _platform == "linux" or _platform == "linux2":
+                    pass
+                else:
+                    playsound(filename)
+                os.remove(filename)
+            self.queue_tts.task_done()
+
+    def stop(self):
+        print('Stopping {0}...'.format(self.__class__.__name__))
+        self._is_init = False
+        self.queue_tts.put(None)

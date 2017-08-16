@@ -6,10 +6,10 @@ import websockets
 import socket
 
 from ..queues import QueueInput
-from ..components import _BaseComponent, RunOneTime
+from ..components import _BaseComponent
 
 
-class MobileBridgeInput(RunOneTime, _BaseComponent):
+class MobileBridgeInput(_BaseComponent):
 
     def __init__(self):
         super().__init__()
@@ -48,3 +48,7 @@ class MobileBridgeInput(RunOneTime, _BaseComponent):
         print("Mobile Bridge listening on {}:8765".format(self.get_ip_address()))
         self.loop.run_until_complete(start_server)
         self.loop.run_forever()
+
+    def stop(self):
+        print('Stopping the MobileBridgeInput')
+        self.loop.stop()

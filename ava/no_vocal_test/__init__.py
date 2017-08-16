@@ -1,8 +1,6 @@
 from ..queues import QueueCommand
 from ..components import _BaseComponent
 
-
-
 class NoVocalTest(_BaseComponent):
 
     def __init__(self):
@@ -11,5 +9,12 @@ class NoVocalTest(_BaseComponent):
 
     def run(self):
         print("Type command and press ENTER ...")
-        cmd = input()
-        self.queue_command.put(cmd)
+        while self._is_init:
+            try:
+                cmd = input()
+            except EOFError:
+                break
+            self.queue_command.put(cmd)
+
+    def stop(self):
+        print('Stopping {0}...'.format(self.__class__.__name__))

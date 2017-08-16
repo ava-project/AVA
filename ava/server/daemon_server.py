@@ -6,8 +6,9 @@ from .httprequest_handler import HTTPRequestHandler
 from ..queues import QueuePluginManage
 from ..config import ConfigLoader
 from ..plugins.store import PluginStore
+from ..components import _BaseComponent
 
-class DaemonServer():
+class DaemonServer(_BaseComponent):
     """
     The DaemonServer is a minimalist http server that will allow interface
     to manage the daemon.
@@ -25,11 +26,13 @@ class DaemonServer():
             @param base_url: the API URL
             @type base_url: string
         """
+        super().__init__()
         self._is_running = False
         self._httpd = None
         DaemonServer._queue_plugin_manage = QueuePluginManage()
         DaemonServer._plugin_store = PluginStore()
         DaemonServer._config = ConfigLoader(None)
+        DaemonServer._config.subscribe(self.__class__.__name__, 'toto')
         DaemonServer._base_url = DaemonServer._config.get('API_address')
         DaemonServer._mock_url = "http://127.0.0.1:3000"
         DaemonServer._download_folder = path.join(path.expanduser('~'), '.ava', 'download')
@@ -239,6 +242,6 @@ class DaemonServer():
         """
         Stop the DaemonServer
         """
-        print('Stopping the DaemonServer...')
+        print('Stopping {0}...'.format(self.__class__.__name__))
         self._httpd.shutdown()
         self._is_running = False

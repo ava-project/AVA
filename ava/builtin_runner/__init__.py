@@ -16,21 +16,24 @@ class BuiltinRunner(_BaseComponent):
         self.file_crawler = FileCrawler()
 
     def run(self):
-        command = self.queue_builtin.get()
-        command_list = command.rsplit()
-        target = self.execute_order(command);
-        if target is None :
-            print('No file or application corresponding found : {}'.format(command))
-        else :
-            print('Builtin runner execute : {}'.format(command))
-            if (os.name == 'nt') :
-                p = multiprocessing.Process(target=os.startfile, args=(target,))
-                p.daemon = True
-                p.start()
-            else:
-                p = subprocess.Popen(target, shell=True)
-        self.queue_tts.put('task completed')
-        self.queue_builtin.task_done()
+        while self._is_init:
+            command = self.queue_builtin.get()
+            if command is None:
+                break
+            command_list = command.rsplit()
+            target = self.execute_order(command)
+            if target is None :
+                print('No file or application corresponding found : {}'.format(command))
+            else :
+                print('Builtin runner execute : {}'.format(command))
+                if (os.name == 'nt') :
+                    p = multiprocessing.Process(target=os.startfile, args=(target,))
+                    p.daemon = True
+                    p.start()
+                else:
+                    p = subprocess.Popen(target, shell=True)
+            self.queue_tts.put('task completed')
+            self.queue_builtin.task_done()
 
     def execute_order(self, command):
         command_list = command.rsplit(' ')
@@ -42,3 +45,8 @@ class BuiltinRunner(_BaseComponent):
                 return self.file_crawler.find(command_list[1], False)
             else :
                 return self.file_crawler.find(command_list[1])
+    
+    def stop(self):
+        print('Stopping {0}...'.format(self.__class__.__name__))
+        self._is_init = False
+        self.queue_builtin.put(None)

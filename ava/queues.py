@@ -24,3 +24,6 @@ class QueueBuiltin(Queue, metaclass=Singleton):
 
 class QueueTtS(Queue, metaclass=Singleton):
     pass
+
+class ManagerQueue(Queue, metaclass=Singleton):
+    pass

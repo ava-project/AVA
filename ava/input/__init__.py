@@ -17,6 +17,7 @@ class Input(_BaseComponent):
         self.activated = False
         self.input_queue = QueueInput()
         self.input_listener = RawInput()
+        self.listener = None
 
     def write_to_file(self, all_datas):
         audio_file = io.BytesIO()
@@ -53,5 +54,9 @@ class Input(_BaseComponent):
         print ("Press WINDOWS for PC or COMMAND for Mac to activate the Voice Recognition...")
         with keyboard.Listener(
                 on_press=self.on_press,
-                on_release=self.on_release) as listener:
-            listener.join()
+                on_release=self.on_release) as self.listener:
+            self.listener.join()
+
+    def stop(self):
+        print('Stopping {0}...'.format(self.__class__.__name__))
+        self.listener.stop()

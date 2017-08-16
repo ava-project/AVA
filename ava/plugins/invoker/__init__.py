@@ -40,23 +40,32 @@ class PluginInvoker(_BaseComponent):
     def run(self):
         """
         """
-        plugin_name, command = split_string(self.queue_plugin_command.get(), ' ')
-        print('PluginInvoker searching for: {} ... trying to execute: {}'.format(plugin_name, command))
-        if not command:
-            self.queue_tts.put('In order to use a plugin, you must specify one command.')
+        while self._is_init:
+            cmd = self.queue_plugin_command.get()
+            if cmd is None:
+                break
+            plugin_name, command = split_string(cmd, ' ')
+            print('PluginInvoker searching for: {} ... trying to execute: {}'.format(plugin_name, command))
+            if not command:
+                self.queue_tts.put('In order to use a plugin, you must specify one command.')
+                self.queue_plugin_command.task_done()
+                return
+            if self.store.is_plugin_disabled(plugin_name):
+                self.queue_tts.put('The plugin ' + plugin_name + ' is currently disabled.')
+                self.queue_plugin_command.task_done()
+                return
+            if not self.store.get_plugin(plugin_name):
+                self.queue_tts.put('No plugin named ' + plugin_name + ' found.')
+            else:
+                self._handle_plugin_execution(plugin_name, command)
             self.queue_plugin_command.task_done()
-            return
-        if self.store.is_plugin_disabled(plugin_name):
-            self.queue_tts.put('The plugin ' + plugin_name + ' is currently disabled.')
-            self.queue_plugin_command.task_done()
-            return
-        if not self.store.get_plugin(plugin_name):
-            self.queue_tts.put('No plugin named ' + plugin_name + ' found.')
-        else:
-            self._handle_plugin_execution(plugin_name, command)
-        self.queue_plugin_command.task_done()
 
     def shutdown(self):
         """
         """
         print('Shutting down the PluginInvoker ...')
+
+    def stop(self):
+        print('Stopping the PluginInvoker')
+        self._is_init = False
+        self.queue_plugin_command.put(None)
