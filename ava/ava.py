@@ -1,3 +1,5 @@
+import sys
+from time import sleep
 from .components import ComponentManager
 from .input import Input
 from .dispatcher import Dispatcher
@@ -11,7 +13,6 @@ from .mobile_bridge_input import MobileBridgeInput
 
 
 class AVA(object):
-
     def __init__(self):
         self.manager = ComponentManager()
 
@@ -34,12 +35,14 @@ class AVA(object):
         self.manager.stop_all()
 
 def main():
-    test = AVA()
+    ava = AVA()
     try:
-        test.run()
-    except (KeyboardInterrupt):
-        test.stop()
-
+        ava.run()
+    except (Exception, KeyboardInterrupt, BrokenPipeError, IOError) as err:
+        print(str(err))
+        sys.stderr.close()
+        ava.stop()
+        sleep(10)
 
 if __name__ == "__main__":
     main()

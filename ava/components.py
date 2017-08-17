@@ -1,7 +1,6 @@
 from os import path
 from threading import Thread
-from queue import Empty
-from queue import Queue
+from queue import Queue, Empty
 from .config import ConfigLoader
 
 class _BaseComponent(Thread):
@@ -41,7 +40,9 @@ class ComponentManager(object):
             component.start()
 
     def stop_all(self):
+        print(self._components)
         for component in self._components:
+            print('[{0}]'.format(component.__class__.__name__))
             component.stop()
 
     def join_all(self):

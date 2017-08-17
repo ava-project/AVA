@@ -52,5 +52,5 @@ class MobileBridgeInput(_BaseComponent):
         self.loop.run_forever()
 
     def stop(self):
-        print('Stopping the MobileBridgeInput')
+        print('Stopping {0}...'.format(self.__class__.__name__))
         self.loop.stop()

@@ -20,11 +20,12 @@ class BuiltinRunner(_BaseComponent):
 
     def run(self):
         while self._is_init:
-            command = self.queue_builtin.get()
-            if command is None:
+            event = self.queue_builtin.get()
+            if event is None:
                 break
+            command = ' '.join('{}'.format(value) for key, value in event.items() if value)
             command_list = command.rsplit()
-            target = self.execute_order(command)
+            target = self.execute_order(command);
             if target is None :
                 print('No file or application corresponding found : {}'.format(command))
             else :
