@@ -7,15 +7,17 @@ from sys import platform as _platform
 from gtts import gTTS
 
 from .playsound import playsound
-from ..queues import QueueTtS
 from ..components import _BaseComponent
 
 
 class TextToSpeech(_BaseComponent):
 
-    def __init__(self):
-        super().__init__()
-        self.queue_tts = QueueTtS()
+    def __init__(self, queues):
+        super().__init__(queues)
+        self.queue_tts = None
+
+    def setup(self):
+        self.queue_tts = self._queues['QueueTextToSpeech']
 
     def run(self):
         while self._is_init:

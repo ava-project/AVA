@@ -1,8 +1,6 @@
 import json
 import os
 from .utils import Singleton
-from .components import _BaseComponent
-from .queues import ManagerQueue
 
 class ConfigLoader(metaclass=Singleton):
     """
@@ -11,7 +9,7 @@ class ConfigLoader(metaclass=Singleton):
     but will be extend to load multiple file.
     """
 
-    def __init__(self, root_path):
+    def __init__(self, root_path, queues):
         """
         Initializer
 
@@ -20,7 +18,7 @@ class ConfigLoader(metaclass=Singleton):
         """
         self.root_path = root_path
         self._file_loaded = None
-        self._manager_queue = ManagerQueue()
+        self._queues = queues
 
     def load(self, path):
         """
@@ -88,12 +86,12 @@ class ConfigLoader(metaclass=Singleton):
         return self._access(path, value, False)
 
     def subscribe(self, component_name, path):
-        self._manager_queue.put('subscribe %s %s' % (component_name, path))
+        self._queues['QueueComponentManager'].put('subscribe %s %s' % (component_name, path))
         return self.get(path)
 
     def update(self, path, value):
-        self._manager_queue.put('update %s %s' % (path, value))
-        return self.put(path, value)
+        self._queues['QueueComponentManager'].put('update %s %s' % (path, value))
+        return self.put_and_create(path, value)
 
     def resolve_path_from_root(self, *path):
         """

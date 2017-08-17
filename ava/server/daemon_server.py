@@ -3,7 +3,6 @@ from os import path, makedirs
 from http.server import HTTPServer
 import requests
 from .httprequest_handler import HTTPRequestHandler
-from ..queues import QueuePluginManage
 from ..config import ConfigLoader
 from ..plugins.store import PluginStore
 from ..components import _BaseComponent
@@ -17,7 +16,7 @@ class DaemonServer(_BaseComponent):
     _user = {}
     _is_log = False
 
-    def __init__(self):
+    def __init__(self, queues):
         """
         Initializer
 
@@ -26,18 +25,20 @@ class DaemonServer(_BaseComponent):
             @param base_url: the API URL
             @type base_url: string
         """
-        super().__init__()
+        super().__init__(queues)
         self._is_running = False
         self._httpd = None
-        DaemonServer._queue_plugin_manage = QueuePluginManage()
+        DaemonServer._queue_plugin_manage = None
         DaemonServer._plugin_store = PluginStore()
-        DaemonServer._config = ConfigLoader(None)
-        DaemonServer._config.subscribe(self.__class__.__name__, 'toto')
+        DaemonServer._config = ConfigLoader(None, None)
         DaemonServer._base_url = DaemonServer._config.get('API_address')
         DaemonServer._mock_url = "http://127.0.0.1:3000"
         DaemonServer._download_folder = path.join(path.expanduser('~'), '.ava', 'download')
         if not path.exists(DaemonServer._download_folder):
             makedirs(DaemonServer._download_folder)
+
+    def setup(self):
+        DaemonServer._queue_plugin_manage = self._queues['QueuePluginManager']
 
     @staticmethod
     @HTTPRequestHandler.get('/')

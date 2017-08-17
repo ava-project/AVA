@@ -1,12 +1,15 @@
+from os import path
 from threading import Thread
 from queue import Empty
-from .queues import *
+from queue import Queue
+from .config import ConfigLoader
 
 class _BaseComponent(Thread):
 
-    def __init__(self):
+    def __init__(self, queues):
         super().__init__()
         self._is_init = True
+        self._queues = queues
 
     def run(self, *args, **kwargs):
         raise NotImplementedError()
@@ -17,31 +20,36 @@ class _BaseComponent(Thread):
 class ComponentManager(object):
 
     def __init__(self):
-        self.threads = []
-        self._manager_queue = ManagerQueue()
+        self._components = []
         self._config_keys = {}
+        self._queues = {}
+        self._queues['QueueComponentManager'] = Queue()
+        self._config = ConfigLoader(path.dirname(path.realpath(__file__)), self._queues)
+        self._config.load('settings.json')
 
     def add_component(self, Component):
-        component = Component()
+        component = Component(self._queues)
         component.daemon = True
-        if getattr(component, 'setup', None):
-            component.setup()
-        self.threads.append(component)
+        self._components.append(component)
+        self._queues['Queue{0}'.format(Component.__name__)] = Queue()
+        self._queues['ConfigQueue{0}'.format(Component.__name__)] = Queue()
 
     def start_all(self):
-        for t in self.threads:
-            t.start()
+        for component in self._components:
+            if getattr(component, 'setup', None):
+                component.setup()
+            component.start()
 
     def stop_all(self):
-        for t in self.threads:
-            t.stop()
+        for component in self._components:
+            component.stop()
 
     def join_all(self):
         while True:
-            for t in self.threads:
-                t.join(0.5)
+            for component in self._components:
+                component.join(0.1)
             try:
-                cmd = self._manager_queue.get(False)
+                cmd = self._queues['QueueComponentManager'].get(False)
             except Empty:
                 pass
             else:
@@ -59,3 +67,6 @@ class ComponentManager(object):
 
     def update(self, key, value):
         print('update')
+        list_component = self._config_keys.get(key)
+        for component in list_component:
+            self._queues['ConfigQueue{0}'.format(component)].put('{0} {1}'.format(key, value))

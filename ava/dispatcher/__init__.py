@@ -1,19 +1,24 @@
 from ..components import _BaseComponent
 from ..plugins import PluginBuiltins
-from ..queues import QueueCommand, QueuePluginCommand, QueuePluginManage, QueueBuiltin
 
 
 class Dispatcher(_BaseComponent):
 
-    def __init__(self):
+    def __init__(self, queues):
         """
         """
-        super().__init__()
-        self.queue_command = QueueCommand()
-        self.queue_builtin = QueueBuiltin()
-        self.queue_plugin_manage = QueuePluginManage()
-        self.queue_plugin_command = QueuePluginCommand()
+        super().__init__(queues)
+        self.queue_command = None
+        self.queue_builtin = None
+        self.queue_plugin_manage = None
+        self.queue_plugin_command = None
         self.builtin = ['exit', 'open', 'run', 'start', 'launch']
+
+    def setup(self):
+        self.queue_command = self._queues['QueueDispatcher']
+        self.queue_builtin = self._queues['QueueBuiltinRunner']
+        self.queue_plugin_manage = self._queues['QueuePluginManager']
+        self.queue_plugin_command = self._queues['QueuePluginInvoker']
 
     def _execute_command(self, command):
         """

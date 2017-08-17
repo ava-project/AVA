@@ -1,11 +1,15 @@
-from ..queues import QueueCommand
 from ..components import _BaseComponent
+from ..config import ConfigLoader
 
 class NoVocalTest(_BaseComponent):
 
-    def __init__(self):
-        super().__init__()
-        self.queue_command = QueueCommand()
+    def __init__(self, queues):
+        super().__init__(queues)
+        self.queue_command = None
+        self.config = ConfigLoader(None, None)
+
+    def setup(self):
+        self.queue_command = self._queues['QueueDispatcher']
 
     def run(self):
         print("Type command and press ENTER ...")

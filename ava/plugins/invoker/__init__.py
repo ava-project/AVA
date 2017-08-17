@@ -2,18 +2,21 @@ import os
 from ..store import PluginStore
 from ..process import flush_process_output
 from ...components import _BaseComponent
-from ...queues import QueuePluginCommand, QueueTtS
 from avasdk.plugins.ioutils.utils import split_string
 
 class PluginInvoker(_BaseComponent):
 
-    def __init__(self):
+    def __init__(self, queues):
         """
         """
-        super().__init__()
+        super().__init__(queues)
         self.store = PluginStore()
-        self.queue_plugin_command = QueuePluginCommand()
-        self.queue_tts = QueueTtS()
+        self.queue_plugin_command = None
+        self.queue_tts = None
+
+    def setup(self):
+        self.queue_plugin_command = self._queues['QueuePluginInvoker']
+        self.queue_tts = self._queues['QueueTextToSpeech']
 
     def _handle_plugin_execution(self, plugin_name, command):
         """

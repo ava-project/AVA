@@ -1,4 +1,3 @@
-from ..queues import QueueBuiltin, QueueTtS
 from ..components import _BaseComponent
 from .FileCrawler import FileCrawler
 
@@ -9,11 +8,15 @@ import subprocess
 
 class BuiltinRunner(_BaseComponent):
 
-    def __init__(self):
-        super().__init__()
-        self.queue_builtin = QueueBuiltin()
-        self.queue_tts = QueueTtS()
+    def __init__(self, queues):
+        super().__init__(queues)
         self.file_crawler = FileCrawler()
+        self.queue_builtin = None
+        self.queue_tts = None
+
+    def setup(self):
+        self.queue_builtin = self._queues['QueueBuiltinRunner']
+        self.queue_tts = self._queues['QueueTextToSpeech']
 
     def run(self):
         while self._is_init:
