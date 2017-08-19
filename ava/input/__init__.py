@@ -6,17 +6,20 @@ import wave
 from pynput import keyboard
 
 from .RawInput import RawInput
-from ..queues import QueueInput
 from ..components import _BaseComponent
 
 
 class Input(_BaseComponent):
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, queues):
+        super().__init__(queues)
         self.activated = False
-        self.input_queue = QueueInput()
+        self.input_queue = None
         self.input_listener = RawInput()
+        self.listener = None
+
+    def setup(self):
+        self.input_queue = self._queues['QueueInput']
 
     def write_to_file(self, all_datas):
         audio_file = io.BytesIO()
@@ -53,5 +56,9 @@ class Input(_BaseComponent):
         print ("Press WINDOWS for PC or COMMAND for Mac to activate the Voice Recognition...")
         with keyboard.Listener(
                 on_press=self.on_press,
-                on_release=self.on_release) as listener:
-            listener.join()
+                on_release=self.on_release) as self.listener:
+            self.listener.join()
+
+    def stop(self):
+        print('Stopping {0}...'.format(self.__class__.__name__))
+        self.listener.stop()

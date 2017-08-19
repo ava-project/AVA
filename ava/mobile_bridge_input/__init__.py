@@ -5,17 +5,19 @@ import asyncio
 import websockets
 import socket
 
-from ..queues import QueueInput
-from ..components import _BaseComponent, RunOneTime
+from ..components import _BaseComponent
 
 
-class MobileBridgeInput(RunOneTime, _BaseComponent):
+class MobileBridgeInput(_BaseComponent):
 
-    def __init__(self):
-        super().__init__()
-        self.input_queue = QueueInput()
+    def __init__(self, queues):
+        super().__init__(queues)
+        self.input_queue = None
         self.loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self.loop)
+
+    def setup(self):
+        self.input_queue = self._queues['QueueInput']
 
     def get_ip_address(self):
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -48,3 +50,7 @@ class MobileBridgeInput(RunOneTime, _BaseComponent):
         print("Mobile Bridge listening on {}:8765".format(self.get_ip_address()))
         self.loop.run_until_complete(start_server)
         self.loop.run_forever()
+
+    def stop(self):
+        print('Stopping {0}...'.format(self.__class__.__name__))
+        self.loop.stop()

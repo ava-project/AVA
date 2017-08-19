@@ -9,7 +9,7 @@ class ConfigLoader(metaclass=Singleton):
     but will be extend to load multiple file.
     """
 
-    def __init__(self, root_path):
+    def __init__(self, root_path, queues):
         """
         Initializer
 
@@ -18,6 +18,7 @@ class ConfigLoader(metaclass=Singleton):
         """
         self.root_path = root_path
         self._file_loaded = None
+        self._queues = queues
 
     def load(self, path):
         """
@@ -31,6 +32,9 @@ class ConfigLoader(metaclass=Singleton):
         with open(full_path) as ofile:
             self._file_loaded = json.load(ofile)
 
+    def exist(self, path):
+        return False if self.get(path) is None else True
+
     def get(self, path):
         """
         Get a property from the json file. If the property is inside an object,
@@ -41,14 +45,53 @@ class ConfigLoader(metaclass=Singleton):
             @exception: KeyError if the path to the property is incorrect
             @return: The property
         """
-        properties = path.split('/')
-        prop = None
-        for key in properties:
-            if prop is not None:
-                prop = prop[key]
-            prop = self._file_loaded[key]
+        return self._access(path)
 
-        return prop
+    def _access(self, path, value=None, create=False):
+        properties = path.split('/')
+        psize = len(properties)
+        node = None
+        for i, key in zip(range(psize), properties):
+            save_node = self._file_loaded if node is None else node
+            node = node.get(key) if node is not None else self._file_loaded.get(key)
+            if value is None:
+                #get
+                if node is None or not isinstance(node, dict):
+                    if i != psize - 1:
+                        node = None
+                    break
+            else:
+                #set
+                if i == psize - 1 and node is not None:
+                    save_node[key] = value
+                    node = value
+                if not create:
+                    if node is None or not isinstance(node, dict):
+                        if i != psize - 1:
+                            node = None
+                        break
+                else:
+                    if i == psize - 1:
+                        save_node[key] = value
+                        node = value
+                    elif node is None or not isinstance(node, dict):
+                        save_node[key] = {}
+                        node = save_node[key]
+        return node
+
+    def put_and_create(self, path, value):
+        return self._access(path, value, True)
+
+    def put(self, path, value):
+        return self._access(path, value, False)
+
+    def subscribe(self, component_name, path):
+        self._queues['QueueComponentManager'].put('subscribe %s %s' % (component_name, path))
+        return self.get(path)
+
+    def update(self, path, value):
+        self._queues['QueueComponentManager'].put('update %s %s' % (path, value))
+        return self.put_and_create(path, value)
 
     def resolve_path_from_root(self, *path):
         """
