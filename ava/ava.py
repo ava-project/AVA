@@ -4,7 +4,7 @@ from .components import ComponentManager
 from .input import Input
 from .dispatcher import Dispatcher
 from .builtin_runner import BuiltinRunner
-from .plugins import PluginInvoker, PluginManager
+from .plugins import PluginInvoker, PluginManager, PluginListener
 from .speech_to_text import SpeechToText
 from .text_to_speech import TextToSpeech
 from .server import DaemonServer
@@ -25,6 +25,7 @@ class AVA(object):
         self.manager.add_component(BuiltinRunner)
         self.manager.add_component(PluginManager)
         self.manager.add_component(PluginInvoker)
+        self.manager.add_component(PluginListener)
         self.manager.add_component(TextToSpeech)
         self.manager.add_component(DaemonServer)
         self.manager.start_all()

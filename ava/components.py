@@ -40,9 +40,9 @@ class ComponentManager(object):
             component.start()
 
     def stop_all(self):
-        print(self._components)
+        print('DEBUG 1', self._components)
         for component in self._components:
-            print('[{0}]'.format(component.__class__.__name__))
+            print('DEBUG 2 [{0}]'.format(component.__class__.__name__))
             component.stop()
 
     def join_all(self):
