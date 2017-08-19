@@ -15,6 +15,7 @@ class _WindowsInterface(_ListenerInterface):
     def run(self):
         """
         """
+        # TODO find a way to handle it on Windows
         print('Run _WindowsInterface')
 
     def stop(self):
