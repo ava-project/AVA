@@ -1,6 +1,4 @@
 import os
-import errno
-from threading import Timer
 from ..plugin import Plugin
 from ..store import PluginStore
 from .builtins import PluginBuiltins
@@ -16,16 +14,14 @@ class PluginManager(_BaseComponent):
     def __init__(self, queues):
         """Initializer"""
         super().__init__(queues)
-        self.timer = None
-        self.store = PluginStore()
-        self.queue_plugin_manage = None
         self.queue_tts = None
-        self._init()
-        self._observe()
+        self.queue_manager = None
+        self.store = PluginStore()
 
     def setup(self):
-        self.queue_plugin_manage = self._queues['QueuePluginManager']
+        self._init()
         self.queue_tts = self._queues['QueueTextToSpeech']
+        self.queue_manager = self._queues['QueuePluginManager']
 
     def _init(self):
         """Initialize the folder where the future plugin will be installed. Run through this folder
@@ -44,47 +40,34 @@ class PluginManager(_BaseComponent):
                 print(str(err))
                 continue
 
-    def _observe(self):
-        """Handler to constantly observe each plugin's process and ensure that they are always functional."""
-        for _, plugin in self.store.plugins.items():
-            if plugin.get_process() is None:
-                plugin.restart()
-        self.timer = Timer(60, self._observe)
-        self.timer.start()
-
     def run(self):
         """The main function of the manager. This function is blocked on the queue.queue
         'self.queue_plugin_manage', waiting for an event.
         """
         while self._is_init:
             try:
-                event = self.queue_plugin_manage.get()
+                event = self.queue_manager.get()
                 if event is None:
                     break
                 plugin = event['target']
                 builtin = event['action']
                 print('PluginManager: {} {}'.format(builtin, plugin))
-                if plugin:
-                    try:
-                        self.queue_tts.put(getattr(PluginBuiltins, builtin)(plugin))
-                    except:
-                        self.queue_tts.put('An error occurred with the builtin: {} for {}.'.format(builtin, plugin))
-                        raise
-                else:
+                if not plugin:
                     self.queue_tts.put('Plugin builtin [{}] missing 1 argument. Please specify a plugin to {}.'.format(builtin, builtin))
-                self.queue_plugin_manage.task_done()
+                    continue
+                try:
+                    self.queue_tts.put(getattr(PluginBuiltins, builtin)(plugin))
+                except:
+                    self.queue_tts.put('An error occurred with the builtin: {} for {}. The error has been print.'.format(builtin, plugin))
+                    raise
             except:
                 import traceback
                 traceback.print_exc()
-                raise
+            finally:
+                self.queue_manager.task_done()
 
     def stop(self):
         """Shutdown gracefully the manager."""
         print('Stopping {0}...'.format(self.__class__.__name__))
         self._is_init = False
-        self.queue_plugin_manage.put(None)
-        try:
-            self.timer.cancel()
-            self.store.clear()
-        except:
-            raise
+        self.queue_manager.put(None)
