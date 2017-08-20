@@ -12,9 +12,10 @@ class _WindowsInterface(_ListenerInterface):
         """
         super().__init__(state, store, tts)
 
-    def run(self):
+    def listen(self):
         """
         """
+        # TODO find a way to handle it on Windows
         print('Run _WindowsInterface')
 
     def stop(self):

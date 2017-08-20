@@ -44,7 +44,7 @@ class _UnixInterface(_ListenerInterface):
         else:
             self.queue_tts.put(result)
 
-    def run(self):
+    def listen(self):
         """
         """
         OBSERVED = {}
@@ -67,4 +67,5 @@ class _UnixInterface(_ListenerInterface):
     def stop(self):
         """
         """
-        print('Stop _UnixInterface')
+        for _, plugin in self.store.plugins.items():
+            plugin.get_process().stdout.close()

@@ -12,12 +12,12 @@ class PluginInvoker(_BaseComponent):
         super().__init__(queues)
         self.state = State()
         self.store = PluginStore()
-        self.queue_plugin_command = None
         self.queue_tts = None
+        self.queue_invoker = None
 
     def setup(self):
-        self.queue_plugin_command = self._queues['QueuePluginInvoker']
         self.queue_tts = self._queues['QueueTextToSpeech']
+        self.queue_invoker = self._queues['QueuePluginInvoker']
 
     def _exec_event(self, event, expected=False, plugin_name=None):
         """Execute an event related to a plugin feature.
@@ -58,7 +58,8 @@ class PluginInvoker(_BaseComponent):
         if not self.store.get_plugin(event['action']):
             self.queue_tts.put('No plugin named {} found.'.format(event['action']))
             return
-        self._exec_event(event)
+        else:
+            self._exec_event(event)
 
     def run(self):
         """The main function of the PluginInvoker.
@@ -67,19 +68,22 @@ class PluginInvoker(_BaseComponent):
         """
         while self._is_init:
             try:
-                event = self.queue_plugin_command.get()
+                event = self.queue_invoker.get()
                 if event is None:
                     break
                 print('PluginInvoker current event: ', event)
                 self._process_event(event)
-                self.queue_plugin_command.task_done()
             except:
                 import traceback
                 traceback.print_exc()
-                raise
+                self.queue_tts.put('An error occured with the plugin invoker. The error has been print.')
+            finally:
+                self.queue_invoker.task_done()
 
     def stop(self):
         """Shutdown gracefully the PluginInvoker."""
         print('Stopping {0}...'.format(self.__class__.__name__))
         self._is_init = False
-        self.queue_plugin_command.put(None)
+        self.queue_invoker.put(None)
+        for _, plugin in self.store.plugins.items():
+            plugin.get_process().stdin.close()

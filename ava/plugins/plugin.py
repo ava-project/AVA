@@ -56,8 +56,6 @@ class Plugin(object):
     def kill(self):
         """Kill the plugin by killing its process. The subprocess.Popen object is set back to None."""
         try:
-            self.process.stdin.close()
-            self.process.stdout.close()
             self.process.kill()
             self.process = None
         except:
@@ -74,8 +72,6 @@ class Plugin(object):
     def shutdown(self):
         """Shutdown the plugin gracefully."""
         try:
-            self.process.stdin.close()
-            self.process.stdout.close()
             self.process.terminate()
             self.process = None
         except:

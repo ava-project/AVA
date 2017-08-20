@@ -6,7 +6,7 @@ class _ListenerInterface(object):
         self.store = store
         self.queue_tts = tts
 
-    def run(self, *args, **kwargs):
+    def listen(self, *args, **kwargs):
         raise NotImplementedError()
 
     def stop(self):
