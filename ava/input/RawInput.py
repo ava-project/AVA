@@ -35,6 +35,7 @@ class RawInput:
         """
         self.audio.terminate()
 
+    #Setting reading variables to start/stop vocal recording
     def start(self):
         self.record = []
         self.done = False
@@ -43,6 +44,7 @@ class RawInput:
     def stop(self):
         self.listening = False
 
+    # Reading vocal entry
     def read(self):
         self.start()
         stream = self.audio.open(format=pyaudio.paInt16,
