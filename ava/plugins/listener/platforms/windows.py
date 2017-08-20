@@ -1,7 +1,7 @@
 from ...process import flush_stdout
 from .interface import _ListenerInterface
 from ...process import multi_lines_output_handler
-from avasdk.plugins.log import ERROR, IMPORT, REQUEST, RESPONSE
+from avasdk.plugins.log import Logger
 
 class _WindowsInterface(_ListenerInterface):
     """

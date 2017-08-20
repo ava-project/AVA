@@ -6,7 +6,7 @@ from ...state import State
 from ..store import PluginStore
 from ...components import _BaseComponent
 from .platforms import _UnixInterface, _WindowsInterface
-from avasdk.plugins.log import unexpected_error
+from avasdk.plugins.log import Logger
 
 class PluginListener(_BaseComponent):
     """
@@ -37,7 +37,7 @@ class PluginListener(_BaseComponent):
             except:
                 import traceback
                 traceback.print_exc()
-                self._queues['QueueTextToSpeech'].put(unexpected_error(self))
+                self._queues['QueueTextToSpeech'].put(Logger.unexpected_error(self))
 
     def stop(self):
         """

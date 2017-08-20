@@ -1,6 +1,6 @@
 from os import path
 from .process import spawn
-from avasdk.plugins.ioutils.utils import load_plugin
+from avasdk.plugins.utils import load_plugin
 
 class Plugin(object):
     """Object representation of a plugin."""

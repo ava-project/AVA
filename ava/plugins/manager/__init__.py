@@ -3,7 +3,7 @@ from ..plugin import Plugin
 from ..store import PluginStore
 from .builtins import PluginBuiltins
 from ...components import _BaseComponent
-from avasdk.plugins.log import unexpected_error
+from avasdk.plugins.log import Logger
 
 class PluginManager(_BaseComponent):
     """The entity responsible of managing the plugins. By this, we mean the management
@@ -38,6 +38,7 @@ class PluginManager(_BaseComponent):
             try:
                 self.store.add_plugin(name, Plugin(name, self.store.path))
             except Exception as err:
+                print(str(err))
                 self.queue_tts.put('Loading of the plugin: {0} failed'.format(name))
                 continue
 
@@ -54,14 +55,11 @@ class PluginManager(_BaseComponent):
                 if not event['target']:
                     self.queue_tts.put('In order to use a builtin you must specify one argument.')
                     continue
-                try:
-                    self.queue_tts.put(getattr(PluginBuiltins, event['action'])(event['target']))
-                except:
-                    raise
+                self.queue_tts.put(getattr(PluginBuiltins, event['action'])(event['target']))
             except:
                 import traceback
                 traceback.print_exc()
-                self.queue_tts.put(unexpected_error(self))
+                self.queue_tts.put(Logger.unexpected_error(self))
             finally:
                 self.queue_manager.task_done()
 

@@ -2,7 +2,7 @@ import os
 import sys
 import datetime
 from subprocess import Popen, PIPE, STDOUT
-from avasdk.plugins.log import IMPORT, DELIMITER
+from avasdk.plugins.log import Logger
 
 
 class NotSupportedLanguage(Exception):
@@ -34,15 +34,12 @@ def flush_stdout(process):
     """
     output = []
     while True:
-        try:
-            assert process is not None and not process.stdout.closed
-            line = process.stdout.readline().rstrip()
-        except:
-            raise
-        if line == DELIMITER:
+        assert process is not None and not process.stdout.closed
+        line = process.stdout.readline().rstrip()
+        if line == Logger.DELIMITER:
             break
         output.append(line)
-    return output, True if IMPORT in output else False
+    return output, True if Logger.IMPORT in output else False
 
 def spawn(plugin):
     """Spawn a new dedicated process for the plugin named 'plugin'.

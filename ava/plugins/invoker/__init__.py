@@ -2,7 +2,7 @@ import os
 from ...state import State
 from ..store import PluginStore
 from ...components import _BaseComponent
-from avasdk.plugins.log import unexpected_error
+from avasdk.plugins.log import Logger
 
 
 class PluginInvoker(_BaseComponent):
@@ -77,7 +77,7 @@ class PluginInvoker(_BaseComponent):
             except:
                 import traceback
                 traceback.print_exc()
-                self.queue_tts.put(unexpected_error(self))
+                self.queue_tts.put(Logger.unexpected_error(self))
             finally:
                 self.queue_invoker.task_done()
 

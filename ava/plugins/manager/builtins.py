@@ -1,7 +1,7 @@
 import os
 from ..plugin import Plugin
 from ..store import PluginStore
-from avasdk.plugins.ioutils.utils import unzip, remove_directory
+from avasdk.plugins.utils import unzip, remove_directory
 
 class PluginBuiltins(object):
     """Builtins handler.
