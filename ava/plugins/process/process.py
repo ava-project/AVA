@@ -60,5 +60,4 @@ def spawn(plugin):
     }.get(lang, None)
     if not handler:
         raise NotSupportedLanguage('Plugin language not supported.')
-        return None
     return Popen([sys.executable, os.path.join(path, handler), name], stdin=PIPE, stdout=PIPE, stderr=None, universal_newlines=True)

@@ -41,10 +41,8 @@ class PluginStore(metaclass=Singleton):
         return:
             - (Plugin object) or None whether the specified plugin is currently stored or not.
         """
-        result = None
         with PluginStore.mutex:
-            result = self.plugins.get(plugin)
-        return result
+            return self.plugins.get(plugin)
 
     def get_plugin_list(self):
         """Allows to retrieve a dictionary containg for each plugin stored, the name,
@@ -81,11 +79,8 @@ class PluginStore(metaclass=Singleton):
         return:
             - boolean.
         """
-        result = False
         with PluginStore.mutex:
-            if plugin in self.disabled:
-                result = True
-        return result
+            return plugin in self.disabled
 
     def enable_plugin(self, plugin):
         """Enables the specified plugin.

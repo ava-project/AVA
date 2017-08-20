@@ -14,11 +14,8 @@ class Plugin(object):
         """
         self.name = name
         self.path = path
-        try:
-            self.specs = load_plugin(self.path, self.name)[self.name]
-            self.process = spawn(self)
-        except:
-            raise
+        self.specs = load_plugin(self.path, self.name)[self.name]
+        self.process = spawn(self)
 
     def get_name(self):
         """Returns a string with the name of the plugin.
@@ -55,24 +52,17 @@ class Plugin(object):
 
     def kill(self):
         """Kill the plugin by killing its process. The subprocess.Popen object is set back to None."""
-        try:
-            self.process.kill()
-            self.process = None
-        except:
-            raise
+        assert self.process is not None
+        self.process.kill()
+        self.process = None
 
     def restart(self):
         """Restart the plugin by spawning a new dedicated processs."""
         assert self.process is None
-        try:
-            self.process = spawn(self)
-        except:
-            raise
+        self.process = spawn(self)
 
     def shutdown(self):
         """Shutdown the plugin gracefully."""
-        try:
-            self.process.terminate()
-            self.process = None
-        except:
-            raise
+        assert self.process is not None
+        self.process.terminate()
+        self.process = None

@@ -3,6 +3,7 @@ from ..plugin import Plugin
 from ..store import PluginStore
 from .builtins import PluginBuiltins
 from ...components import _BaseComponent
+from avasdk.plugins.log import unexpected_error
 
 class PluginManager(_BaseComponent):
     """The entity responsible of managing the plugins. By this, we mean the management
@@ -19,9 +20,9 @@ class PluginManager(_BaseComponent):
         self.store = PluginStore()
 
     def setup(self):
-        self._init()
         self.queue_tts = self._queues['QueueTextToSpeech']
         self.queue_manager = self._queues['QueuePluginManager']
+        self._init()
 
     def _init(self):
         """Initialize the folder where the future plugin will be installed. Run through this folder
@@ -37,7 +38,7 @@ class PluginManager(_BaseComponent):
             try:
                 self.store.add_plugin(name, Plugin(name, self.store.path))
             except Exception as err:
-                print(str(err))
+                self.queue_tts.put('Loading of the plugin: {0} failed'.format(name))
                 continue
 
     def run(self):
@@ -49,20 +50,18 @@ class PluginManager(_BaseComponent):
                 event = self.queue_manager.get()
                 if event is None:
                     break
-                plugin = event['target']
-                builtin = event['action']
-                print('PluginManager: {} {}'.format(builtin, plugin))
-                if not plugin:
-                    self.queue_tts.put('Plugin builtin [{}] missing 1 argument. Please specify a plugin to {}.'.format(builtin, builtin))
+                print('PluginManager: {} {}'.format(event['action'], event['target']))
+                if not event['target']:
+                    self.queue_tts.put('In order to use a builtin you must specify one argument.')
                     continue
                 try:
-                    self.queue_tts.put(getattr(PluginBuiltins, builtin)(plugin))
+                    self.queue_tts.put(getattr(PluginBuiltins, event['action'])(event['target']))
                 except:
-                    self.queue_tts.put('An error occurred with the builtin: {} for {}. The error has been print.'.format(builtin, plugin))
                     raise
             except:
                 import traceback
                 traceback.print_exc()
+                self.queue_tts.put(unexpected_error(self))
             finally:
                 self.queue_manager.task_done()
 

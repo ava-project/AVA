@@ -37,8 +37,9 @@ def main():
     ava = AVA()
     try:
         ava.run()
-    except (Exception, KeyboardInterrupt, BrokenPipeError, IOError) as err:
+    except Exception as err:
         print(str(err))
+    except KeyboardInterrupt as err:
         ava.stop()
 
 if __name__ == "__main__":
