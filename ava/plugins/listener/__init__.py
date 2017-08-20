@@ -25,7 +25,7 @@ class PluginListener(_BaseComponent):
         module = 'ava.plugins.listener.platforms.unix'
         if platform.system() == 'Windows':
             klass = '_WindowsInterface'
-            module = 'ava.plugins.listener.windows'
+            module = 'ava.plugins.listener.platforms.windows'
         self.listener = getattr(import_module(module), klass)(State(), PluginStore(), self._queues['QueueTextToSpeech'])
 
     def run(self):
