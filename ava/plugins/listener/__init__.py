@@ -5,7 +5,7 @@ from importlib import import_module
 from ...state import State
 from ..store import PluginStore
 from ...components import _BaseComponent
-from .platforms import _UnixInterface, _WindowsInterface
+# from .platforms import _UnixInterface, _WindowsInterface
 from avasdk.plugins.log import Logger
 
 class PluginListener(_BaseComponent):
@@ -17,30 +17,26 @@ class PluginListener(_BaseComponent):
         """
         super().__init__(queues)
         self.listener = None
-        if platform.system() == 'Windows':
-            self.queue_listener = None
 
     def setup(self):
         """
         """
+        queue_listener = None
         klass = '_UnixInterface'
         module = 'ava.plugins.listener.platforms.unix'
         if platform.system() == 'Windows':
             klass = '_WindowsInterface'
             module = 'ava.plugins.listener.platforms.windows'
-        self.listener = getattr(import_module(module), klass)(State(), PluginStore(), self._queues['QueueTextToSpeech'])
-        if platform.system() == 'Windows':
-            self.queue_listener = self._queues['QueueWindowsListener']
+            queue_listener = self._queues['QueueWindowsListener']
+        self.listener = getattr(import_module(module), klass)(State(), PluginStore(),
+                                self._queues['QueueTextToSpeech'], queue_listener)
 
     def run(self):
         """
         """
         while self._is_init:
             try:
-                if platform.system() == 'Windows':
-                    self.listener.listen(self.queue_listener)
-                else:
-                    self.listener.listen()
+                self.listener.listen()
             except:
                 import traceback
                 traceback.print_exc()
