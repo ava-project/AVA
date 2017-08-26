@@ -17,6 +17,8 @@ class PluginListener(_BaseComponent):
         """
         super().__init__(queues)
         self.listener = None
+        if platform.system() == 'Windows':
+            self.queue_listener = None
 
     def setup(self):
         """
@@ -27,13 +29,18 @@ class PluginListener(_BaseComponent):
             klass = '_WindowsInterface'
             module = 'ava.plugins.listener.platforms.windows'
         self.listener = getattr(import_module(module), klass)(State(), PluginStore(), self._queues['QueueTextToSpeech'])
+        if platform.system() == 'Windows':
+            self.queue_listener = self._queues['QueueWindowsListener']
 
     def run(self):
         """
         """
         while self._is_init:
             try:
-                self.listener.listen()
+                if platform.system() == 'Windows':
+                    self.listener.listen(self.queue_listener)
+                else:
+                    self.listener.listen()
             except:
                 import traceback
                 traceback.print_exc()

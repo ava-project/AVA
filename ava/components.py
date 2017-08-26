@@ -1,3 +1,4 @@
+import platform
 from os import path
 from threading import Thread
 from queue import Queue, Empty
@@ -25,6 +26,9 @@ class ComponentManager(object):
         self._queues['QueueComponentManager'] = Queue()
         self._config = ConfigLoader(path.dirname(path.realpath(__file__)), self._queues)
         self._config.load('settings.json')
+        if platform.system() == 'Windows':
+            self._queues['QueueWindowsListener'] = Queue()
+
 
     def add_component(self, Component):
         component = Component(self._queues)

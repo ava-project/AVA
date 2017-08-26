@@ -1,4 +1,5 @@
 import os
+import platform
 from ...state import State
 from ..store import PluginStore
 from ...components import _BaseComponent
@@ -15,10 +16,14 @@ class PluginInvoker(_BaseComponent):
         self.store = PluginStore()
         self.queue_tts = None
         self.queue_invoker = None
+        if platform.system() == 'Windows':
+            self.queue_listener = None
 
     def setup(self):
         self.queue_tts = self._queues['QueueTextToSpeech']
         self.queue_invoker = self._queues['QueuePluginInvoker']
+        if platform.system() == 'Windows':
+            self.queue_listener = self._queues['QueueWindowsListener']
 
     def _exec_event(self, event, expected=False, plugin_name=None):
         """Execute an event related to a plugin feature.
@@ -39,6 +44,8 @@ class PluginInvoker(_BaseComponent):
         assert process is not None and not process.stdin.closed
         process.stdin.write(command + '\n')
         process.stdin.flush()
+        if platform.system() == 'Windows':
+            self.queue_listener.put(plugin_name)
 
     def _process_event(self, event):
         """Handler to dertimine what kind of event, the invoker is currently dealing with.

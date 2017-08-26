@@ -36,6 +36,7 @@ def flush_stdout(process):
     while True:
         assert process is not None and not process.stdout.closed
         line = process.stdout.readline().rstrip()
+        print('line ', line)
         if line == Logger.DELIMITER:
             break
         output.append(line)

@@ -51,6 +51,7 @@ def execute(plugin_name, command):
         - plugin_name: The name of the plugin running (string).
         - command: the user's input (string).
     """
+    # print('python_main: ', command)
     if PLUGIN.get(plugin_name):
         command_name, args = split_string(command, ' ')
         plugin = PLUGIN.get(plugin_name)
@@ -65,7 +66,9 @@ def execute(plugin_name, command):
 if __name__ == "__main__":
     try:
         plugin_name = sys.argv[1]
+        # print(sys.argv)
         import_module(plugin_name)
         wait_for_command(plugin_name)
-    except:
+    except Exception as err:
+        print(str(err))
         Logger.log_error()
