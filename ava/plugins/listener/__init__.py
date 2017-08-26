@@ -5,7 +5,6 @@ from importlib import import_module
 from ...state import State
 from ..store import PluginStore
 from ...components import _BaseComponent
-# from .platforms import _UnixInterface, _WindowsInterface
 from avasdk.plugins.log import Logger
 
 class PluginListener(_BaseComponent):

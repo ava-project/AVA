@@ -1,3 +1,4 @@
+import ctypes
 from .interface import _ListenerInterface
 
 class _WindowsInterface(_ListenerInterface):
@@ -8,6 +9,11 @@ class _WindowsInterface(_ListenerInterface):
         """
         """
         super().__init__(state, store, tts, listener)
+
+    def _popup(self, plugin_name, content):
+        """
+        """
+        ctypes.windll.user32.MessageBoxW(0, content, plugin_name, 1)
 
     def listen(self):
         """
