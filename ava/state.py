@@ -27,7 +27,6 @@ class State(metaclass=Singleton):
         with State.plugin_state_mutex:
             self.plugin['name'] = None
             self.plugin['interaction_required'] = False
-        print('DEBUGDEBUG')
 
     def is_plugin_waiting_for_user_interaction(self):
         """

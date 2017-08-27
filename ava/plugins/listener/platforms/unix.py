@@ -1,71 +1,53 @@
-import ast
-import select
-from ...process import flush_stdout
+import select as sct
 from .interface import _ListenerInterface
-from ...process import multi_lines_output_handler
-from avasdk.plugins.log import ERROR, IMPORT, REQUEST, RESPONSE
+
 
 class _UnixInterface(_ListenerInterface):
+    """The Unix interface responsible of listening each plugin's process
+    running.
     """
-    """
 
-    def __init__(self, state, store, tts):
-        """
-        """
-        super().__init__(state, store, tts)
+    def __init__(self, state, store, tts, listener):
+        """Initializer.
 
-    def _process_result(self, plugin_name, process):
-        """This functions flushes the stdout of the given process and process the
-            data read.
+        We initialize here the _UnixInterface by initializing the
+        _ListenerInterface with the instances of the State, the PluginStore, the
+        queue dedicated to the text-to-speech  component and the queue dedicated
+        to the communication between the PluginInvoker and the PluginListener
+        (for Windows only, on other operating system listener will be None).
 
-        params:
-            - plugin_name: The name of the plugin (string).
-            - process: The process object (subprocess.Popen)
+        Args:
+            state: The instance of the State object.
+            store: The instance of the PluginStore.
+            tts: The instance of the queue dedicated to the text-to-speech
+                component
+            listener: The  instance of the queue dedicated to the communication
+                between the PluginInvoker and the PluginListener (on Windows
+                only, otherwise 'None')
         """
-        output, import_flushed = flush_stdout(process)
-        if ERROR in output:
-            self.queue_tts.put('Plugin {} just crashed... Restarting'.format(plugin_name))
-            self.store.get_plugin(plugin_name).kill()
-            self.store.get_plugin(plugin_name).restart()
-            return
-        if IMPORT in output:
-            return
-        if REQUEST in output:
-            output.remove(REQUEST)
-            self.state.plugin_requires_user_interaction(plugin_name)
-            self.queue_tts.put(ast.literal_eval(''.join(output)).get('tts'))
-            return
-        output.remove(RESPONSE)
-        result, multi_lines = multi_lines_output_handler(output)
-        if multi_lines:
-            # TODO Spawn a window and print the multi lines output
-            print(result)
-            self.queue_tts.put('Result of [{}] has been print.'.format(plugin_name))
-        else:
-            self.queue_tts.put(result)
+        super().__init__(state, store, tts, listener)
 
     def listen(self):
-        """
+        """Main function of the _UnixInterface.
+
+        Performs a poll on each stdout file descriptor of each process of each
+        plugin installed. As soon as a read event is detected on the file
+        descriptor of a process, that means a plugin has been run.
+        The data are read and sent to the 'self._process_result' method
+        inherited from the _ListenerInterface.
         """
         OBSERVED = {}
-        POLL = select.poll()
-        READ_ONLY = select.POLLIN | select.POLLPRI | select.POLLHUP | select.POLLERR
+        POLL = sct.poll()
+        READ_ONLY = sct.POLLIN | sct.POLLPRI | sct.POLLHUP | sct.POLLERR
         for _, plugin in self.store.plugins.items():
             fd = int(plugin.get_process().stdout.name)
             OBSERVED[fd] = plugin.get_process()
             POLL.register(fd, READ_ONLY)
-        try:
-            result = POLL.poll(0)
-        except:
-            raise
+        result = POLL.poll(0)
         for fd, _ in result:
             if OBSERVED.get(fd) is None:
                 continue
             p = OBSERVED.get(fd)
-            self._process_result(''.join('{}'.format(k) for k, v in self.store.plugins.items() if p == v.get_process()), p)
-
-    def stop(self):
-        """
-        """
-        for _, plugin in self.store.plugins.items():
-            plugin.get_process().stdout.close()
+            self._process_result(''.join('{}'.format(k)
+                                         for k, v in self.store.plugins.items()
+                                         if p == v.get_process()), p)
