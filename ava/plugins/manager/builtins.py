@@ -45,7 +45,7 @@ class PluginBuiltins(object):
 
         Removes all files located in $HOME/.ava/plugins/plugin_to_uninstall
 
-        param:
+        Args:
             plugin_to_uninstall: The name of the plugin to uninstall (string).
 
         Returns:
