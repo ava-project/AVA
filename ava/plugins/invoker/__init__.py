@@ -81,8 +81,11 @@ class PluginInvoker(_BaseComponent):
                 self._process_event(event)
             except:
                 import traceback
-                traceback.print_exc()
                 self.queue_tts.put(Logger.unexpected_error(self))
+                Logger.popup(
+                    'Traceback [{0}] invoking: {1} {2}'.format(self.__class__.__name__, event['action'], event['target']),
+                    traceback.format_exc()
+                )
             finally:
                 self.queue_invoker.task_done()
 

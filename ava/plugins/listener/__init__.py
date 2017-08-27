@@ -27,8 +27,12 @@ class PluginListener(_BaseComponent):
             klass = '_WindowsInterface'
             module = 'ava.plugins.listener.platforms.windows'
             queue_listener = self._queues['QueueWindowsListener']
-        self.listener = getattr(import_module(module), klass)(State(), PluginStore(),
-                                self._queues['QueueTextToSpeech'], queue_listener)
+        self.listener = getattr(import_module(module), klass)(
+            State(),
+            PluginStore(),
+            self._queues['QueueTextToSpeech'],
+            queue_listener
+        )
 
     def run(self):
         """
@@ -38,8 +42,11 @@ class PluginListener(_BaseComponent):
                 self.listener.listen()
             except:
                 import traceback
-                traceback.print_exc()
                 self._queues['QueueTextToSpeech'].put(Logger.unexpected_error(self))
+                Logger.popup(
+                    'Traceback [{0}]'.format(self.__class__.__name__),
+                    traceback.format_exc()
+                )
 
     def stop(self):
         """

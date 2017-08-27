@@ -12,11 +12,6 @@ class _ListenerInterface(object):
         self.queue_tts = tts
         self.queue_listener = listener
 
-    def _popup(self, plugin_name, content):
-        """
-        """
-        raise NotImplementedError()
-
     def _process_result(self, plugin_name, process):
         """This functions flushes the stdout of the given process and process the
             data read.
@@ -43,8 +38,8 @@ class _ListenerInterface(object):
         output.remove(Logger.RESPONSE)
         result, multi_lines = multi_lines_output_handler(output)
         if multi_lines:
-            self._popup(plugin_name, result)
             self.queue_tts.put('Result of [{}] has been print.'.format(plugin_name))
+            Logger.popup(plugin_name, result)
             return
         self.queue_tts.put(result)
 

@@ -37,9 +37,13 @@ class PluginManager(_BaseComponent):
                 continue
             try:
                 self.store.add_plugin(name, Plugin(name, self.store.path))
-            except Exception as err:
-                print(str(err))
+            except:
+                import traceback
                 self.queue_tts.put('Loading of the plugin: {0} failed'.format(name))
+                Logger.popup(
+                    'Traceback [{0}] Loading of the plugin ({1})'.format(self.__class__.__name__, name),
+                    traceback.format_exc()
+                )
                 continue
 
     def run(self):
@@ -58,8 +62,11 @@ class PluginManager(_BaseComponent):
                 self.queue_tts.put(getattr(PluginBuiltins, event['action'])(event['target']))
             except:
                 import traceback
-                traceback.print_exc()
                 self.queue_tts.put(Logger.unexpected_error(self))
+                Logger.popup(
+                    'Traceback [{0}] {1}: {2}'.format(self.__class__.__name__, event['action'], event['target']),
+                    traceback.format_exc()
+                )
             finally:
                 self.queue_manager.task_done()
 

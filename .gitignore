@@ -102,3 +102,6 @@ ENV/
 
 # Temporary file for STT
 sample.wav
+
+# Speech to text files (mp3)
+.mp3

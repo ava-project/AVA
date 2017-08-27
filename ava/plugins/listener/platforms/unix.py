@@ -10,11 +10,6 @@ class _UnixInterface(_ListenerInterface):
         """
         super().__init__(state, store, tts, listener)
 
-    def _popup(self, plugin_name, content):
-        """
-        """
-        print(content)
-
     def listen(self):
         """
         """
