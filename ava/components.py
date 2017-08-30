@@ -1,3 +1,4 @@
+import platform
 from os import path
 from threading import Thread
 from queue import Queue, Empty
@@ -22,6 +23,7 @@ class ComponentManager(object):
         self._components = []
         self._config_keys = {}
         self._queues = {}
+        self._queues['QueueWindowsListener'] = Queue()
         self._queues['QueueComponentManager'] = Queue()
         self._config = ConfigLoader(path.dirname(path.realpath(__file__)), self._queues)
         self._config.load('settings.json')
@@ -40,9 +42,9 @@ class ComponentManager(object):
             component.start()
 
     def stop_all(self):
-        print('DEBUG 1', self._components)
+        print(self._components)
         for component in self._components:
-            print('DEBUG 2 [{0}]'.format(component.__class__.__name__))
+            print('[{0}]'.format(component.__class__.__name__))
             component.stop()
 
     def join_all(self):

@@ -3,10 +3,11 @@ import pip
 import sys
 import json
 from importlib.machinery import SourceFileLoader
-from avasdk.plugins.ioutils.utils import split_string
-from avasdk.plugins.log import ERROR, IMPORT, RESPONSE, DELIMITER, log
+from avasdk.plugins.utils import split_string
+from avasdk.plugins.log import Logger
 
 PLUGIN = {}
+
 
 def import_module(plugin_name):
     """Import a module in runtime.
@@ -21,9 +22,11 @@ def import_module(plugin_name):
     if not PLUGIN.get(plugin_name):
         if 'build' in manifest and manifest['build'] == True:
             install_from_requirements(path)
-        mod = SourceFileLoader(plugin_name, os.path.join(path, manifest['source'])).load_module()
+        src = SourceFileLoader(plugin_name, os.path.join(path, manifest['source']))
+        mod = src.load_module()
         PLUGIN[plugin_name] = getattr(sys.modules[mod.__name__], plugin_name)
-    log(importing=True)
+    Logger.log_import()
+
 
 def install_from_requirements(path):
     """Install requirements from the 'requirements.txt' file located at path.
@@ -34,6 +37,7 @@ def install_from_requirements(path):
     requirements = os.path.join(path, "requirements.txt")
     pip.main(['install', '-r', requirements])
 
+
 def wait_for_command(plugin_name):
     """Wait for an input from the user.
 
@@ -42,7 +46,8 @@ def wait_for_command(plugin_name):
     """
     while True:
         execute(plugin_name, input())
-        log(response=True)
+        Logger.log_response()
+
 
 def execute(plugin_name, command):
     """Execute the given command of the plugin named 'plugin_name'
@@ -57,7 +62,8 @@ def execute(plugin_name, command):
         if command_name in plugin.__dict__:
             plugin.__dict__[command_name](plugin, args if args else None)
             return
-        print('The plugin {} cannot handle the following command: {}'.format(plugin_name, command_name), flush=False)
+        print('The plugin {} cannot handle the following command: {}'.format(
+                plugin_name, command_name), flush=False)
     else:
         raise RuntimeError('Unexpected error occured.')
 
@@ -68,4 +74,6 @@ if __name__ == "__main__":
         import_module(plugin_name)
         wait_for_command(plugin_name)
     except:
-        log(error=True)
+        import traceback
+        traceback.print_exc(file=sys.stdout)
+        Logger.log_error()
