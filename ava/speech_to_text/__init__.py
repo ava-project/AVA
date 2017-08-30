@@ -2,7 +2,7 @@ from ..components import _BaseComponent
 
 # Sub components imports :
 #   -Speech To Text engine
-from .STT_Engine import STT_Engine
+from .STT_EngineWebsocket import STT_Engine_WebSocket as STT_Engine
 
 
 class SpeechToText(_BaseComponent):

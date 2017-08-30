@@ -3,7 +3,7 @@ from websocket import create_connection
 class STT_Engine_WebSocket():
 
     def __init__(self):
-        self.ws = create_connection("")
+        self.ws = create_connection("ws://192.168.1.30:8765")
 
     def recognize(self, stream):
         print("Sending file to server..")
