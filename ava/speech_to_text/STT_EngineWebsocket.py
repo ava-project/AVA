@@ -7,7 +7,7 @@ class STT_Engine_WebSocket():
 
     def recognize(self, stream):
         print("Sending file to server..")
-        self.ws.send(stream)
+        self.ws.send(stream, websocket.ABNF.OPCODE_BINARY)
         print("Receiving sentence..")
         return self.ws.recv()
 
