@@ -1,4 +1,5 @@
 from ..components import _BaseComponent
+import asyncio
 
 # Sub components imports :
 #   -Speech To Text engine
@@ -26,16 +27,12 @@ class SpeechToText(_BaseComponent):
                 break
             self.queue_tts.put("Wait ...")
             print ("Sending information to be translated...")
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
             try:
-                result = self.stt.recognize(audio_stream)
-                print ("Message received...")
-                if result["results"][0]["alternatives"][0]["transcript"] :
-                    self.queue_command.put(result["results"][0]["alternatives"][0]["transcript"])
-                    self.queue_input.task_done()
-                    self.queue_tts.put("Okay")
+                loop.run_until_complete(self.stt.recognize(audio_stream, self))
             except:
-                self.queue_tts.put("Retry your command please")
-
+                print("Cannot run recognize loop..")
     def stop(self):
         print('Stopping {0}...'.format(self.__class__.__name__))
         self._is_init = False
