@@ -4,10 +4,10 @@ import asyncio
 class STT_Engine_WebSocket():
 
     async def recognize(self, stream, queue_manager):
-        async with websockets.connect('ws://172.17.0.2:8766') as websocket:
+        async with websockets.connect('ws://192.168.1.74:8766') as websocket:
             print("Connecting to AVA Servers with address 172.17.0.2:8766")
             print("Sending file to server..")
-            await websocket.send("block in the countryside wallah")
+            await websocket.send(b''.join(stream))
             print("Receiving sentence..")
             message = await websocket.recv()
             print (message)

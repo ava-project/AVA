@@ -29,10 +29,8 @@ class SpeechToText(_BaseComponent):
             print ("Sending information to be translated...")
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
-            try:
-                loop.run_until_complete(self.stt.recognize(audio_stream, self))
-            except:
-                print("Cannot run recognize loop..")
+            loop.run_until_complete(self.stt.recognize(audio_stream, self))
+
     def stop(self):
         print('Stopping {0}...'.format(self.__class__.__name__))
         self._is_init = False
