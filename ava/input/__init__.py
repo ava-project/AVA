@@ -22,14 +22,14 @@ class Input(_BaseComponent):
         self.input_queue = self._queues['QueueInput']
 
     def write_to_file(self, all_datas):
-#        audio_file = io.BytesIO()
-#        wf = wave.Wave_write(audio_file)
-#       wf.setnchannels(1)
-#       wf.setsampwidth(2)
-#       wf.setframerate(16000)
-#       wf.writeframes(b''.join(all_datas))
-#       audio_file.seek(0)
-        self.input_queue.put(all_datas)
+        audio_file = io.BytesIO()
+        wf = wave.Wave_write(audio_file)
+        wf.setnchannels(1)
+        wf.setsampwidth(2)
+        wf.setframerate(16000)
+        wf.writeframes(b''.join(all_datas))
+        audio_file.seek(0)
+        self.input_queue.put(audio_file)
 
     def on_press(self, key):
         try:
