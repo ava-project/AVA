@@ -59,6 +59,7 @@ def spawn(plugin):
     lang = plugin.get_specs()['lang']
     path = os.path.join('ava', 'plugins', 'process')
     handler = {
+        'cpp': 'cpp_main.py',
         'py': 'python_main.py',
     }.get(lang, None)
     if not handler:
