@@ -39,6 +39,7 @@ class Input(_BaseComponent):
                 self.input_listener.reading_thread = threading.Thread(target=self.input_listener.read)
                 self.input_listener.reading_thread.start()
         except AttributeError:
+            print ("Error on Key pressed")
             pass
 
     def on_release(self, key):
@@ -49,7 +50,6 @@ class Input(_BaseComponent):
             while self.input_listener.done == False:
                 pass
             self.write_to_file(self.input_listener.record)
-            return False
 
 
     def run(self):
