@@ -5,7 +5,6 @@ import asyncio
 #   -Speech To Text engine
 from .STT_EngineWebsocket import STT_Engine_WebSocket as STT_Engine
 
-
 class SpeechToText(_BaseComponent):
 
     def __init__(self, queues):
@@ -20,6 +19,7 @@ class SpeechToText(_BaseComponent):
         self.queue_input = self._queues['QueueInput']
         self.queue_tts = self._queues['QueueTextToSpeech']
 
+    # Function calling STT_Engine Recognize with async call
     def run(self):
         while self._is_init:
             audio_stream = self.queue_input.get()

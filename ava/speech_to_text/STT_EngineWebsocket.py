@@ -3,11 +3,12 @@ import asyncio
 import pickle
 import base64
 
+# Class connecting to ava_server with websocket, sending audio data
 class STT_Engine_WebSocket():
 
     async def recognize(self, stream, queue_manager):
         async with websockets.connect("ws://172.17.0.2:8766") as ws:
-            print("Connecting to AVA Servers with address ws://192.168.1.74:8766")
+            print("Connecting to AVA Servers with address ws://172.17.0.2:8766")
             print("Sending file to server..")
             binary = stream.read()
             b64_data = base64.b64encode(binary)
