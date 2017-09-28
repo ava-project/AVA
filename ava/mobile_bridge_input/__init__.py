@@ -3,8 +3,6 @@ import sys
 import wave
 import asyncio
 import websockets
-import socket
-
 from ..components import _BaseComponent
 
 
@@ -20,6 +18,7 @@ class MobileBridgeInput(_BaseComponent):
         self.input_queue = self._queues['QueueInput']
 
     def get_ip_address(self):
+        import socket
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.connect(("8.8.8.8", 80))
         ip = s.getsockname()[0]
