@@ -49,7 +49,6 @@ class Input(_BaseComponent):
             while self.input_listener.done == False:
                 pass
             self.write_to_file(self.input_listener.record)
-            return False
 
 
     def run(self):
