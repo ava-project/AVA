@@ -7,6 +7,8 @@ from ..store import PluginStore
 from ...components import _BaseComponent
 from avasdk.plugins.log import Logger
 
+# used by cx_freeze to include packages loaded dynamically
+from .platforms import unix, windows
 
 class PluginListener(_BaseComponent):
     """The entity responsible to watch the process of each plugin installed and
