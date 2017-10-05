@@ -96,21 +96,14 @@ class DaemonServer(_BaseComponent):
         """
         List of all plugins on the local computer
         """
-        res = requests.Response()
-        res.status_code = 200
-        res.headers = {'content-type': 'application/json'}
+        res = requests.get(DaemonServer._base_url + '/plugins/list.json')
+        list_plugin = res.json()
+        list_plugin_installed = DaemonServer._plugin_store.get_plugin_list()
+        for plugin in list_plugin:
+            plugin['installed'] = 'true' if [p for p in list_plugin_installed if p['name'] == plugin['name']] else 'false'
         res.encoding = 'utf-8'
-        data = '{"data": ' + json.dumps(DaemonServer._plugin_store.get_plugin_list()) + '}'
+        data = json.dumps(list_plugin)
         res._content = data.encode('utf-8')
-        return res
-
-    @staticmethod
-    @HTTPRequestHandler.get('/plugins/list')
-    def get_plugins_list(request):
-        """
-        List of all plugins on the AVA store
-        """
-        res = requests.get(DaemonServer._base_url + '/plugins/list')
         return res
 
     @staticmethod
