@@ -45,32 +45,6 @@ def flush_stdout(process):
         output.append(line)
     return output, True if Logger.IMPORT in output else False
 
-
-# def spawn(plugin):
-#     """Spawn a new dedicated process for the plugin named 'plugin'.
-#
-#     Args:
-#         plugin: The name of the plugin for which a new process is required (string).
-#
-#     Returns:
-#         The new process (subprocess.Popen), None if it fails.
-#     """
-#     name = plugin.get_name()
-#     lang = plugin.get_specs()['lang']
-#     path = os.path.join('ava', 'plugins', 'process')
-#     handler = {
-#         # 'cpp': 'cpp_main.py',
-#         'py': 'python_main.py',
-#     }.get(lang, None)
-#     if not handler:
-#         raise NotSupportedLanguage('Plugin language not supported.')
-#     return Popen(
-#         [sys.executable, os.path.join(path, handler), name],
-#         stdin=PIPE,
-#         stdout=PIPE,
-#         stderr=None,
-#         universal_newlines=True)
-
 def spawn(plugin):
     """Spawn a new dedicated process for the plugin named 'plugin'.
 
@@ -83,14 +57,25 @@ def spawn(plugin):
     name = plugin.get_name()
     lang = plugin.get_specs()['lang']
     path = os.path.join('ava', 'plugins', 'process')
-    # handler = {
-    #     # 'cpp': 'cpp_main.py',
-    #     'py': 'python_main.py',
-    # }.get(lang, None)
     if lang not in ['cpp', 'go', 'py']:
         raise NotSupportedLanguage('Plugin language not supported.')
+    executable = os.path.join(
+            os.path.expanduser('~'),
+            '.ava',
+            'plugins',
+            name,
+            'venv/bin/python3')
+    virtualenv = Popen(
+            [sys.executable, os.path.join(path, 'venv.py'), name],
+            stdin=None,
+            stdout=None,
+            stderr=None)
+    if not virtualenv:
+        raise RuntimeError('Creating virtual environment for {}'.format(name))
+    # import time
+    # time.sleep(5)
     return Popen(
-        [sys.executable, os.path.join(path, 'main.py'), name, lang],
+        [executable, os.path.join(path, 'main.py'), name, lang],
         stdin=PIPE,
         stdout=PIPE,
         stderr=None,
