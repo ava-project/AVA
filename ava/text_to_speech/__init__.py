@@ -33,7 +33,7 @@ class TextToSpeech(_BaseComponent):
                     audio_file.seek(0)
                     playsound(audio_file.name)
             else:
-                filename = str(time.time()).split('.')[0] + ".mp3"
+                filename = os.environ['TMP'] + str(time.time()).split('.')[0] + ".mp3"
                 tts.save(filename)
                 if _platform == "linux" or _platform == "linux2":
                     mixer.init()
