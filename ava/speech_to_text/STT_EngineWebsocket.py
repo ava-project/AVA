@@ -7,8 +7,8 @@ import base64
 class STT_Engine_WebSocket():
 
     async def recognize(self, stream, queue_manager):
-        async with websockets.connect("ws://172.17.0.2:8888/ava_server") as ws:
-            print("Connecting to AVA Servers with address ws://172.17.0.2:8888/ava_server")
+        async with websockets.connect("wss://www.ava-project.com/ava_server") as ws:
+            print("Connecting to AVA Servers with address ws://ava-project.com:8020/ava_server")
             print("Sending file to server..")
             binary = stream.read()
             b64_data = base64.b64encode(binary)
