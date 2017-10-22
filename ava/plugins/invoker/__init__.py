@@ -78,15 +78,15 @@ class PluginInvoker(_BaseComponent):
         if waiting:
             self._exec_event(event, expected=True, plugin_name=plugin)
             return
-        if not event['target']:
+        elif not event['target']:
             self.queue_tts.put(
                 'In order to use a plugin, you must specify one command.')
             return
-        if self.store.is_plugin_disabled(event['action']):
+        elif self.store.is_plugin_disabled(event['action']):
             self.queue_tts.put(
                 'The plugin {} is currently disabled.'.format(event['action']))
             return
-        if not self.store.get_plugin(event['action']):
+        elif not self.store.get_plugin(event['action']):
             self.queue_tts.put(
                 'No plugin named {} found.'.format(event['action']))
             return

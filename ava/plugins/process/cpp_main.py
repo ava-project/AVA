@@ -1,5 +1,6 @@
 import os, sys, json, importlib, subprocess
-from avasdk.plugins.ioutils.utils import split_string
+from avasdk.plugins.utils import split_string
+from avasdk.plugins.model import Logger
 
 PLUGIN = {}
 
@@ -15,7 +16,7 @@ def import_module(name):
         PLUGIN[name] = {}
         for command in manifest['commands']:
             PLUGIN[name][command['name']] = getattr(importlib.import_module(name), command['name'])
-    print('END_OF_IMPORT')
+    Logger.log_import()
 
 def create_module(path):
     """
@@ -27,13 +28,8 @@ def wait_for_command(plugin_name):
     """
     """
     while True:
-        # TODO fix
-        command = input('')
-        if command == 'ping':
-            print('pong')
-            continue
-        execute(plugin_name, command)
-        print('END_OF_COMMAND')
+        execute(plugin_name, input())
+        Logger.log_response()
 
 def execute(name, command):
     """
@@ -43,6 +39,7 @@ def execute(name, command):
         func, args = split_string(command, ' ')
         if plugin.get(func):
             print(plugin[func](args if args else ''))
+            # plugin[func](args if args else '')
             return
         print('The plugin ', name, ' cannot handle the following command: ', func, flush=False)
 
@@ -51,7 +48,7 @@ if __name__ == "__main__":
         plugin_name = sys.argv[1]
         import_module(plugin_name)
         wait_for_command(plugin_name)
-    except Exception as err:
-        print(err, file=sys.stderr)
-        print(plugin_name + ' crashed. Restarting ...')
-        print('END_OF_COMMAND')
+    except:
+        import traceback
+        traceback.print_exc(file=sys.stdout)
+        Logger.log_error()

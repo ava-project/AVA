@@ -27,6 +27,7 @@ class _UnixInterface(_ListenerInterface):
         """
         super().__init__(state, store, tts, listener)
 
+
     def listen(self):
         """Main function of the _UnixInterface.
 

@@ -5,6 +5,7 @@ from tempfile import NamedTemporaryFile
 from sys import platform as _platform
 
 from gtts import gTTS
+from pygame import mixer
 
 from .playsound import playsound
 from ..components import _BaseComponent
@@ -32,10 +33,12 @@ class TextToSpeech(_BaseComponent):
                     audio_file.seek(0)
                     playsound(audio_file.name)
             else:
-                filename = str(time.time()).split('.')[0] + ".mp3"
+                filename = os.environ['TMP'] + str(time.time()).split('.')[0] + ".mp3"
                 tts.save(filename)
                 if _platform == "linux" or _platform == "linux2":
-                    pass
+                    mixer.init()
+                    mixer.music.load(filename)
+                    mixer.music.play()
                 else:
                     playsound(filename)
                 os.remove(filename)

@@ -6,6 +6,7 @@ from .httprequest_handler import HTTPRequestHandler
 from ..config import ConfigLoader
 from ..plugins.store import PluginStore
 from ..components import _BaseComponent
+from avasdk.plugins.builders.event import build_event
 
 class DaemonServer(_BaseComponent):
     """
@@ -93,13 +94,15 @@ class DaemonServer(_BaseComponent):
     @HTTPRequestHandler.get('/plugins/')
     def get_plugins(request):
         """
-        List of all plugins
+        List of all plugins on the local computer
         """
-        res = requests.Response()
-        res.status_code = 200
-        res.headers = {'content-type': 'application/json'}
+        res = requests.get(DaemonServer._base_url + '/plugins/list.json')
+        list_plugin = res.json()
+        list_plugin_installed = DaemonServer._plugin_store.get_plugin_list()
+        for plugin in list_plugin:
+            plugin['installed'] = 'true' if [p for p in list_plugin_installed if p['name'] == plugin['name']] else 'false'
         res.encoding = 'utf-8'
-        data = '{"data": ' + json.dumps(DaemonServer._plugin_store.get_plugin_list()) + '}'
+        data = json.dumps(list_plugin)
         res._content = data.encode('utf-8')
         return res
 
@@ -135,7 +138,7 @@ class DaemonServer(_BaseComponent):
             download_path = DaemonServer._config.resolve_path_from_root(DaemonServer._download_folder, request.url_vars['plugin_name'])
             DaemonServer.__download_file(download_path, download_url, extension='.zip')
             plugin_path = DaemonServer._config.resolve_path_from_root(DaemonServer._download_folder, request.url_vars['plugin_name'] + '.zip')
-            DaemonServer._queue_plugin_manage.put('install ' + plugin_path)
+            DaemonServer._queue_plugin_manage.put(build_event('install ' + plugin_path))
         return res
 
     @staticmethod
@@ -150,7 +153,7 @@ class DaemonServer(_BaseComponent):
         plugin_path = DaemonServer._config.get('plugin_folder_download')
         plugin_path = DaemonServer._config.resolve_path_from_root(plugin_path, request.url_vars['plugin_name'] + '.zip')
         res = requests.Response()
-        DaemonServer._queue_plugin_manage.put('install ' + plugin_path)
+        DaemonServer._queue_plugin_manage.put(build_event('install ' + plugin_path))
         res.status_code = 200
         return res
 
@@ -165,7 +168,7 @@ class DaemonServer(_BaseComponent):
         """
         plugin_name = request.url_vars['plugin_name']
         res = requests.Response()
-        DaemonServer._queue_plugin_manage.put('uninstall ' + plugin_name)
+        DaemonServer._queue_plugin_manage.put(build_event('uninstall ' + plugin_name))
         res.status_code = 200
         return res
 
@@ -180,7 +183,7 @@ class DaemonServer(_BaseComponent):
         """
         plugin_name = request.url_vars['plugin_name']
         res = requests.Response()
-        DaemonServer._queue_plugin_manage.put('enable ' + plugin_name)
+        DaemonServer._queue_plugin_manage.put(build_event('enable ' + plugin_name))
         res.status_code = 200
         return res
 
@@ -195,7 +198,7 @@ class DaemonServer(_BaseComponent):
         """
         plugin_name = request.url_vars['plugin_name']
         res = requests.Response()
-        DaemonServer._queue_plugin_manage.put('disable ' + plugin_name)
+        DaemonServer._queue_plugin_manage.put(build_event('disable ' + plugin_name))
         res.status_code = 200
         return res
 
