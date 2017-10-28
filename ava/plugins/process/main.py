@@ -87,7 +87,7 @@ def execute(plugin_name, command):
         elif LANG == 'go':
             func = getattr(plugin, command_name, None)
             if func is not None:
-                func(args)
+                func(args if args else '')
                 return
         else:
             if command_name in plugin.__dict__:
