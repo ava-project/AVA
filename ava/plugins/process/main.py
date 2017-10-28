@@ -54,7 +54,6 @@ def loader(target, path, manifest):
     elif LANG == 'go':
         from ctypes import cdll
         PLUGIN[LANG][target] = cdll.LoadLibrary('{}/{}.so'.format(path, target))
-        print(PLUGIN[LANG][target])
     else:
         src = SourceFileLoader(target, os.path.join(path, manifest['source']))
         mod = src.load_module()
@@ -84,6 +83,11 @@ def execute(plugin_name, command):
         if LANG == 'cpp':
             if plugin.get(command_name):
                 print(plugin[command_name](args if args else ''))
+                return
+        elif LANG == 'go':
+            func = getattr(plugin, command_name, None)
+            if func is not None:
+                func(args)
                 return
         else:
             if command_name in plugin.__dict__:
