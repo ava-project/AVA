@@ -24,11 +24,11 @@ def import_module(plugin_name):
     assert manifest is not None and 'source' in manifest
     if not PLUGIN[LANG].get(plugin_name):
         if 'build' in manifest and manifest['build'] == True:
-            builder(path)
+            builder(path, plugin_name)
         loader(plugin_name, path, manifest)
     Logger.log_import()
 
-def builder(path):
+def builder(path, plugin_name):
     """
     """
     if LANG == 'cpp':
@@ -38,8 +38,10 @@ def builder(path):
         import pip
         pip.main(['install', '-r', os.path.join(path, "requirements.txt")])
     elif LANG == 'go':
-        from ctypes import cdll
-        print(cdll)
+        import subprocess
+        subprocess.call(['go', 'build', '-buildmode=c-shared',  '-o',
+            '{}/{}.so'.format(path, plugin_name),
+            '{}/{}.go'.format(path, plugin_name)])
 
 def loader(target, path, manifest):
     """
@@ -49,6 +51,10 @@ def loader(target, path, manifest):
         for command in manifest['commands']:
             PLUGIN[LANG][target][command['target']] = getattr(
                 importlib.import_module(target), command['name'])
+    elif LANG == 'go':
+        from ctypes import cdll
+        PLUGIN[LANG][target] = cdll.LoadLibrary('{}/{}.so'.format(path, target))
+        print(PLUGIN[LANG][target])
     else:
         src = SourceFileLoader(target, os.path.join(path, manifest['source']))
         mod = src.load_module()
