@@ -57,15 +57,14 @@ def spawn(plugin):
     lang = plugin.get_specs()['lang']
     path = join('ava', 'plugins', 'process')
     import platform
-    py_venv = join(
-        expanduser('~'),
-        '.ava',
-        'plugins',
-        name,
-        'venv/Scripts/python.exe' if platform.system() == 'Windows' else 'venv/bin/python3')
+    if platform.system() == 'Windows':
+        venv_executable = 'venv/Scripts/python.exe'
+    else:
+        venv_executable = 'venv/bin/python3'
+    py_venv = join(expanduser('~'), '.ava', 'plugins', name, venv_executable)
     if lang not in ['cpp', 'go', 'py']:
         raise NotSupportedLanguage('Plugin language not supported.')
-    create_virtualenv([executable, join(path, 'venv.py'), name])
+    create_virtualenv([executable, join(path, 'venv.py'), name], stdout=None)
     return Popen(
         [py_venv, join(path, 'main.py'), name, lang],
         stdin=PIPE,

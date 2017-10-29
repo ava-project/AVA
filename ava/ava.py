@@ -14,9 +14,9 @@ class AVA(object):
     def __init__(self):
         self.manager = ComponentManager()
         import avasdk
-        if avasdk.__version__ != '1.0.4':
+        if avasdk.__version__ != '1.0.5':
             import sys
-            sys.exit('AVA requires the version (1.0.4) of the Software Development Kit.')
+            sys.exit('AVA requires the version (1.0.5) of the Software Development Kit.')
 
     def run(self):
         self.manager.add_component(Input)
