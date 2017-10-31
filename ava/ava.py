@@ -19,6 +19,7 @@ class AVA(object):
             sys.exit('AVA requires the version (1.0.5) of the Software Development Kit.')
 
     def run(self):
+        print('TEST')
         self.manager.add_component(Input)
         self.manager.add_component(Dispatcher)
         self.manager.add_component(NoVocalTest)
@@ -31,6 +32,7 @@ class AVA(object):
         self.manager.add_component(PluginInvoker)
         self.manager.add_component(PluginListener)
         self.manager.start_all()
+        print('AFTER START ALL')
         self.manager.join_all()
 
     def stop(self):
