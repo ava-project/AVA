@@ -50,7 +50,6 @@ def loader(target, path, manifest):
         import importlib
         PLUGIN[LANG][target] = {}
         for command in manifest['commands']:
-            print(command)
             PLUGIN[LANG][target][command['name']] = getattr(
                 importlib.import_module(target), command['name'])
     elif LANG == 'go':
