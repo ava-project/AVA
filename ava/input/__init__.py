@@ -54,7 +54,6 @@ class Input(_BaseComponent):
 
 
     def run(self):
-        print ("Press Ctrl to activate the Voice Recognition...")
         with keyboard.Listener(
                 on_press=self.on_press,
                 on_release=self.on_release) as self.listener:
@@ -63,3 +62,6 @@ class Input(_BaseComponent):
     def stop(self):
         print('Stopping {0}...'.format(self.__class__.__name__))
         self.listener.stop()
+
+    def running(self):
+        print ("Press Ctrl to activate the Voice Recognition...")

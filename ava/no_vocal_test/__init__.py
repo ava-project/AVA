@@ -12,7 +12,6 @@ class NoVocalTest(_BaseComponent):
         self.queue_command = self._queues['QueueDispatcher']
 
     def run(self):
-        print("Type command and press ENTER ...")
         while self._is_init:
             try:
                 cmd = input()

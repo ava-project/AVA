@@ -7,3 +7,4 @@ avasdk
 playsound
 websockets
 cx_Freeze
+pygame

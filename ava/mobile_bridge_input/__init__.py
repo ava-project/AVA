@@ -46,10 +46,12 @@ class MobileBridgeInput(_BaseComponent):
 
     def run(self):
         start_server = websockets.serve(self.listener, '0.0.0.0', 8765)
-        print("Mobile Bridge listening on {}:8765".format(self.get_ip_address()))
         self.loop.run_until_complete(start_server)
         self.loop.run_forever()
 
     def stop(self):
         print('Stopping {0}...'.format(self.__class__.__name__))
         self.loop.stop()
+
+    def running(self):
+        print("\033[0;32m>\033[0;0m Mobile Bridge listening on {}:8765".format(self.get_ip_address()))
