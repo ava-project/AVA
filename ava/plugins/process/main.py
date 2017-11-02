@@ -47,9 +47,11 @@ def loader(target, path, manifest):
     """
     """
     if LANG == 'cpp':
+        import importlib
         PLUGIN[LANG][target] = {}
         for command in manifest['commands']:
-            PLUGIN[LANG][target][command['target']] = getattr(
+            print(command)
+            PLUGIN[LANG][target][command['name']] = getattr(
                 importlib.import_module(target), command['name'])
     elif LANG == 'go':
         from ctypes import cdll
