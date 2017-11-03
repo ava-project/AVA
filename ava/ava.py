@@ -1,4 +1,3 @@
-from .state import State
 from .components import ComponentManager
 from .input import Input
 from .no_vocal_test import NoVocalTest
@@ -32,6 +31,7 @@ class AVA(object):
         self.manager.add_component(PluginInvoker)
         self.manager.add_component(PluginListener)
         self.manager.start_all()
+        from .state import State
         State().loading_done()
         self.manager.ready()
         self.manager.join_all()
@@ -40,34 +40,12 @@ class AVA(object):
         print('Exiting AVA')
         self.manager.stop_all()
 
-def loading():
-    """
-    """
-    import os
-    import sys
-    from time import sleep
-    sleep(0.25)
-    plugins_nbr = 0
-    path = os.path.join(os.path.expanduser('~'), '.ava', 'plugins')
-    for element in os.listdir(path):
-        if os.path.isdir(os.path.join(path, element)):
-            plugins_nbr += 1
-    n = plugins_nbr * 6
-    for i in range(n):
-        sys.stdout.write('\r')
-        j = (i + 1) / n
-        if not State().is_loading() or j > 1:
-            break
-        sys.stdout.write("Loading plugins [%-20s] %d%%" % ('='*int(20*j), 100*j))
-        sys.stdout.flush()
-        sleep(n / 100 * (plugins_nbr / 3))
-
 def main():
     ava = AVA()
     try:
-        import threading
-        threading.Thread(target=ava.run).start()
-        threading.Thread(target=loading).start()
+        from .loading import loading
+        loading(plugins_nbr=0, process_time=6, target='plugins')
+        ava.run()
     except Exception as err:
         print(str(err))
     except KeyboardInterrupt as err:

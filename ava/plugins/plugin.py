@@ -1,5 +1,7 @@
 from os import path
 from .process import spawn
+from ..state import State
+from ..loading import loading
 from avasdk.plugins.utils import load_plugin
 
 
@@ -72,7 +74,10 @@ class Plugin(object):
         'self.process' to make it available and usable again.
         """
         assert self.process is None
+        State().loading()
+        loading(plugins_nbr=1, process_time=6, target=self.name)
         self.process = spawn(self)
+        State().loading_done()
 
     def shutdown(self):
         """Shutdown the plugin gracefully.
