@@ -42,6 +42,9 @@ class ComponentManager(object):
             if getattr(component, 'setup', None):
                 component.setup()
             component.start()
+            print('{}Loading {} ... \033[0;32m[OK]\033[0;0m'.format(
+                '\n' if component.__class__.__name__ == 'PluginManager' else '',
+                 component.__class__.__name__))
 
     def stop_all(self):
         print(self._components)
@@ -76,3 +79,8 @@ class ComponentManager(object):
         list_component = self._config_keys.get(key)
         for component in list_component:
             self._queues['ConfigQueue{0}'.format(component)].put('{0} {1}'.format(key, value))
+
+    def ready(self):
+        for component in self._components:
+            if getattr(component, 'running', None):
+                component.running()

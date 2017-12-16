@@ -237,9 +237,10 @@ class DaemonServer(_BaseComponent):
             @param port: port to listen on
             @type port: int
         """
+        self._address = adress
+        self._port = port
         self._httpd = HTTPServer((adress, port), HTTPRequestHandler)
         self._is_running = True
-        print('DaemonServer is listening on %s:%d' % (adress, port))
         self._httpd.serve_forever()
 
     def stop(self):
@@ -249,3 +250,8 @@ class DaemonServer(_BaseComponent):
         print('Stopping {0}...'.format(self.__class__.__name__))
         self._httpd.shutdown()
         self._is_running = False
+
+    def running(self):
+        """
+        """
+        print('\033[0;32m>\033[0;0m DaemonServer is listening on %s:%d' % (self._address, self._port))

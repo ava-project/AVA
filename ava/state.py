@@ -5,11 +5,13 @@ class State(metaclass=Singleton):
     """
     """
     plugin_state_mutex = Lock()
+    loading_state_mutex = Lock()
 
     def __init__(self):
         """
         """
         self.plugin = {}
+        self.loading = True
         self.plugin['name'] = None
         self.plugin['interaction_required'] = False
 
@@ -33,3 +35,21 @@ class State(metaclass=Singleton):
         """
         with State.plugin_state_mutex:
             return self.plugin['interaction_required'], self.plugin['name']
+
+    def is_loading(self):
+        """
+        """
+        with State.loading_state_mutex:
+            return self.loading
+
+    def loading(self):
+        """
+        """
+        with State.loading_state_mutex:
+            self.loading = True
+
+    def loading_done(self):
+        """
+        """
+        with State.loading_state_mutex:
+            self.loading= False

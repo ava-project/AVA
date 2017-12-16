@@ -1,7 +1,6 @@
-import os
-import sys
-import datetime
-from subprocess import Popen, PIPE, STDOUT
+from os.path import join, expanduser
+from sys import executable
+from subprocess import Popen, PIPE, STDOUT, call as create_virtualenv
 from avasdk.plugins.log import Logger
 
 
@@ -45,7 +44,6 @@ def flush_stdout(process):
         output.append(line)
     return output, True if Logger.IMPORT in output else False
 
-
 def spawn(plugin):
     """Spawn a new dedicated process for the plugin named 'plugin'.
 
@@ -57,15 +55,18 @@ def spawn(plugin):
     """
     name = plugin.get_name()
     lang = plugin.get_specs()['lang']
-    path = os.path.join('ava', 'plugins', 'process')
-    handler = {
-        # 'cpp': 'cpp_main.py',
-        'py': 'python_main.py',
-    }.get(lang, None)
-    if not handler:
+    path = join('ava', 'plugins', 'process')
+    import platform
+    if platform.system() == 'Windows':
+        venv_executable = 'venv/Scripts/python.exe'
+    else:
+        venv_executable = 'venv/bin/python3'
+    py_venv = join(expanduser('~'), '.ava', 'plugins', name, venv_executable)
+    if lang not in ['cpp', 'go', 'py']:
         raise NotSupportedLanguage('Plugin language not supported.')
+    create_virtualenv([executable, join(path, 'venv.py'), name], stdout=None)
     return Popen(
-        [sys.executable, os.path.join(path, handler), name],
+        [py_venv, join(path, 'main.py'), name, lang],
         stdin=PIPE,
         stdout=PIPE,
         stderr=None,
