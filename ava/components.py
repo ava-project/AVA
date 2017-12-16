@@ -4,6 +4,8 @@ from threading import Thread
 from queue import Queue, Empty
 from .config import ConfigLoader
 
+from time import sleep
+
 class _BaseComponent(Thread):
 
     def __init__(self, queues):
@@ -49,6 +51,7 @@ class ComponentManager(object):
 
     def join_all(self):
         while True:
+            sleep(1)
             for component in self._components:
                 component.join(0.1)
             try:

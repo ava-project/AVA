@@ -1,3 +1,5 @@
+print('{}: name = {}'.format(__file__, __name__))
+
 from .components import ComponentManager
 from .input import Input
 from .no_vocal_test import NoVocalTest
@@ -8,7 +10,6 @@ from .server import DaemonServer
 from .mobile_bridge_input import MobileBridgeInput
 from .dispatcher import Dispatcher
 from .plugins import PluginManager, PluginInvoker, PluginListener
-
 
 class AVA(object):
     def __init__(self):
@@ -38,13 +39,14 @@ class AVA(object):
         self.manager.stop_all()
 
 def main():
+    print('main(): start')
     ava = AVA()
     try:
+        print('main(): ava run')
         ava.run()
     except Exception as err:
         print(str(err))
     except KeyboardInterrupt as err:
         ava.stop()
-
-if __name__ == "__main__":
-    main()
+        print('main(): stop')
+    print('main(): end')
