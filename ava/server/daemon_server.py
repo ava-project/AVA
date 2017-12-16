@@ -1,7 +1,10 @@
 import json
-from os import path, makedirs
+import stat
+from os import path, makedirs, fdopen, umask, O_CREAT, O_WRONLY, O_EXCL
+from os import open as osopen
 from http.server import HTTPServer
 import requests
+import base64
 from .httprequest_handler import HTTPRequestHandler
 from ..config import ConfigLoader
 from ..plugins.store import PluginStore
@@ -40,6 +43,11 @@ class DaemonServer(_BaseComponent):
 
     def setup(self):
         DaemonServer._queue_plugin_manage = self._queues['QueuePluginManager']
+        try:
+            DaemonServer._user = self._load_credentials()
+            DaemonServer._is_log = True
+        except RuntimeError as e:
+            print(e)
 
     @staticmethod
     @HTTPRequestHandler.get('/')
@@ -55,12 +63,18 @@ class DaemonServer(_BaseComponent):
         """
         Login
         """
+        if DaemonServer._is_log:
+            res = requests.Response()
+            res.status_code = 409
+            res.error_type = "Already log in"
+            return res
         data = {'email': request.fields['email'], 'password': request.fields['password']}
         res = requests.post(DaemonServer._base_url + '/user/login.json', data=data)
         if res.ok:
             DaemonServer._is_log = True
             DaemonServer._user['_token'] = res.json()['data']
             DaemonServer._user['_email'] = request.fields['email'][0]
+            DaemonServer._save_credentials(DaemonServer._user)
         return res
 
     @staticmethod
@@ -227,6 +241,38 @@ class DaemonServer(_BaseComponent):
         res.status_code = 401
         res._content = 'You are not login'.encode('utf-8')
         return res
+
+    @staticmethod
+    def _save_credentials(credientials):
+        cred_file = path.join(path.expanduser('~'), '.ava', '.credentials')
+        email_enc = base64.b64encode(credientials['_email'].encode('utf-8'))
+        token_enc = base64.b64encode(credientials['_token'].encode('utf-8'))
+        umask_original = umask(0)
+        try:
+            fdesc = osopen(cred_file, O_WRONLY | O_CREAT | O_EXCL, stat.S_IRUSR | stat.S_IWUSR)
+        finally:
+            umask(umask_original)
+        with fdopen(fdesc, 'wb') as f:
+            f.write(email_enc + b'\n')
+            f.write(token_enc)
+        from os import stat as sstat
+        fs = sstat(cred_file)
+        print(fs.st_mode)
+
+    @staticmethod
+    def _load_credentials():
+        cred_file = path.join(path.expanduser('~'), '.ava', '.credentials')
+        try:
+            with open(cred_file, 'rb') as f:
+                raw = f.read().splitlines()
+        except OSError:
+            raise RuntimeError('Not log in yet')
+        if len(raw) != 2:
+            raise RuntimeError('Missing informations in credentials file')
+        return {
+            '_email': base64.b64decode(raw[0]),
+            '_token': base64.b64decode(raw[1])
+        }
 
     def run(self, adress='127.0.0.1', port=8001):
         """
