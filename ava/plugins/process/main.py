@@ -1,9 +1,9 @@
 import os
 import sys
 import json
-from importlib.machinery import SourceFileLoader
-from avasdk.plugins.utils import split_string
 from avasdk.plugins.log import Logger
+from avasdk.plugins.utils import split_string
+from importlib.machinery import SourceFileLoader
 
 PLUGIN = {
     'cpp': {},
@@ -28,6 +28,7 @@ def import_module(plugin_name):
         loader(plugin_name, path, manifest)
     Logger.log_import()
 
+# TODO improve builder
 def builder(path, plugin_name):
     """
     """
@@ -43,6 +44,7 @@ def builder(path, plugin_name):
             '{}/{}.so'.format(path, plugin_name),
             '{}/{}.go'.format(path, plugin_name)])
 
+# TODO improve loader
 def loader(target, path, manifest):
     """
     """
@@ -70,7 +72,7 @@ def wait_for_command(plugin_name):
         execute(plugin_name, input())
         Logger.log_response()
 
-
+# TODO improve execution
 def execute(plugin_name, command):
     """Execute the given command of the plugin named 'plugin_name'
 

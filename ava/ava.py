@@ -7,6 +7,7 @@ from .builtin_runner import BuiltinRunner
 from .server import DaemonServer
 from .mobile_bridge_input import MobileBridgeInput
 from .dispatcher import Dispatcher
+from avasdk import __version__ as current_sdk_version
 from .plugins import PluginManager, PluginInvoker, PluginListener
 
 SDK_VERSION_REQUIRED = '1.0.5'
@@ -14,8 +15,7 @@ SDK_VERSION_REQUIRED = '1.0.5'
 class AVA(object):
     def __init__(self):
         self.manager = ComponentManager()
-        import avasdk
-        if avasdk.__version__ != SDK_VERSION_REQUIRED:
+        if current_sdk_version != SDK_VERSION_REQUIRED:
             import sys
             sys.exit('AVA requires the version ({}) of the Software Development Kit.'.format(SDK_VERSION_REQUIRED))
 

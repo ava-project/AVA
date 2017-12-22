@@ -1,5 +1,6 @@
-from os.path import join, expanduser
 from sys import executable
+from os.path import join, expanduser
+from platform import system as current_os
 from subprocess import Popen, PIPE, STDOUT, call as create_virtualenv
 from avasdk.plugins.log import Logger
 
@@ -56,8 +57,7 @@ def spawn(plugin):
     name = plugin.get_name()
     lang = plugin.get_specs()['lang']
     path = join('ava', 'plugins', 'process')
-    import platform
-    if platform.system() == 'Windows':
+    if current_os() == 'Windows':
         venv_executable = 'venv/Scripts/python.exe'
     else:
         venv_executable = 'venv/bin/python3'

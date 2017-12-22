@@ -52,7 +52,10 @@ class PluginManager(_BaseComponent):
             try:
                 self.store.add_plugin(name, Plugin(name, self.store.path))
             except:
+                # TODO ensure that the manager tries to install each plugin only once
+                # Prevent from having infinite loop spawning many error popups
                 import traceback
+                print(traceback.format_exc())
                 self.queue_tts.put(
                     'Loading of the plugin: {0} failed'.format(name))
                 Logger.popup(

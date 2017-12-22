@@ -1,12 +1,12 @@
 import sys
-import platform
 import subprocess
 import virtualenv
 from os import path
+from platform import system as current_os
 
 name = sys.argv[1]
 venv = path.join(path.expanduser('~'), '.ava', 'plugins', name, 'venv')
-if platform.system() == 'Windows':
+if current_os() == 'Windows':
     venv_dir = 'Scripts'
     venv_executable = '{}/{}.exe'.format(venv_dir, 'pip3.6')
 else:

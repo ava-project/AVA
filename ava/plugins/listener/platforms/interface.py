@@ -30,6 +30,7 @@ class _ListenerInterface(object):
             process: The instance of the subprocess.Popen object of a plugin
                 (subprocess.Popen).
         """
+        # TODO why not using if, elif, else ???
         output, import_flushed = flush_stdout(process)
         if Logger.ERROR in output:
             output.remove(Logger.ERROR)
@@ -42,6 +43,7 @@ class _ListenerInterface(object):
             self.store.get_plugin(plugin_name).restart()
             return
         if Logger.IMPORT in output:
+            # TODO find a better way
             if platform.system() == 'Windows' and self.queue_listener:
                 self.queue_listener.put((plugin_name, process))
             return

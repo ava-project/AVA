@@ -33,6 +33,7 @@ class _WindowsInterface(_ListenerInterface):
         of its process. These data are sent to the 'self._process_result' method
         inherited from the _ListenerInterface.
         """
+        # TODO find a better way
         plugin_name, process = self.queue_listener.get()
         self._process_result(plugin_name, process)
         self.queue_listener.task_done()

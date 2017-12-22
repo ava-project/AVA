@@ -7,7 +7,8 @@ from ..store import PluginStore
 from ...components import _BaseComponent
 from avasdk.plugins.log import Logger
 
-# used by cx_freeze to include packages loaded dynamically
+# Used by cx_freeze to include packages loaded dynamically
+# DO NOT REMOVE this import
 from .platforms import unix, windows
 
 class PluginListener(_BaseComponent):
@@ -41,11 +42,13 @@ class PluginListener(_BaseComponent):
         if platform.system() == 'Windows':
             klass = '_WindowsInterface'
             module = 'ava.plugins.listener.platforms.windows'
+            # TODO find a better way
             queue_listener = self._queues['QueueWindowsListener']
         self.listener = getattr(import_module(module), klass)(
             State(),
             PluginStore(),
             self._queues['QueueTextToSpeech'],
+            # TODO find a better way
             queue_listener
         )
 

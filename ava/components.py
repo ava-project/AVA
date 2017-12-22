@@ -42,8 +42,7 @@ class ComponentManager(object):
             if getattr(component, 'setup', None):
                 component.setup()
             component.start()
-            print('{}Loading {} ... \033[0;32m[OK]\033[0;0m'.format(
-                '\n' if component.__class__.__name__ == 'PluginManager' else '',
+            print('Loading {} ... \033[0;32m[OK]\033[0;0m'.format(
                  component.__class__.__name__))
 
     def stop_all(self):
