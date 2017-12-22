@@ -300,4 +300,4 @@ class DaemonServer(_BaseComponent):
     def running(self):
         """
         """
-        print('\033[0;32m>\033[0;0m DaemonServer is listening on %s:%d' % (self._address, self._port))
+        print('\033[0;32m>\033[0;0m DaemonServer is listening on {}:{}'.format(self._address, self._port))

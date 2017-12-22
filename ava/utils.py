@@ -1,3 +1,4 @@
+SDK_VERSION = '1.0.5'
 
 class Singleton(type):
     _instances = {}

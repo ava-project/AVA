@@ -18,6 +18,7 @@ def loading(plugins_nbr=0, process_time=1, target=''):
     from time import sleep
     if not plugins_nbr:
         path = os.path.join(os.path.expanduser('~'), '.ava', 'plugins')
+        # TODO check if folder exists
         for element in os.listdir(path):
             if os.path.isdir(os.path.join(path, element)):
                 plugins_nbr += 1
