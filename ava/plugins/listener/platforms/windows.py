@@ -8,8 +8,7 @@ class _WindowsInterface(_ListenerInterface):
     """
 
     def __init__(self, state, store, tts):
-        """Initializer.
-
+        """
         We initialize here the _WindowsInterface by initializing the
         _ListenerInterface with the instances of the State, the PluginStore, the
         queue dedicated to the text-to-speech  component and the queue dedicated
@@ -46,6 +45,7 @@ class _WindowsInterface(_ListenerInterface):
             plugins.append(name)
         for plugin in list(set(plugins) - set(self.plugins)):
             self.plugins.append(plugin)
+            print(self.store.plugins.get(plugin))
             process = self.store.plugins.get(plugin).get_process()
             thread = Thread(target=self._routine, args=(plugin, process))
             self.threads.append(thread)

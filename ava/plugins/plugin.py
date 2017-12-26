@@ -1,91 +1,89 @@
 from os import path
 from .process import spawn
+from subprocess import Popen
 # from ..state import State
 # from ..loading import loading
 from avasdk.plugins.utils import load_plugin
 
 
 class Plugin(object):
-    """Object representation of a plugin."""
+    """
+    A wrapper for a plugin.
+    """
 
-    def __init__(self, name, path):
-        """Initializer
-
+    def __init__(self, name: str, path: str):
+        """
         We load the plugin's manifest and spawn a process in which the execution
         of the plugin will be contained.
 
-        Args:
-            name: the plugin name (string).
-            path: the path towards the plugin folder containing the plugin
-                source code (string).
+        :name: Plugin name (string).
+        :path: Path towards the plugin folder containing the code (string).
         """
-        self.name = name
-        self.path = path
-        self.specs = load_plugin(self.path, self.name)[self.name]
-        self.process = spawn(self)
+        self._name = name
+        self._path = path
+        self._specs = load_plugin(self._path, self._name)[self._name]
+        self._process = spawn(self)
 
-    def get_name(self):
-        """Returns the name of the plugin.
+    def __repr__(self):
+        return f'<AVA.plugin.name:{self._name.capitalize()}>'
 
-        Returns:
-            A string containing the name of the plugin.
+    def get_name(self) -> str:
         """
-        return self.name
-
-    def get_path(self):
-        """Returns the path towards the plugin folder containing the source code.
-
-        Returns:
-            The path to the plugin's source code.
+        :return: A string containing the name of the plugin.
         """
-        return path.join(self.path, self.name)
+        return self._name
 
-    def get_process(self):
-        """Returns the process in wich the plugin is executed.
-
-        Returns:
-            The subprocess.Popen instance.
+    def get_path(self) -> str:
         """
-        return self.process
-
-    def get_specs(self):
-        """Returns the plugin specifications.
-
-        Returns:
-            The plugin's manifest.json as dictionary.
+        :retrurn: Path towards the plugin folder containing the source code.
         """
-        return self.specs
+        return path.join(self._path, self._name)
+
+    def get_process(self) -> Popen:
+        """
+        :return: The subprocess.Popen instance
+        """
+        return self._process
+
+    def get_specs(self) -> dict:
+        """
+        :return: The plugin's manifest.json as dictionary.
+        """
+        return self._specs
 
     def kill(self):
-        """Force kill the plugin's process.
+        """
+        Force kill the plugin's process.
 
         In case of failure during an attempt to run the plugin, we force kill
-        the process and set back 'self.process' to None.
+        the process and set back 'self._process' to None.
         It ensures to properly restart the plugin after that.
         """
-        assert self.process is not None
-        self.process.kill()
-        self.process = None
+        assert self._process is not None
+        self._process.kill()
+        self._process = None
 
     def restart(self):
-        """Restart the plugin.
+        """
+        Restart the plugin.
 
         We spawn a new process dedicated to this plugin and we store it into
-        'self.process' to make it available and usable again.
+        'self._process' to make it available and usable again.
         """
-        assert self.process is None
+        assert self._process is None
         # State().loading()
         # loading(plugins_nbr=1, process_time=6, target=self.name)
-        self.process = spawn(self)
+        self._process = spawn(self)
         # State().loading_done()
 
     def shutdown(self):
-        """Shutdown the plugin gracefully.
+        """
+        Shutdown the plugin gracefully.
 
-        In order to properly shutdown each plugin, we call the 'terminate()'
+        In order to properly shutdown a plugin, we call the 'terminate()'
         method of the subprocess.Popen object and set back 'self.process' to
         None.
         """
-        assert self.process is not None
-        self.process.terminate()
-        self.process = None
+        assert self._process is not None
+        self._process.terminate()
+        self._process = None
