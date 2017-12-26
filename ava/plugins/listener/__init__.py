@@ -36,20 +36,15 @@ class PluginListener(_BaseComponent):
         We determine here which interface we are going to use to watch the
         plugins depending of the user's operating system.
         """
-        queue_listener = None
         klass = '_UnixInterface'
         module = 'ava.plugins.listener.platforms.unix'
         if platform.system() == 'Windows':
             klass = '_WindowsInterface'
             module = 'ava.plugins.listener.platforms.windows'
-            # TODO find a better way
-            queue_listener = self._queues['QueueWindowsListener']
         self.listener = getattr(import_module(module), klass)(
             State(),
             PluginStore(),
             self._queues['QueueTextToSpeech'],
-            # TODO find a better way
-            queue_listener
         )
 
     def run(self):

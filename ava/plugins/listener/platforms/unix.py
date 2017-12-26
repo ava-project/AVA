@@ -7,7 +7,7 @@ class _UnixInterface(_ListenerInterface):
     running.
     """
 
-    def __init__(self, state, store, tts, listener):
+    def __init__(self, state, store, tts):
         """Initializer.
 
         We initialize here the _UnixInterface by initializing the
@@ -21,11 +21,8 @@ class _UnixInterface(_ListenerInterface):
             store: The instance of the PluginStore.
             tts: The instance of the queue dedicated to the text-to-speech
                 component
-            listener: The  instance of the queue dedicated to the communication
-                between the PluginInvoker and the PluginListener (on Windows
-                only, otherwise 'None')
         """
-        super().__init__(state, store, tts, listener)
+        super().__init__(state, store, tts)
 
 
     def listen(self):

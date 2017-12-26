@@ -1,4 +1,5 @@
 from .interface import _ListenerInterface
+from threading import Thread, Event
 
 
 class _WindowsInterface(_ListenerInterface):
@@ -6,7 +7,7 @@ class _WindowsInterface(_ListenerInterface):
     running.
     """
 
-    def __init__(self, state, store, tts, listener):
+    def __init__(self, state, store, tts):
         """Initializer.
 
         We initialize here the _WindowsInterface by initializing the
@@ -20,11 +21,18 @@ class _WindowsInterface(_ListenerInterface):
             store: The instance of the PluginStore.
             tts: The instance of the queue dedicated to the text-to-speech
                 component
-            listener: The  instance of the queue dedicated to the communication
-                between the PluginInvoker and the PluginListener (on Windows
-                only, otherwise 'None')
         """
-        super().__init__(state, store, tts, listener)
+        super().__init__(state, store, tts)
+        self.plugins = []
+        self.threads = []
+        self.event = Event()
+
+    def _routine(self, plugin_name, process):
+        while not self.event.isSet():
+            self._process_result(plugin_name, process)
+
+    def _stop_daemons(self):
+        self.event.set()
 
     def listen(self):
         """Main function of the _WindowsInterface.
@@ -33,7 +41,13 @@ class _WindowsInterface(_ListenerInterface):
         of its process. These data are sent to the 'self._process_result' method
         inherited from the _ListenerInterface.
         """
-        # TODO find a better way
-        plugin_name, process = self.queue_listener.get()
-        self._process_result(plugin_name, process)
-        self.queue_listener.task_done()
+        plugins = []
+        for name, _ in self.store.plugins.items():
+            plugins.append(name)
+        for plugin in list(set(plugins) - set(self.plugins)):
+            self.plugins.append(plugin)
+            process = self.store.plugins.get(plugin).get_process()
+            thread = Thread(target=self._routine, args=(plugin, process))
+            self.threads.append(thread)
+            thread.daemon = True
+            thread.start()

@@ -1,5 +1,5 @@
 import ast
-import platform
+from platform import system as current_os
 from ...process import flush_stdout
 from ...process import multi_lines_output_handler
 from avasdk.plugins.log import Logger
@@ -9,13 +9,12 @@ class _ListenerInterface(object):
     """
     """
 
-    def __init__(self, state, store, tts, listener):
+    def __init__(self, state, store, tts):
         """
         """
         self.state = state
         self.store = store
         self.queue_tts = tts
-        self.queue_listener = listener
 
     def _process_result(self, plugin_name, process):
         """This function is called when an event has been detected on the stdout
@@ -43,9 +42,6 @@ class _ListenerInterface(object):
             self.store.get_plugin(plugin_name).restart()
             return
         if Logger.IMPORT in output:
-            # TODO find a better way
-            if platform.system() == 'Windows' and self.queue_listener:
-                self.queue_listener.put((plugin_name, process))
             return
         if Logger.REQUEST in output:
             output.remove(Logger.REQUEST)
@@ -75,5 +71,7 @@ class _ListenerInterface(object):
         We go through all plugins and close the stdout file descriptor of each
         process for each plugin.
         """
+        if current_os() == 'Windows':
+            self._stop_daemons()
         for _, plugin in self.store.plugins.items():
             plugin.get_process().stdout.close()

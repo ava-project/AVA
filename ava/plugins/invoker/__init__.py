@@ -26,8 +26,6 @@ class PluginInvoker(_BaseComponent):
         self.store = PluginStore()
         self.queue_tts = None
         self.queue_invoker = None
-        # TODO find a better way
-        self.queue_listener = None
 
     def setup(self):
         """This function is executed right after the __init__. We retrieve here
@@ -35,8 +33,6 @@ class PluginInvoker(_BaseComponent):
         """
         self.queue_tts = self._queues['QueueTextToSpeech']
         self.queue_invoker = self._queues['QueuePluginInvoker']
-        # TODO find a better way
-        self.queue_listener = self._queues['QueueWindowsListener']
 
     def _exec_event(self, event, expected=False, plugin_name=None):
         """This function writes the commmand to run to the stdin file descriptor
@@ -63,9 +59,6 @@ class PluginInvoker(_BaseComponent):
         assert process is not None and not process.stdin.closed
         process.stdin.write(command + '\n')
         process.stdin.flush()
-        # TODO find a better way
-        if platform.system() == 'Windows':
-            self.queue_listener.put((plugin_name, process))
 
     def _process_event(self, event):
         """Processes the given event.
