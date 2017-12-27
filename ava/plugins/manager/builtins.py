@@ -1,11 +1,12 @@
 import os
+from avasdk.plugins.utils import unzip, remove_directory
 from ..plugin import Plugin
 from ..store import PluginStore
-from avasdk.plugins.utils import unzip, remove_directory
 
 
 class PluginBuiltins(object):
-    """This class handles the specific 'builtins' for the plugins.
+    """
+    This class handles the specific 'builtins' for the plugins.
 
     The user is able to install, uninstall, enable or disable a plugin.
     Each method is preceded by the 'static' decorator, that means you do not
@@ -16,15 +17,15 @@ class PluginBuiltins(object):
     builtins = ['install', 'uninstall', 'enable', 'disable']
 
     @staticmethod
-    def install(path_to_the_plugin_to_install):
-        """Install a plugin.
+    def install(path_to_the_plugin_to_install: str) -> str:
+        """
+        Install a plugin.
 
         Unzip the zipfile located at 'path_to_the_plugin_to_install' and add
         a new Plugin object to the store.
 
-        Args:
-            path_to_the_plugin_to_install: path to the zipfile containing the
-                plugin source code (string).
+        :param path_to_the_plugin_to_install: path to the zipfile containing the
+         plugin source code (string).
 
         Returns:
             Returns the status of the installation (string).
@@ -34,61 +35,61 @@ class PluginBuiltins(object):
         name = name[1 + name.rfind(os.sep):]
         if PluginBuiltins.store.get_plugin(name):
             return 'The plugin {} is already installed.'.format(name)
-        unzip(path_to_the_plugin_to_install, PluginBuiltins.store.path)
-        PluginBuiltins.store.add_plugin(name, Plugin(
-            name, PluginBuiltins.store.path))
+        unzip(path_to_the_plugin_to_install, PluginBuiltins.store.get_path())
+        PluginBuiltins.store.add_plugin(name,
+                                        Plugin(
+                                            name,
+                                            PluginBuiltins.store.get_path()))
         return 'Installation succeeded.'
 
     @staticmethod
-    def uninstall(plugin_to_uninstall):
-        """Uninstall the specified plugin.
+    def uninstall(plugin_to_uninstall: str) -> str:
+        """
+        Uninstall the specified plugin.
 
         Removes all files located in $HOME/.ava/plugins/plugin_to_uninstall
 
-        Args:
-            plugin_to_uninstall: The name of the plugin to uninstall (string).
+        :param plugin_to_uninstall: The name of the plugin to uninstall (string).
 
-        Returns:
-            Returns the status of the uninstallation (string).
+        :return: Returns the status of the uninstallation (string).
         """
         PluginBuiltins.store.remove_plugin(plugin_to_uninstall)
         remove_directory(
-            os.path.join(PluginBuiltins.store.path, plugin_to_uninstall))
+            os.path.join(PluginBuiltins.store.get_path(), plugin_to_uninstall))
         return 'Uninstalling the {} plugin succeeded.'.format(
             plugin_to_uninstall)
 
     @staticmethod
-    def enable(plugin_to_enable):
-        """Enable the requested plugin.
+    def enable(plugin_to_enable: str) -> str:
+        """
+        Enable the requested plugin.
 
-        Args:
-            plugin_to_enable: The name of the plugin to enable (string).
+        :param plugin_to_enable: The name of the plugin to enable (string).
 
-        Returns
-            Returns the status of the activation (string).
+        :return: Returns the status of the activation (string).
         """
         if not PluginBuiltins.store.get_plugin(plugin_to_enable):
             return 'No plugin named {} found.'.format(plugin_to_enable)
         if PluginBuiltins.store.is_plugin_disabled(plugin_to_enable):
             PluginBuiltins.store.enable_plugin(plugin_to_enable)
-            return 'Plugin {} enabled.'.format(plugin_to_enable)
+            return 'The plugin {} has been enabled.'.format(plugin_to_enable)
         else:
-            return 'Plugin {} is already enabled.'.format(plugin_to_enable)
+            return 'The plugin {} is already enabled.'.format(plugin_to_enable)
 
     @staticmethod
-    def disable(plugin_to_disable):
-        """Disable the requested plugin.
+    def disable(plugin_to_disable: str) -> str:
+        """
+        Disable the specified plugin.
 
-        Args:
-            plugin_to_disable: The name of the plugin to disable (string).
+        :param plugin_to_disable: The name of the plugin to disable (string).
 
-        Returns:
-            Returns the status of the deactivation (string).
+        :return: Returns the status of the deactivation (string).
         """
         if not PluginBuiltins.store.get_plugin(plugin_to_disable):
             return 'No plugin named {} found.'.format(plugin_to_disable)
         if not PluginBuiltins.store.is_plugin_disabled(plugin_to_disable):
             PluginBuiltins.store.disable_plugin(plugin_to_disable)
-            return 'Plugin {} disabled.'.format(plugin_to_disable)
+            return 'The plugin {} has been disabled.'.format(plugin_to_disable)
         else:
-            return 'Plugin {} is already disabled.'.format(plugin_to_disable)
+            return 'The plugin {} is already disabled.'.format(
+                plugin_to_disable)

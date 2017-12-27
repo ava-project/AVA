@@ -1,10 +1,12 @@
-import os
 from threading import Lock
+from os.path import join, expanduser
+from ..plugin import Plugin
 from ...utils import Singleton
 
 
 class PluginStore(metaclass=Singleton):
-    """A shared store of plugins.
+    """
+    A shared store of plugins.
 
     The PluginStore is a singleton offering the possibility to access plugins
     throughout the program.
@@ -15,108 +17,112 @@ class PluginStore(metaclass=Singleton):
     mutex = Lock()
 
     def __init__(self):
-        """Initializer.
+        self._path = join(expanduser('~'), '.ava', 'plugins')
+        self._plugins = {}
+        self._disabled = []
 
-        Initializing instance variables:
-            self.path: Path to the user's folder where the plugins are installed.
-            self.plugins: A dictionary formed with the key representing the name
-                of the plugin and as a value the instance of the Plugin class.
-            self.disabled: Array with the name of the plugin disabled.
+    def __repr__(self):
+        return f'<{self.__class__.__module__}.{self.__class__.__name__} object at {hex(id(self))}>'
+
+    def add_plugin(self, name: str, plugin: Plugin):
         """
-        self.path = os.path.join(os.path.expanduser("~"), ".ava", "plugins")
-        self.plugins = {}
-        self.disabled = []
+        Add a new plugin to the store.
 
-    def add_plugin(self, name, plugin):
-        """Add a new plugin to the store.
-
-        Args:
-            name: The name of the new plugin (string).
-            plugin: An instance of the new plugin (Plugin)
+        :param name: The name of the new plugin (string).
+        :param plugin: An instance of the new plugin (Plugin)
         """
         with PluginStore.mutex:
-            if self.plugins.get(name) is None:
-                self.plugins[name] = plugin
+            if self._plugins.get(name) is None:
+                self._plugins[name] = plugin
 
-    def get_plugin(self, plugin):
-        """Returns the instance of the requested plugin.
+    def get_path(self) -> str:
+        """
+        :return: Returns the path towards the folder where the plugins are stored
+         on the user's
+        """
+        return self._path
 
-        Args:
-            plugin: The name of the plugin (string)
+    def get_plugin(self, plugin: str) -> Plugin:
+        """
+        :param: plugin: The name of the plugin (string)
 
-        Returns:
-            Whether None or the instance of the Plugin class if it is
-            actually stored.
+        :return: Whether None or the instance of the Plugin class if it is
+         actually stored.
         """
         with PluginStore.mutex:
-            return self.plugins.get(plugin)
+            return self._plugins.get(plugin)
 
-    def get_plugin_list(self):
-        """A list of elements containing each the name of a plugin, its version
-        as well as its desciption formated in a dictionary.
-
-        Returns:
-            The list of all plugins stored.
+    def get_plugins(self) -> dict:
         """
-        plugin_list = []
+        :return: Returns the dictionary containing the instances of the plugins.
+        """
+        return self._plugins
+
+    def get_a_detailed_list_of_plugins(self) -> list:
+        """
+        :return: Returns the list of the plugins installed. The name, version as
+         well as a description are provided for each plugin.
+        """
+        plugins_list = []
         with PluginStore.mutex:
-            for field, plugin in self.plugins.items():
+            for _, plugin in self._plugins.items():
                 dictionary = {}
                 dictionary['name'] = plugin.get_name()
                 dictionary['version'] = plugin.get_specs()['version']
                 dictionary['description'] = plugin.get_specs()['description']
-                plugin_list.append(dictionary)
-        return plugin_list
+                plugins_list.append(dictionary)
+        return plugins_list
 
-    def remove_plugin(self, plugin):
-        """Removes the specified plugin from the store.
+    def remove_plugin(self, plugin: str):
+        """
+        Removes the specified plugin from the store.
 
-        param:
-            - plugin: The name of the plugin to remove (string).
+        :param plugin: The name of the plugin to remove (string).
         """
         with PluginStore.mutex:
-            if self.plugins.get(plugin) is not None:
-                self.plugins.pop(plugin, None).shutdown()
+            if self._plugins.get(plugin) is not None:
+                self._plugins.pop(plugin, None).shutdown()
 
-    def is_plugin_disabled(self, plugin):
-        """Returns True or False whether the requested plugin is disabled.
+    def is_plugin_disabled(self, plugin: str) -> bool:
+        """
+        Returns True or False whether the specified plugin is disabled or not.
 
-        Args:
-            plugin: The name of the plugin (string).
+        :param plugin: The name of the plugin (string).
 
-        Returns:
-            A boolean.
+        :return: A boolean.
         """
         with PluginStore.mutex:
-            return plugin in self.disabled
+            return plugin in self._disabled
 
-    def enable_plugin(self, plugin):
-        """Enables the requested plugin.
+    def enable_plugin(self, plugin: str):
+        """
+        Enables the specified plugin.
 
-        Args:
-            plugin: The name of the plugin to enable (string).
+        :param plugin: The name of the plugin to enable (string).
         """
         with PluginStore.mutex:
-            self.disabled.remove(plugin)
+            self._disabled.remove(plugin)
 
-    def disable_plugin(self, plugin):
-        """Disables the requested plugin.
+    def disable_plugin(self, plugin: str):
+        """
+        Disables the specified plugin.
 
-        Args:
-            plugin: The name of the plugin to disable (string).
+        :param plugin: The name of the plugin to disable (string).
         """
         with PluginStore.mutex:
-            self.disabled.append(plugin)
+            if plugin not in self._disabled:
+                self._disabled.append(plugin)
 
     def clear(self):
-        """Clears completely the store.
+        """
+        Clears completely the store.
 
         In order to shutdown gracefully AVA, we clear the store by calling the
         shutdown method of each plugin stored. Finally we clear the dictionary
         of its entries.
         """
         with PluginStore.mutex:
-            self.disabled = []
-            for _, plugin in self.plugins.items():
+            self._disabled = []
+            for _, plugin in self._plugins.items():
                 plugin.shutdown()
-            self.plugins.clear()
+            self._plugins.clear()

@@ -1,64 +1,74 @@
 import ast
+from queue import Queue
+from subprocess import Popen
+from avasdk.plugins.log import Logger
 from platform import system as current_os
+from ...store import PluginStore
+from ...plugin import Plugin, State
 from ...process import flush_stdout
 from ...process import multi_lines_output_handler
-from avasdk.plugins.log import Logger
 
 
 class _ListenerInterface(object):
     """
     """
 
-    def __init__(self, state, store, tts):
+    def __init__(self, state: State, store: PluginStore, tts: Queue):
         """
         """
-        self.state = state
-        self.store = store
-        self.queue_tts = tts
+        self._state = state
+        self._store = store
+        self._queue_tts = tts
 
-    def _process_result(self, plugin_name, process):
-        """This function is called when an event has been detected on the stdout
+    def __repr__(self):
+        return f'<{self.__class__.__module__}.{self.__class__.__name__} object at {hex(id(self))}>'
+
+    def _process_result(self, plugin_name: str, process: Popen):
+        """
+        This function is called when an event has been detected on the stdout
         file descriptor of a plugin's process.
         It flushes the data print on the stdout of the process and processes it.
-        A message is enqueued in 'self.queue_tts' which is the queue dedicated
+        A message is enqueued in 'self._queue_tts' which is the queue dedicated
         to the text-to-speech component. It allows us to perform a feedback to
         the user about the command which he/she has just dictated.
 
-        Args:
-            plugin_name: The name of the plugin (string).
-            process: The instance of the subprocess.Popen object of a plugin
-                (subprocess.Popen).
+        :param plugin_name: The name of the plugin (string).
+        :param process: The instance of the subprocess.Popen object of a plugin
+         (subprocess.Popen).
         """
-        # TODO why not using if, elif, else ???
         output, import_flushed = flush_stdout(process)
         if Logger.ERROR in output:
             output.remove(Logger.ERROR)
-            self.queue_tts.put(
+            self._queue_tts.put(
                 'Plugin {} just crashed... Restarting'.format(plugin_name))
             Logger.popup(
                 'Traceback - Plugin [{0}] previous command FAILED'.format(
                     plugin_name), output)
-            self.store.get_plugin(plugin_name).kill()
-            self.store.get_plugin(plugin_name).restart()
+            plugin = self._store.get_plugin(plugin_name)
+            if plugin is not None and isinstance(plugin, Plugin):
+                plugin.kill()
+                plugin.restart()
             return
-        if Logger.IMPORT in output:
+        elif Logger.IMPORT in output:
             return
-        if Logger.REQUEST in output:
+        elif Logger.REQUEST in output:
             output.remove(Logger.REQUEST)
-            self.state.plugin_requires_user_interaction(plugin_name)
-            self.queue_tts.put(ast.literal_eval(''.join(output)).get('tts'))
+            self._state.plugin_requires_user_interaction(plugin_name)
+            self._queue_tts.put(ast.literal_eval(''.join(output)).get('tts'))
             return
-        output.remove(Logger.RESPONSE)
-        result, multi_lines = multi_lines_output_handler(output)
-        if multi_lines:
-            self.queue_tts.put(
-                'Result of [{}] has been print.'.format(plugin_name))
-            Logger.popup(plugin_name, result)
-            return
-        self.queue_tts.put(result)
+        else:
+            output.remove(Logger.RESPONSE)
+            result, multi_lines = multi_lines_output_handler(output)
+            if multi_lines:
+                self._queue_tts.put(
+                    'Result of [{}] has been print.'.format(plugin_name))
+                Logger.popup(plugin_name, result)
+                return
+            self._queue_tts.put(result)
 
     def listen(self):
-        """The main function of the listener.
+        """
+        The main function of the listener.
 
         It must be implemented by the interface. Raises an error if this method
         is not implemented in the interface inheriting from _ListenerInterface.
@@ -66,12 +76,16 @@ class _ListenerInterface(object):
         raise NotImplementedError()
 
     def stop(self):
-        """Stop the listener.
+        """
+        Stop the listener.
 
         We go through all plugins and close the stdout file descriptor of each
         process for each plugin.
         """
         if current_os() == 'Windows':
             self._stop_daemons()
-        for _, plugin in self.store.plugins.items():
-            plugin.get_process().stdout.close()
+        for _, plugin in self._store.get_plugins().items():
+            process = plugin.get_process()
+            if process is not None and isinstance(
+                    process, Popen) and not process.stdout.closed:
+                process.stdout.close()

@@ -1,53 +1,60 @@
-from .interface import _ListenerInterface
+from queue import Queue
+from subprocess import Popen
 from threading import Thread, Event
+from .interface import _ListenerInterface
+from ...store import PluginStore
+from ...plugin import Plugin, State
 
 
 class _WindowsInterface(_ListenerInterface):
-    """The windows interface responsible of listening each plugin's process
-    running.
+    """
+    The Windows interface responsible of detecting an I/O event on the standard
+    output stream of a plugin process.
     """
 
-    def __init__(self, state, store, tts):
+    def __init__(self, state: State, store: PluginStore, tts: Queue):
         """
         We initialize here the _WindowsInterface by initializing the
         _ListenerInterface with the instances of the State, the PluginStore, the
-        queue dedicated to the text-to-speech  component and the queue dedicated
-        to the communication between the PluginInvoker and the PluginListener
-        (for Windows only, on other operating system listener will be None).
+        queue dedicated to the text-to-speech  component.
 
-        Args:
-            state: The instance of the State object.
-            store: The instance of the PluginStore.
-            tts: The instance of the queue dedicated to the text-to-speech
-                component
+        :param state: The instance of the State object.
+        :param store: The instance of the PluginStore.
+        :param tts: The instance of the queue dedicated to the text-to-speech
+         component
         """
         super().__init__(state, store, tts)
-        self.plugins = []
-        self.threads = []
-        self.event = Event()
+        self._plugins = []
+        self._threads = []
+        self._event = Event()
 
-    def _routine(self, plugin_name, process):
-        while not self.event.isSet():
+    def _routine(self, plugin_name: str, process: Popen):
+        """
+        Thread routine
+        """
+        while not self._event.isSet():
             self._process_result(plugin_name, process)
 
     def _stop_daemons(self):
-        self.event.set()
+        """
+        Stop all threads by setting the internal flag of the 'Event' object to
+         True.
+        """
+        self._event.set()
 
     def listen(self):
-        """Main function of the _WindowsInterface.
+        """
+        Main function of the _WindowsInterface.
 
         Waits on queue for the name of a plugin running as well as the instance
         of its process. These data are sent to the 'self._process_result' method
         inherited from the _ListenerInterface.
         """
-        plugins = []
-        for name, _ in self.store.plugins.items():
-            plugins.append(name)
-        for plugin in list(set(plugins) - set(self.plugins)):
-            self.plugins.append(plugin)
-            print(self.store.plugins.get(plugin))
-            process = self.store.plugins.get(plugin).get_process()
+        plugins = [x for x in self._store.get_plugins().keys()]
+        for plugin in list(set(plugins) - set(self._plugins)):
+            self._plugins.append(plugin)
+            process = self._store.get_plugin(plugin).get_process()
             thread = Thread(target=self._routine, args=(plugin, process))
-            self.threads.append(thread)
+            self._threads.append(thread)
             thread.daemon = True
             thread.start()

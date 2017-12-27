@@ -15,9 +15,7 @@ else:
 script = path.join(venv, venv_dir, 'activate_this.py')
 virtualenv.create_environment(venv, site_packages=False, clear=True)
 _ = subprocess.check_output([sys.executable, '{}'.format(script)])
-_ = subprocess.check_output(
-    [
-        '{}'.format(path.join(venv, venv_executable)),
-        'install',
-        'git+https://github.com/ava-project/sdk.git'
-    ])
+_ = subprocess.check_output([
+    '{}'.format(path.join(venv, venv_executable)), 'install',
+    'git+https://github.com/ava-project/sdk.git'
+])
