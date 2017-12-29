@@ -34,7 +34,6 @@ class Plugin(object):
         :param plugin: The plugin instance.
         :return: The new process (subprocess.Popen), None if it fails.
         """
-        print("debug")
         name = self._name
         lang = self._specs['lang']
         path = os.path.join('ava', 'plugins', 'context')

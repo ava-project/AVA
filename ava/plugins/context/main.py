@@ -110,7 +110,6 @@ def execute(plugin_name: str, command: str):
 
 if __name__ == "__main__":
     try:
-        print('debug')
         plugin_name = sys.argv[1]
         LANG = sys.argv[2]
         import_module(plugin_name)

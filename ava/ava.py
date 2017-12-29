@@ -19,8 +19,7 @@ try:
     from avasdk import __version__ as current_sdk_version
 except ImportError:
     import sys
-    print('no sdk found')
-    sys.exit(1)
+    sys.exit('Could not find the Software Development Kit for AVA.')
 
 
 class AVA(object):

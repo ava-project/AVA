@@ -7,8 +7,6 @@ from ..utils import Singleton
 
 __all__ = ['State', 'Singleton']
 
-print('debug')
-
 
 class NotSupportedLanguage(Exception):
     """
