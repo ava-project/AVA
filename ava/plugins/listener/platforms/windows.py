@@ -1,9 +1,11 @@
-from queue import Queue
-from subprocess import Popen
-from threading import Thread, Event
-from .interface import _ListenerInterface
+import queue
+import threading
+import subprocess
+# local imports
+from ...utils import State
+from ...plugin import Plugin
 from ...store import PluginStore
-from ...plugin import Plugin, State
+from .interface import _ListenerInterface
 
 
 class _WindowsInterface(_ListenerInterface):
@@ -12,7 +14,7 @@ class _WindowsInterface(_ListenerInterface):
     output stream of a plugin process.
     """
 
-    def __init__(self, state: State, store: PluginStore, tts: Queue):
+    def __init__(self, state: State, store: PluginStore, tts: queue.Queue):
         """
         We initialize here the _WindowsInterface by initializing the
         _ListenerInterface with the instances of the State, the PluginStore, the
@@ -26,9 +28,9 @@ class _WindowsInterface(_ListenerInterface):
         super().__init__(state, store, tts)
         self._plugins = []
         self._threads = []
-        self._event = Event()
+        self._event = threading.Event()
 
-    def _routine(self, plugin_name: str, process: Popen):
+    def _routine(self, plugin_name: str, process: subprocess.Popen):
         """
         Thread routine
         """
@@ -54,7 +56,8 @@ class _WindowsInterface(_ListenerInterface):
         for plugin in list(set(plugins) - set(self._plugins)):
             self._plugins.append(plugin)
             process = self._store.get_plugin(plugin).get_process()
-            thread = Thread(target=self._routine, args=(plugin, process))
+            thread = threading.Thread(
+                target=self._routine, args=(plugin, process))
             self._threads.append(thread)
             thread.daemon = True
             thread.start()

@@ -11,6 +11,7 @@ from ..plugins.store import PluginStore
 from ..components import _BaseComponent
 from avasdk.plugins.builders.event import build_event
 
+
 class DaemonServer(_BaseComponent):
     """
     The DaemonServer is a minimalist http server that will allow interface
@@ -37,7 +38,8 @@ class DaemonServer(_BaseComponent):
         DaemonServer._config = ConfigLoader(None, None)
         DaemonServer._base_url = DaemonServer._config.get('API_address')
         DaemonServer._mock_url = "http://127.0.0.1:3000"
-        DaemonServer._download_folder = path.join(path.expanduser('~'), '.ava', 'download')
+        DaemonServer._download_folder = path.join(
+            path.expanduser('~'), '.ava', 'download')
         if not path.exists(DaemonServer._download_folder):
             makedirs(DaemonServer._download_folder)
 
@@ -68,8 +70,12 @@ class DaemonServer(_BaseComponent):
             res.status_code = 409
             res.error_type = "Already log in"
             return res
-        data = {'email': request.fields['email'], 'password': request.fields['password']}
-        res = requests.post(DaemonServer._base_url + '/user/login.json', data=data)
+        data = {
+            'email': request.fields['email'],
+            'password': request.fields['password']
+        }
+        res = requests.post(
+            DaemonServer._base_url + '/user/login.json', data=data)
         if res.ok:
             DaemonServer._is_log = True
             DaemonServer._user['_token'] = res.json()['data']
@@ -86,7 +92,8 @@ class DaemonServer(_BaseComponent):
         if not DaemonServer._is_log:
             return DaemonServer._not_login()
         auth = (DaemonServer._user['_email'], DaemonServer._user['_token'])
-        res = requests.get(DaemonServer._base_url + '/user/logout.json', auth=auth)
+        res = requests.get(
+            DaemonServer._base_url + '/user/logout.json', auth=auth)
         if res.ok:
             DaemonServer._is_log = False
             DaemonServer._token = None
@@ -112,9 +119,11 @@ class DaemonServer(_BaseComponent):
         """
         res = requests.get(DaemonServer._base_url + '/plugins/list.json')
         list_plugin = res.json()
-        list_plugin_installed = DaemonServer._plugin_store.get_plugin_list()
+        installed = DaemonServer._plugin_store.get_a_detailed_list_of_plugins()
         for plugin in list_plugin:
-            plugin['installed'] = 'true' if [p for p in list_plugin_installed if p['name'] == plugin['name']] else 'false'
+            plugin['installed'] = 'true' if [
+                p for p in installed if p['name'] == plugin['name']
+            ] else 'false'
         res.encoding = 'utf-8'
         data = json.dumps(list_plugin)
         res._content = data.encode('utf-8')
@@ -130,7 +139,9 @@ class DaemonServer(_BaseComponent):
             author -> plugin's author
             name -> plugin's name
         """
-        res = requests.get(DaemonServer._base_url + '/plugins/' + request.url_vars['author'] + '/' + request.url_vars['name'] + '/json')
+        res = requests.get(DaemonServer._base_url + '/plugins/' +
+                           request.url_vars['author'] + '/' +
+                           request.url_vars['name'] + '/json')
         return res
 
     @staticmethod
@@ -146,13 +157,21 @@ class DaemonServer(_BaseComponent):
         if not DaemonServer._is_log:
             return DaemonServer._not_login()
         auth = (DaemonServer._user['_email'], DaemonServer._user['_token'])
-        res = requests.get(DaemonServer._base_url + '/plugins/' + request.url_vars['author'] + '/' + request.url_vars['plugin_name'] + '/download', auth=auth)
+        res = requests.get(
+            DaemonServer._base_url + '/plugins/' + request.url_vars['author'] +
+            '/' + request.url_vars['plugin_name'] + '/download',
+            auth=auth)
         if res.ok:
             download_url = res.json()['url']
-            download_path = DaemonServer._config.resolve_path_from_root(DaemonServer._download_folder, request.url_vars['plugin_name'])
-            DaemonServer.__download_file(download_path, download_url, extension='.zip')
-            plugin_path = DaemonServer._config.resolve_path_from_root(DaemonServer._download_folder, request.url_vars['plugin_name'] + '.zip')
-            DaemonServer._queue_plugin_manage.put(build_event('install ' + plugin_path))
+            download_path = DaemonServer._config.resolve_path_from_root(
+                DaemonServer._download_folder, request.url_vars['plugin_name'])
+            DaemonServer.__download_file(
+                download_path, download_url, extension='.zip')
+            plugin_path = DaemonServer._config.resolve_path_from_root(
+                DaemonServer._download_folder,
+                request.url_vars['plugin_name'] + '.zip')
+            DaemonServer._queue_plugin_manage.put(
+                build_event('install ' + plugin_path))
         return res
 
     @staticmethod
@@ -165,9 +184,11 @@ class DaemonServer(_BaseComponent):
             plugin_name -> the plugin's name
         """
         plugin_path = DaemonServer._config.get('plugin_folder_download')
-        plugin_path = DaemonServer._config.resolve_path_from_root(plugin_path, request.url_vars['plugin_name'] + '.zip')
+        plugin_path = DaemonServer._config.resolve_path_from_root(
+            plugin_path, request.url_vars['plugin_name'] + '.zip')
         res = requests.Response()
-        DaemonServer._queue_plugin_manage.put(build_event('install ' + plugin_path))
+        DaemonServer._queue_plugin_manage.put(
+            build_event('install ' + plugin_path))
         res.status_code = 200
         return res
 
@@ -182,7 +203,8 @@ class DaemonServer(_BaseComponent):
         """
         plugin_name = request.url_vars['plugin_name']
         res = requests.Response()
-        DaemonServer._queue_plugin_manage.put(build_event('uninstall ' + plugin_name))
+        DaemonServer._queue_plugin_manage.put(
+            build_event('uninstall ' + plugin_name))
         res.status_code = 200
         return res
 
@@ -197,7 +219,8 @@ class DaemonServer(_BaseComponent):
         """
         plugin_name = request.url_vars['plugin_name']
         res = requests.Response()
-        DaemonServer._queue_plugin_manage.put(build_event('enable ' + plugin_name))
+        DaemonServer._queue_plugin_manage.put(
+            build_event('enable ' + plugin_name))
         res.status_code = 200
         return res
 
@@ -212,7 +235,8 @@ class DaemonServer(_BaseComponent):
         """
         plugin_name = request.url_vars['plugin_name']
         res = requests.Response()
-        DaemonServer._queue_plugin_manage.put(build_event('disable ' + plugin_name))
+        DaemonServer._queue_plugin_manage.put(
+            build_event('disable ' + plugin_name))
         res.status_code = 200
         return res
 
@@ -229,7 +253,8 @@ class DaemonServer(_BaseComponent):
             @type extension: string
         """
         auth = (DaemonServer._user['_email'], DaemonServer._user['_token'])
-        res = requests.get(DaemonServer._base_url + url, auth=auth, stream=True)
+        res = requests.get(
+            DaemonServer._base_url + url, auth=auth, stream=True)
         with open(file_path + extension, 'wb') as dfile:
             for chunk in res.iter_content(chunk_size=1024):
                 if chunk:
@@ -249,7 +274,8 @@ class DaemonServer(_BaseComponent):
         token_enc = base64.b64encode(credientials['_token'].encode('utf-8'))
         umask_original = umask(0)
         try:
-            fdesc = osopen(cred_file, O_WRONLY | O_CREAT | O_EXCL, stat.S_IRUSR | stat.S_IWUSR)
+            fdesc = osopen(cred_file, O_WRONLY | O_CREAT | O_EXCL,
+                           stat.S_IRUSR | stat.S_IWUSR)
         finally:
             umask(umask_original)
         with fdopen(fdesc, 'wb') as f:
@@ -300,4 +326,5 @@ class DaemonServer(_BaseComponent):
     def running(self):
         """
         """
-        print('\033[0;32m>\033[0;0m DaemonServer is listening on {}:{}'.format(self._address, self._port))
+        print('\033[0;32m>\033[0;0m DaemonServer is listening on {}:{}'.format(
+            self._address, self._port))

@@ -1,7 +1,7 @@
-from threading import Lock
-from os.path import join, expanduser
+import os
+import threading
 from ..plugin import Plugin
-from ...utils import Singleton
+from ..utils import Singleton
 
 
 class PluginStore(metaclass=Singleton):
@@ -14,17 +14,17 @@ class PluginStore(metaclass=Singleton):
     available methods. Using the instance variables directly can cause undefined
     behavior.
     """
-    mutex = Lock()
+    mutex = threading.Lock()
 
     def __init__(self):
-        self._path = join(expanduser('~'), '.ava', 'plugins')
+        self._path = os.path.join(os.path.expanduser('~'), '.ava', 'plugins')
         self._plugins = {}
         self._disabled = []
 
     def __repr__(self):
         return f'<{self.__class__.__module__}.{self.__class__.__name__} object at {hex(id(self))}>'
 
-    def add_plugin(self, name: str, plugin: Plugin):
+    def add_plugin(self, name: str):
         """
         Add a new plugin to the store.
 
@@ -33,7 +33,7 @@ class PluginStore(metaclass=Singleton):
         """
         with PluginStore.mutex:
             if self._plugins.get(name) is None:
-                self._plugins[name] = plugin
+                self._plugins[name] = Plugin(name, self._path)
 
     def get_path(self) -> str:
         """

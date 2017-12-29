@@ -1,15 +1,16 @@
 import time
+import platform
 import threading
-from importlib import import_module
-from platform import system as current_os
-from avasdk.plugins.log import Logger
+import importlib
+# local imports
 from ...state import State
 from ..store import PluginStore
 from ...components import _BaseComponent
-
 # Used by cx_freeze to include packages loaded dynamically
 # DO NOT REMOVE this import
 from .platforms import unix, windows
+# SDK
+from avasdk.plugins.log import Logger
 
 
 class PluginListener(_BaseComponent):
@@ -42,10 +43,10 @@ class PluginListener(_BaseComponent):
         """
         klass = '_UnixInterface'
         module = 'ava.plugins.listener.platforms.unix'
-        if current_os() == 'Windows':
+        if platform.system() == 'Windows':
             klass = '_WindowsInterface'
             module = 'ava.plugins.listener.platforms.windows'
-        self._listener = getattr(import_module(module), klass)(
+        self._listener = getattr(importlib.import_module(module), klass)(
             State(), PluginStore(), self._queues['QueueTextToSpeech'])
 
     def run(self):

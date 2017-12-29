@@ -2,7 +2,8 @@ import select as sct
 from queue import Queue
 from .interface import _ListenerInterface
 from ...store import PluginStore
-from ...plugin import Plugin, State
+from ...plugin import Plugin
+from ...utils import State
 
 
 class _UnixInterface(_ListenerInterface):

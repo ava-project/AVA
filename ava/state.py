@@ -1,11 +1,12 @@
-from threading import Lock
+import threading
 from .utils import Singleton
+
 
 class State(metaclass=Singleton):
     """
     """
-    plugin_state_mutex = Lock()
-    loading_state_mutex = Lock()
+    plugin_state_mutex = threading.Lock()
+    loading_state_mutex = threading.Lock()
 
     def __init__(self):
         """
@@ -52,4 +53,4 @@ class State(metaclass=Singleton):
         """
         """
         with State.loading_state_mutex:
-            self.loading= False
+            self.loading = False

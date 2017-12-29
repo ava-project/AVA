@@ -7,17 +7,30 @@ from .builtin_runner import BuiltinRunner
 from .server import DaemonServer
 from .mobile_bridge_input import MobileBridgeInput
 from .dispatcher import Dispatcher
-from avasdk import __version__ as current_sdk_version
 from .plugins import PluginManager, PluginInvoker, PluginListener
-
+#
+# AVA SDK version required
+#
 SDK_VERSION_REQUIRED = '1.0.5'
+#
+# Try to import the sdk.
+#
+try:
+    from avasdk import __version__ as current_sdk_version
+except ImportError:
+    import sys
+    print('no sdk found')
+    sys.exit(1)
+
 
 class AVA(object):
     def __init__(self):
         self.manager = ComponentManager()
         if current_sdk_version != SDK_VERSION_REQUIRED:
             import sys
-            sys.exit('AVA requires the version ({}) of the Software Development Kit.'.format(SDK_VERSION_REQUIRED))
+            sys.exit(
+                'AVA requires the version ({}) of the Software Development Kit.'.
+                format(SDK_VERSION_REQUIRED))
 
     def run(self):
         self.manager.add_component(Input)
@@ -32,8 +45,6 @@ class AVA(object):
         self.manager.add_component(PluginInvoker)
         self.manager.add_component(PluginListener)
         self.manager.start_all()
-        # from .state import State
-        # State().loading_done()
         self.manager.ready()
         self.manager.join_all()
 
@@ -41,11 +52,10 @@ class AVA(object):
         print('Exiting AVA')
         self.manager.stop_all()
 
+
 def main():
     ava = AVA()
     try:
-        # from .loading import loading
-        # loading(plugins_nbr=0, process_time=6, target='plugins')
         ava.run()
     except Exception as err:
         print(str(err))

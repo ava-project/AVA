@@ -1,19 +1,20 @@
 import ast
-from queue import Queue
-from subprocess import Popen
-from avasdk.plugins.log import Logger
-from platform import system as current_os
+import queue
+import platform
+import subprocess
+# local imports
+from ...plugin import Plugin
 from ...store import PluginStore
-from ...plugin import Plugin, State
-from ...process import flush_stdout
-from ...process import multi_lines_output_handler
+from ...utils import State, flush_stdout, multi_lines_output_handler
+# SDK
+from avasdk.plugins.log import Logger
 
 
 class _ListenerInterface(object):
     """
     """
 
-    def __init__(self, state: State, store: PluginStore, tts: Queue):
+    def __init__(self, state: State, store: PluginStore, tts: queue.Queue):
         """
         """
         self._state = state
@@ -23,7 +24,7 @@ class _ListenerInterface(object):
     def __repr__(self):
         return f'<{self.__class__.__module__}.{self.__class__.__name__} object at {hex(id(self))}>'
 
-    def _process_result(self, plugin_name: str, process: Popen):
+    def _process_result(self, plugin_name: str, process: subprocess.Popen):
         """
         This function is called when an event has been detected on the stdout
         file descriptor of a plugin's process.
@@ -82,10 +83,10 @@ class _ListenerInterface(object):
         We go through all plugins and close the stdout file descriptor of each
         process for each plugin.
         """
-        if current_os() == 'Windows':
+        if platform.system() == 'Windows':
             self._stop_daemons()
         for _, plugin in self._store.get_plugins().items():
             process = plugin.get_process()
             if process is not None and isinstance(
-                    process, Popen) and not process.stdout.closed:
+                    process, subprocess.Popen) and not process.stdout.closed:
                 process.stdout.close()

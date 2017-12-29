@@ -1,9 +1,11 @@
 import os
-from subprocess import Popen
-from avasdk.plugins.log import Logger
+import subprocess
+# local imports
 from ...state import State
 from ..store import PluginStore
 from ...components import _BaseComponent
+# SDK
+from avasdk.plugins.log import Logger
 
 
 class PluginInvoker(_BaseComponent):
@@ -63,7 +65,7 @@ class PluginInvoker(_BaseComponent):
         if self._store.get_plugin(plugin_name) is not None:
             process = self._store.get_plugin(plugin_name).get_process()
             if process is not None and isinstance(
-                    process, Popen) and not process.stdin.closed:
+                    process, subprocess.Popen) and not process.stdin.closed:
                 process.stdin.write(command + '\n')
                 process.stdin.flush()
 
@@ -136,5 +138,5 @@ class PluginInvoker(_BaseComponent):
         self._queue_invoker.put(None)
         for _, plugin in self._store.get_plugins().items():
             process = plugin.get_process()
-            if process is not None and isinstance(process, Popen):
+            if process is not None and isinstance(process, subprocess.Popen):
                 process.stdin.close()

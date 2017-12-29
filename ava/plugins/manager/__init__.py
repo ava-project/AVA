@@ -1,9 +1,12 @@
 import os
-from avasdk.plugins.log import Logger
+import threading
+# local imports
 from ..plugin import Plugin
 from ..store import PluginStore
 from .builtins import PluginBuiltins
 from ...components import _BaseComponent
+# SDK
+from avasdk.plugins.log import Logger
 
 
 class PluginManager(_BaseComponent):
@@ -47,15 +50,17 @@ class PluginManager(_BaseComponent):
         Run through this folder and load all the plugins in order to add them
         to the Store and make them available for the whole program.
         """
+        targets = []
         if not os.path.exists(self._store.get_path()):
             os.makedirs(self._store.get_path())
             return
         for name in os.listdir(self._store.get_path()):
             if name in ['__pycache__', '__MACOSX', '.DS_Store']:
                 continue
+            targets.append(name)
+        for name in list(set(targets)):
             try:
-                self._store.add_plugin(name,
-                                       Plugin(name, self._store.get_path()))
+                self._store.add_plugin(name)
             except:
                 import traceback
                 self._queue_tts.put(
