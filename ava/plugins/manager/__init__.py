@@ -40,9 +40,9 @@ class PluginManager(_BaseComponent):
         """
         self._queue_tts = self._queues['QueueTextToSpeech']
         self._queue_manager = self._queues['QueuePluginManager']
-        self._init()
+        self._load_plugins()
 
-    def _init(self):
+    def _load_plugins(self):
         """
         Handler to manage the plugins at the launch of AVA.
 

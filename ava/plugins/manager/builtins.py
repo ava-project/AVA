@@ -16,6 +16,7 @@ class PluginBuiltins(object):
     """
 
     store = PluginStore()
+    path = PluginStore().get_path()
     builtins = ['install', 'uninstall', 'enable', 'disable']
 
     @staticmethod
@@ -35,12 +36,11 @@ class PluginBuiltins(object):
         name = target
         name = name[:name.rfind('.zip')]
         name = name[1 + name.rfind(os.sep):]
-        path = PluginBuiltins.store.get_path()
         if PluginBuiltins.store.get_plugin(name):
             return 'The plugin {} is already installed.'.format(name)
-        unzip(target, path)
-        PluginBuiltins.store.add_plugin(name, Plugin(name, path))
-        return 'Installation succeeded.'
+        unzip(target, PluginBuiltins.path)
+        PluginBuiltins.store.add_plugin(name)
+        return 'Installing the plugin {} succeeded.'.format(name)
 
     @staticmethod
     def uninstall(target: str) -> str:
@@ -53,9 +53,11 @@ class PluginBuiltins(object):
 
         :return: Returns the status of the uninstallation (string).
         """
+        if not PluginBuiltins.store.get_plugin(target):
+            return 'No plugin named {} found'.format(target)
         PluginBuiltins.store.remove_plugin(target)
-        remove_directory(os.path.join(PluginBuiltins.store.get_path(), target))
-        return 'Uninstalling the {} plugin succeeded.'.format(target)
+        remove_directory(os.path.join(PluginBuiltins.path, target))
+        return 'Uninstalling the plugin {} succeeded.'.format(target)
 
     @staticmethod
     def enable(target: str) -> str:
@@ -68,11 +70,10 @@ class PluginBuiltins(object):
         """
         if not PluginBuiltins.store.get_plugin(target):
             return 'No plugin named {} found.'.format(target)
-        if PluginBuiltins.store.is_plugin_disabled(target):
-            PluginBuiltins.store.enable_plugin(target)
-            return 'The plugin {} has been enabled.'.format(target)
-        else:
+        if not PluginBuiltins.store.is_plugin_disabled(target):
             return 'The plugin {} is already enabled.'.format(target)
+        PluginBuiltins.store.enable_plugin(target)
+        return 'The plugin {} has been enabled.'.format(target)
 
     @staticmethod
     def disable(target: str) -> str:
@@ -85,8 +86,7 @@ class PluginBuiltins(object):
         """
         if not PluginBuiltins.store.get_plugin(target):
             return 'No plugin named {} found.'.format(target)
-        if not PluginBuiltins.store.is_plugin_disabled(target):
-            PluginBuiltins.store.disable_plugin(target)
-            return 'The plugin {} has been disabled.'.format(target)
-        else:
+        if PluginBuiltins.store.is_plugin_disabled(target):
             return 'The plugin {} is already disabled.'.format(target)
+        PluginBuiltins.store.disable_plugin(target)
+        return 'The plugin {} has been disabled.'.format(target)
