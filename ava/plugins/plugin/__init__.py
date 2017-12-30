@@ -74,8 +74,6 @@ class Plugin(object):
         """
         :return: Returns the subprocess.Popen instance.
         """
-        if self._process is None:
-            self._process = self._async.get()
         return self._process
 
     def get_specs(self) -> dict:
@@ -104,7 +102,10 @@ class Plugin(object):
         'self._process' to make it available and usable again.
         """
         if self._process is None:
+            from ..utils import State
+            State().is_restarting(self._name)
             self._process = self._create_venv_and_process()
+            State().has_restarted(self._name)
 
     def shutdown(self):
         """

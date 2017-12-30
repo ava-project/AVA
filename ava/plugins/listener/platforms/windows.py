@@ -26,23 +26,23 @@ class _WindowsInterface(_ListenerInterface):
          component
         """
         super().__init__(state, store, tts)
-        self._plugins = []
-        self._threads = []
-        self._event = threading.Event()
+        self._events = {}
+        self._watched = {}
 
     def _routine(self, plugin_name: str, process: subprocess.Popen):
         """
         Thread routine
         """
-        while not self._event.isSet():
+        while not self._events[plugin_name].isSet():
             self._process_result(plugin_name, process)
 
     def _stop_daemons(self):
         """
-        Stop all threads by setting the internal flag of the 'Event' object to
+        Stop all threads by setting the internal flag of their 'Event' object to
          True.
         """
-        self._event.set()
+        for _, event in self._events.items():
+            event.set()
 
     def listen(self):
         """
@@ -52,12 +52,28 @@ class _WindowsInterface(_ListenerInterface):
         of its process. These data are sent to the 'self._process_result' method
         inherited from the _ListenerInterface.
         """
-        plugins = [x for x in self._store.get_plugins().keys()]
-        for plugin in list(set(plugins) - set(self._plugins)):
-            self._plugins.append(plugin)
-            process = self._store.get_plugin(plugin).get_process()
-            thread = threading.Thread(
-                target=self._routine, args=(plugin, process))
-            self._threads.append(thread)
-            thread.daemon = True
-            thread.start()
+        plugins = list(self._store.get_plugins())
+        plugins_restarting = self._state.get_plugins_restarting()
+        if len(list(self._watched)) > len(plugins):
+            for name in list(set(list(self._watched)) - set(plugins)):
+                if name in self._events and not self._events[name].isSet():
+                    self._events[name].set()
+                if name in self._watched:
+                    self._watched.pop(name)
+            return
+        if len(plugins_restarting) > 0:
+            for name in plugins_restarting:
+                if name in self._events and not self._events[name].isSet():
+                    self._events[name].set()
+                if name in self._watched:
+                    self._watched.pop(name)
+            return
+        for name in list(set(plugins) - set(list(self._watched))):
+            plugin = self._store.get_plugin(name)
+            if plugin is not None and isinstance(plugin, Plugin):
+                process = plugin.get_process()
+                self._events[name] = threading.Event()
+                self._watched[name] = threading.Thread(
+                    target=self._routine, args=(name, process))
+                self._watched[name].daemon = True
+                self._watched[name].start()
