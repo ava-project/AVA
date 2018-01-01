@@ -12,9 +12,9 @@ class STT_Engine_WebSocket():
         self.currentUrl = self.watsonUrl
 
     def switchServer(self, toUrl):
-        if toUrl == "watson":
+        if toUrl == "engine watson":
             self.currentUrl = self.watsonUrl
-        elif toUrl == "sphinx":
+        elif toUrl == "engine sphinx":
             self.currentUrl = selfsphinxUrl
 
 
