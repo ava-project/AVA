@@ -1,15 +1,15 @@
 import json
 import stat
-from os import path, makedirs, fdopen, umask, O_CREAT, O_WRONLY, O_EXCL
+from os import path, makedirs, fdopen, umask, remove, O_CREAT, O_WRONLY, O_EXCL
 from os import open as osopen
 from http.server import HTTPServer
-import requests
 import base64
+import requests
+from avasdk.plugins.builders.event import build_event
 from .httprequest_handler import HTTPRequestHandler
 from ..config import ConfigLoader
 from ..plugins.store import PluginStore
 from ..components import _BaseComponent
-from avasdk.plugins.builders.event import build_event
 
 class DaemonServer(_BaseComponent):
     """
@@ -217,6 +217,18 @@ class DaemonServer(_BaseComponent):
         return res
 
     @staticmethod
+    @HTTPRequestHandler.post('/config')
+    def post_config(request):
+        """
+        Edit the configuration of the daemon
+        """
+        for conf_name, value in request.fields.items():
+            DaemonServer._config.update(conf_name, value[0])
+        res = requests.Response()
+        res.status_code = 200
+        return res
+
+    @staticmethod
     def __download_file(file_path, url, extension=''):
         """
         Private method allowing to download a file and save it on specified path
@@ -248,6 +260,10 @@ class DaemonServer(_BaseComponent):
         email_enc = base64.b64encode(credientials['_email'].encode('utf-8'))
         token_enc = base64.b64encode(credientials['_token'].encode('utf-8'))
         umask_original = umask(0)
+        try:
+            remove(cred_file)
+        except OSError:
+            pass
         try:
             fdesc = osopen(cred_file, O_WRONLY | O_CREAT | O_EXCL, stat.S_IRUSR | stat.S_IWUSR)
         finally:
