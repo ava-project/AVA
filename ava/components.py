@@ -25,7 +25,6 @@ class ComponentManager(object):
         self._components = []
         self._config_keys = {}
         self._queues = {}
-        self._queues['QueueWindowsListener'] = Queue()
         self._queues['QueueComponentManager'] = Queue()
         self._config = ConfigLoader(path.dirname(path.realpath(__file__)), self._queues)
         self._config.load('settings.json')
@@ -42,8 +41,7 @@ class ComponentManager(object):
             if getattr(component, 'setup', None):
                 component.setup()
             component.start()
-            print('{}Loading {} ... \033[0;32m[OK]\033[0;0m'.format(
-                '\n' if component.__class__.__name__ == 'PluginManager' else '',
+            print('Loading {} ... \033[0;32m[OK]\033[0;0m'.format(
                  component.__class__.__name__))
 
     def stop_all(self):
