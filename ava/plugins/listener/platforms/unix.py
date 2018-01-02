@@ -1,5 +1,7 @@
+import queue
+import subprocess
 import select as sct
-from queue import Queue
+# local imports
 from .interface import _ListenerInterface
 from ...utils import State
 from ...plugin import Plugin
@@ -12,7 +14,7 @@ class _UnixInterface(_ListenerInterface):
     running.
     """
 
-    def __init__(self, state: State, store: PluginStore, tts: Queue):
+    def __init__(self, state: State, store: PluginStore, tts: queue.Queue):
         """
         We initialize here the _UnixInterface by initializing the
         _ListenerInterface with the instances of the State, the PluginStore, the
@@ -39,9 +41,12 @@ class _UnixInterface(_ListenerInterface):
         POLL = sct.poll()
         READ_ONLY = sct.POLLIN | sct.POLLPRI | sct.POLLHUP | sct.POLLERR
         for _, plugin in self._store.get_plugins().items():
-            fd = int(plugin.get_process().stdout.name)
-            OBSERVED[fd] = plugin.get_process()
-            POLL.register(fd, READ_ONLY)
+            process = plugin.get_process()
+            if process is not None and isinstance(
+                process, subprocess.Popen) and not process.stdout.closed:
+                fd = int(process.stdout.name)
+                OBSERVED[fd] = process
+                POLL.register(fd, READ_ONLY)
         result = POLL.poll(0)
         for fd, _ in result:
             if OBSERVED.get(fd) is None:

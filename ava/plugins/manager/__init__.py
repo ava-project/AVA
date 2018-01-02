@@ -63,6 +63,7 @@ class PluginManager(_BaseComponent):
                 self._store.add_plugin(name)
             except:
                 import traceback
+                print(traceback.format_exc())
                 self._queue_tts.put(
                     'Loading of the plugin: {0} failed'.format(name))
                 Logger.popup(

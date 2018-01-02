@@ -1,10 +1,12 @@
-# TODO check current os ??
+import os
+import sys
+import platform
+import multiprocessing
 
-# import sys
-# from os import path
-# from multiprocessing import freeze_support
-#
-# sys.executable = path.join(sys.exec_prefix, 'pythonw.exe')
-# freeze_support()
+# if platform.system() == 'Windows':
+#     sys.executable = os.path.join(sys.exec_prefix, 'pythonw.exe')
+# elif platform.system() == 'Darwin':
+#     sys.executable = os.path.join(sys.exec_prefix, 'Python')
+# multiprocessing.freeze_support()
 
 __version__ = '0.0.1'
