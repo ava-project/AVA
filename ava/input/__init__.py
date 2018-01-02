@@ -8,8 +8,8 @@ from ..config import ConfigLoader
 from .KeyManager import KeyManager
 from .MobileInput import MobileInput
 
-class Input(_BaseComponent):
 
+class Input(_BaseComponent):
     def __init__(self, queues):
         super().__init__(queues)
         self.input_queue = None
@@ -41,3 +41,6 @@ class Input(_BaseComponent):
 
     def stop(self):
         self.active = False
+
+    def running(self):
+        print("Press Ctrl to activate the Voice Recognition...")

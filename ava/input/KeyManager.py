@@ -9,6 +9,7 @@ from pynput.keyboard import Key, Controller
 from .RawInput import RawInput
 from ..components import _BaseComponent
 
+
 class KeyManager:
     def __init__(self, queues):
         self.activated = False
@@ -31,18 +32,21 @@ class KeyManager:
         try:
             if key == Key.ctrl and not self.activated:
                 self.activated = True
-                print ("Voice recognition activated ! Release when you are done...")
-                self.input_listener.reading_thread = threading.Thread(target=self.input_listener.read)
+                print(
+                    "Voice recognition activated ! Release when you are done..."
+                )
+                self.input_listener.reading_thread = threading.Thread(
+                    target=self.input_listener.read)
                 self.input_listener.reading_thread.start()
         except AttributeError:
-            print ("Error on Key pressed")
+            print("Error on Key pressed")
             pass
 
     def on_release(self, key):
         if self.activated:
             self.activated = False
             self.input_listener.stop()
-            print ("Voice recognition stopped !")
+            print("Voice recognition stopped !")
             while self.input_listener.done == False:
                 pass
             self.write_to_file(self.input_listener.record)
@@ -56,6 +60,3 @@ class KeyManager:
     def stop(self):
         print('Stopping {0}...'.format(self.__class__.__name__))
         self.listener.stop()
-
-    def running(self):
-        print ("Press Ctrl to activate the Voice Recognition...")
