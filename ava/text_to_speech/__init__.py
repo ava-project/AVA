@@ -1,7 +1,7 @@
 import time
 import os
+import tempfile
 
-from tempfile import NamedTemporaryFile
 from sys import platform as _platform
 
 from gtts import gTTS
@@ -27,13 +27,12 @@ class TextToSpeech(_BaseComponent):
             print('To say out loud : {}'.format(sentence))
             tts = gTTS(text=sentence, lang='en')
             if _platform == "darwin":
-                with NamedTemporaryFile() as audio_file:
+                with tempfile.NamedTemporaryFile() as audio_file:
                     tts.write_to_fp(audio_file)
                     audio_file.seek(0)
                     playsound(audio_file.name)
             else:
-                filename = os.environ['TMP'] + str(
-                    time.time()).split('.')[0] + ".mp3"
+                filename = tempfile.gettempdir() + '/' + str(time.time()).split('.')[0] + ".mp3"
                 tts.save(filename)
                 if _platform == "linux" or _platform == "linux2":
                     mixer.init()
