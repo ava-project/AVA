@@ -6,8 +6,8 @@ from .config import ConfigLoader
 
 from time import sleep
 
-class _BaseComponent(Thread):
 
+class _BaseComponent(Thread):
     def __init__(self, queues):
         super().__init__()
         self._is_init = True
@@ -19,14 +19,15 @@ class _BaseComponent(Thread):
     def stop(self):
         raise NotImplementedError()
 
-class ComponentManager(object):
 
+class ComponentManager(object):
     def __init__(self):
         self._components = []
         self._config_keys = {}
         self._queues = {}
         self._queues['QueueComponentManager'] = Queue()
-        self._config = ConfigLoader(path.dirname(path.realpath(__file__)), self._queues)
+        self._config = ConfigLoader(
+            path.dirname(path.realpath(__file__)), self._queues)
         self._config.load('settings.json')
 
     def add_component(self, Component):
@@ -42,7 +43,7 @@ class ComponentManager(object):
                 component.setup()
             component.start()
             print('Loading {} ... \033[0;32m[OK]\033[0;0m'.format(
-                 component.__class__.__name__))
+                component.__class__.__name__))
 
     def stop_all(self):
         print(self._components)
@@ -64,7 +65,6 @@ class ComponentManager(object):
                 getattr(self, func)(*args)
 
     def subscribe(self, component_name, key):
-        print('subscribe')
         list_component = self._config_keys.get(key)
         if list_component is None:
             list_component = [component_name]
@@ -76,7 +76,8 @@ class ComponentManager(object):
         print('update')
         list_component = self._config_keys.get(key, [])
         for component in list_component:
-            self._queues['ConfigQueue{0}'.format(component)].put('{0} {1}'.format(key, value))
+            self._queues['ConfigQueue{0}'.format(component)].put(
+                '{0} {1}'.format(key, value))
 
     def ready(self):
         for component in self._components:
