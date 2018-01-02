@@ -18,6 +18,7 @@ class ConfigLoader(metaclass=Singleton):
         """
         self.root_path = root_path
         self._file_loaded = None
+        self._file_path = None
         self._queues = queues
 
     def load(self, path):
@@ -28,9 +29,13 @@ class ConfigLoader(metaclass=Singleton):
             @type path: string
             @exception: OSError if the file can't be open
         """
-        full_path = self.resolve_path_from_root(path)
-        with open(full_path) as ofile:
-            self._file_loaded = json.load(ofile)
+        self._file_path = self.resolve_path_from_root(path)
+        with open(self._file_path, 'r') as f:
+            self._file_loaded = json.load(f)
+
+    def save(self):
+        with open(self._file_path, 'w') as f:
+            json.dump(self._file_loaded, f, indent=4)
 
     def exist(self, path):
         return False if self.get(path) is None else True
@@ -77,6 +82,7 @@ class ConfigLoader(metaclass=Singleton):
                     elif node is None or not isinstance(node, dict):
                         save_node[key] = {}
                         node = save_node[key]
+                self.save()
         return node
 
     def put_and_create(self, path, value):

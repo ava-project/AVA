@@ -74,7 +74,7 @@ class ComponentManager(object):
 
     def update(self, key, value):
         print('update')
-        list_component = self._config_keys.get(key)
+        list_component = self._config_keys.get(key, [])
         for component in list_component:
             self._queues['ConfigQueue{0}'.format(component)].put('{0} {1}'.format(key, value))
 

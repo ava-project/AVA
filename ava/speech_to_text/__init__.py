@@ -1,4 +1,6 @@
 from ..components import _BaseComponent
+from ..config import ConfigLoader
+
 import asyncio
 
 # Sub components imports :
@@ -13,6 +15,8 @@ class SpeechToText(_BaseComponent):
         self.queue_input = None
         self.queue_tts = None
         self.stt = STT_Engine()
+        self.config = ConfigLoader(None, None)
+        self.config.subscribe('SpeechToTextConfig', 'engine')
 
     def setup(self):
         self.queue_command = self._queues['QueueDispatcher']
@@ -23,6 +27,9 @@ class SpeechToText(_BaseComponent):
     def run(self):
         while self._is_init:
             audio_stream = self.queue_input.get()
+            STTConfig = self.config.get('SpeechToTextConfig')
+            if STTConfig is not None:
+                self.stt.switchServer(STTConfig)
             if audio_stream is None:
                 break
             self.queue_tts.put("Wait ...")

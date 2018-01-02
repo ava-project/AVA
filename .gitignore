@@ -105,3 +105,6 @@ sample.wav
 
 # Speech to text files (mp3)
 *.mp3
+
+# Unused files
+*~
