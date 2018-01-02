@@ -25,7 +25,7 @@ class Plugin(object):
         self._process = self._create_venv_and_process()
 
     def __repr__(self):
-        return f'<{self.__class__.__module__}.{self.__class__.__name__} {self._name.capitalize()} at {hex(id(self))}>'
+        return f'<{self.__class__.__module__}.{self.__class__.__name__}.{self._name.capitalize()} at {hex(id(self))}>'
 
     def _create_venv_and_process(self) -> subprocess.Popen:
         """

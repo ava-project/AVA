@@ -1,7 +1,7 @@
 import subprocess
 # SDK
 from avasdk.plugins.log import Logger
-#
+# local imports
 from ..state import State
 from ..utils import Singleton
 

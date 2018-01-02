@@ -48,9 +48,6 @@ class _WindowsInterface(_ListenerInterface):
         """
         Main function of the _WindowsInterface.
 
-        Waits on queue for the name of a plugin running as well as the instance
-        of its process. These data are sent to the 'self._process_result' method
-        inherited from the _ListenerInterface.
         """
         plugins = list(self._store.get_plugins())
         plugins_restarting = self._state.get_plugins_restarting()

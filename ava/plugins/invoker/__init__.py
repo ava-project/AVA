@@ -94,6 +94,10 @@ class PluginInvoker(_BaseComponent):
             self._queue_tts.put(
                 'The plugin {} is currently disabled.'.format(event['action']))
             return
+        elif event['action'] in self._state.get_plugins_restarting():
+            self._queue_tts.put(
+                'The plugin {} is restarting'.format(event['action']))
+            return
         elif not self._store.get_plugin(event['action']):
             self._queue_tts.put(
                 'No plugin named {} found.'.format(event['action']))
