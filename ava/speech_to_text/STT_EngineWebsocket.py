@@ -15,14 +15,14 @@ class STT_Engine_WebSocket():
         if toUrl == "engine watson":
             self.currentUrl = self.watsonUrl
         elif toUrl == "engine sphinx":
-            self.currentUrl = selfsphinxUrl
+            self.currentUrl = self.sphinxUrl
 
 
     async def recognize(self, stream, queue_manager):
         async with websockets.connect(self.currentUrl) as ws:
-            if self.currentUrl == watsonUrl:
+            if self.currentUrl == self.watsonUrl:
                 print("Connecting to AVA Servers with address ws://ava-project.com/ava_server")
-            elif self.currentUrl == sphinxUrl:
+            elif self.currentUrl == self.sphinxUrl:
                 print("Connecting to AVA Servers with address ws://ava-project.com/sphinx")
             print("Sending file to server..")
             binary = stream.read()
