@@ -17,6 +17,7 @@ class BuiltinRunner(_BaseComponent):
     def setup(self):
         self.queue_builtin = self._queues['QueueBuiltinRunner']
         self.queue_tts = self._queues['QueueTextToSpeech']
+        self._is_init = True
 
     def run(self):
         while self._is_init:
@@ -49,7 +50,7 @@ class BuiltinRunner(_BaseComponent):
                 return self.file_crawler.find(command_list[1], False)
             else :
                 return self.file_crawler.find(command_list[1])
-    
+
     def stop(self):
         print('Stopping {0}...'.format(self.__class__.__name__))
         self._is_init = False
