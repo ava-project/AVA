@@ -19,23 +19,26 @@ class STT_Engine_WebSocket():
 
 
     async def recognize(self, stream, queue_manager):
-        async with websockets.connect(self.currentUrl) as ws:
-            if self.currentUrl == self.watsonUrl:
-                print("Connecting to AVA Servers with address ws://ava-project.com/ava_server")
-            elif self.currentUrl == self.sphinxUrl:
-                print("Connecting to AVA Servers with address ws://ava-project.com/sphinx")
-            print("Sending file to server..")
-            binary = stream.read()
-            b64_data = base64.b64encode(binary)
-            await ws.send(binary)
-            print("Receiving sentence..")
-            message = await ws.recv()
-            print(message)
-            ws.close()
-            try:
-                if message:
-                    queue_manager.queue_command.put(message)
-                    queue_manager.queue_input.task_done()
-                    queue_manager.queue_tts.put("Okay")
-            except:
-                queue_manager.queue_tts.put("Retry your command please")
+        try:
+            async with websockets.connect(self.currentUrl) as ws:
+                if self.currentUrl == self.watsonUrl:
+                    print("Connecting to AVA Servers with address ws://ava-project.com/ava_server")
+                elif self.currentUrl == self.sphinxUrl:
+                    print("Connecting to AVA Servers with address ws://ava-project.com/sphinx")
+                print("Sending file to server..")
+                binary = stream.read()
+                b64_data = base64.b64encode(binary)
+                await ws.send(binary)
+                print("Receiving sentence..")
+                message = await ws.recv()
+                print(message)
+                ws.close()
+                try:
+                    if message:
+                        queue_manager.queue_command.put(message)
+                        queue_manager.queue_input.task_done()
+                        queue_manager.queue_tts.put("Okay")
+                except:
+                    queue_manager.queue_tts.put("Retry your command please")
+        except:
+            print ("Can't send informations to ava servers... Please check your configuration or contact AVA")

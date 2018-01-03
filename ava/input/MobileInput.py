@@ -31,18 +31,20 @@ class MobileInput:
         self.input_queue.put(audio_file)
 
     def run(self):
-        stream = self.audio.open(format=pyaudio.paInt16,
-                                channels=1,
-                                 rate=16000,
-                                 input=True,
-                                 frames_per_buffer=2048)
+        try:
+            stream = self.audio.open(format=pyaudio.paInt16,
+                                     channels=2,
+                                     rate=44100,
+                                     input=True,
+                                     frames_per_buffer=2048)
 
-        while self.listening == True:
-            all_datas = []
-            data = stream.read(2048)
-            all_datas.append(data)
-            write_to_file(self, all_datas)
-
+            while self.listening == True:
+                all_datas = []
+                data = stream.read(2048)
+                all_datas.append(data)
+                write_to_file(self, all_datas)
+        except:
+            print ("Error while reading on Microphone")
         stream.close()
 
     def stop(self):

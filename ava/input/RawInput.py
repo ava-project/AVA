@@ -47,13 +47,16 @@ class RawInput:
     # Reading vocal entry
     def read(self):
         self.start()
-        stream = self.audio.open(format=pyaudio.paInt16,
-            channels=1,
-            rate=16000,
-            input=True,
-            frames_per_buffer=2048)
-        while self.listening:
-            data = stream.read(2048)
-            self.record.append(data)
-        stream.close()
+        try:
+            stream = self.audio.open(format=pyaudio.paInt16,
+                                     channels=1,
+                                     rate=16000,
+                                     input=True,
+                                     frames_per_buffer=2048)
+            while self.listening:
+                data = stream.read(2048)
+                self.record.append(data)
+            stream.close()
+        except:
+            print ("Error while reading microphone")
         self.done = True
