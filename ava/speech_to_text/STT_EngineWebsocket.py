@@ -8,7 +8,7 @@ class STT_Engine_WebSocket():
 
     def __init__(self):
         self.watsonUrl = "wss://www.ava-project.com/ava_server"
-        self.sphinxUrl = "wss://www.ava-project.com/shinx"
+        self.sphinxUrl = "wss://www.ava-project.com/sphinx"
         self.currentUrl = self.watsonUrl
 
     def switchServer(self, toUrl):
@@ -20,7 +20,10 @@ class STT_Engine_WebSocket():
 
     async def recognize(self, stream, queue_manager):
         async with websockets.connect(self.currentUrl) as ws:
-            print("Connecting to AVA Servers with address ws://ava-project.com/ava_server")
+            if self.currentUrl == watsonUrl:
+                print("Connecting to AVA Servers with address ws://ava-project.com/ava_server")
+            elif self.currentUrl == sphinxUrl:
+                print("Connecting to AVA Servers with address ws://ava-project.com/sphinx")
             print("Sending file to server..")
             binary = stream.read()
             b64_data = base64.b64encode(binary)
