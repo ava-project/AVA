@@ -109,6 +109,12 @@ class DaemonServer(_BaseComponent):
             return DaemonServer._not_login()
         auth = (DaemonServer._user['_email'], DaemonServer._user['_token'])
         res = requests.get(DaemonServer._base_url + '/user/me.json', auth=auth)
+        if res.status_code != 200:
+            return res
+        res_json = res.json()
+        res_json['engine'] = DaemonServer._config.get('engine')
+        res_json['STT'] = DaemonServer._config.get('STT')
+        res._content = json.dumps(res_json).encode('utf-8')
         return res
 
     @staticmethod
