@@ -46,9 +46,10 @@ class Plugin(object):
         py_venv = os.path.join(
             os.path.expanduser('~'), '.ava', 'plugins', name, venv_executable)
         if sys.executable is None:
+            print(sys.executable)
             raise RuntimeError('Could not find a python interpreter')
         subprocess.call(
-            [sys.executable,
+            [os.environ['PYTHONPATH'],
              os.path.join(path, 'venv.py'), name], stdout=None)
         return subprocess.Popen(
             [py_venv, os.path.join(path, 'main.py'), name, lang],

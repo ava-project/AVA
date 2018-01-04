@@ -14,6 +14,10 @@ if platform == "darwin":
     build_exe_packages.append('packaging')
     build_exe_packages.append('_sysconfigdata_m_darwin_darwin')
 
+include_files = [r"C:\Users\jibb\AppData\Local\Programs\Python\Python36-32\DLLs\tcl86t.dll",
+                 r"C:\Users\jibb\AppData\Local\Programs\Python\Python36-32\DLLs\tk86t.dll",
+                 ('ava\\plugins\\context\\main.py', 'lib\\ava\\plugins\\context\\main.py'),
+                 ('ava\\plugins\\context\\venv.py', 'lib\\ava\\plugins\\context\\venv.py')]
 
 # project requirements from pip
 with open('requirements.txt') as requirement_file:
@@ -27,8 +31,7 @@ setup(
     options={
         'build_exe': {
             'packages': build_exe_packages,
-            'include_files': [('ava\\plugins\\context\\main.py', 'lib\\ava\\plugins\\context\\main.py'),
-                              ('ava\\plugins\\context\\venv.py', 'lib\\ava\\plugins\\context\\venv.py')]
+            'include_files': include_files
         }
     },
     author='AVA Project',
