@@ -8,6 +8,7 @@ class FileCrawler(object):
                             os.path.expanduser('~'),
                             os.environ["ProgramFiles"],
                             os.environ["ProgramW6432"],
+                            os.getenv('APPDATA'),
                             '/usr/bin',
                             '/usr/sbin'
                             ]
@@ -39,6 +40,7 @@ class FileCrawler(object):
                 if (root.upper().find(name.upper()) == -1) :
                     level = 0
                 else :
+                    print(root)
                     if (target_xright == False) :
                         result = root
                     level = 4
