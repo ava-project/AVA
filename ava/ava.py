@@ -37,7 +37,7 @@ class AVA(object):
         self.manager.add_component(NoVocalTest)
         self.manager.add_component(SpeechToText)
         self.manager.add_component(TextToSpeech)
-        # self.manager.add_component(DaemonServer)
+        self.manager.add_component(DaemonServer)
         self.manager.add_component(MobileBridgeInput)
         self.manager.add_component(BuiltinRunner)
         self.manager.add_component(PluginManager)

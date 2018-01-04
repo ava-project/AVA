@@ -8,7 +8,7 @@ import ava
 
 
 # additionnal packages for cx_Freeze
-build_exe_packages = ['idna', 'gtts', 'asyncio']
+build_exe_packages = ['idna', 'gtts', 'asyncio', 'venv']
 if platform == "darwin":
     build_exe_packages.append('appdirs')
     build_exe_packages.append('packaging')
@@ -27,6 +27,8 @@ setup(
     options={
         'build_exe': {
             'packages': build_exe_packages,
+            'include_files': [('ava\\plugins\\context\\main.py', 'lib\\ava\\plugins\\context\\main.py'),
+                              ('ava\\plugins\\context\\venv.py', 'lib\\ava\\plugins\\context\\venv.py')]
         }
     },
     author='AVA Project',
