@@ -3,10 +3,19 @@ import os
 class FileCrawler(object):
     def __init__(self):
         super(FileCrawler, self).__init__()
-        # self.root_dirs = [os.path.expanduser('~\\Pictures')]
-        # self.root_dirs = ['C:\\Users\\Jamais\\Documents\\Perso']
-        self.root_dirs = [os.path.expanduser('~\\Pictures'),os.path.expanduser('~\\Documents'), os.path.expanduser('~\\Videos'),'C:\\Program Files', 'C:\\Program Files (x86)']
-        # self.root_dirs.append(os.path.abspath(os.sep))
+        self.Treshold_restraint = 100
+        self.root_dirs = [
+                            os.path.expanduser('~'),
+                            os.environ["ProgramFiles"],
+                            os.environ["ProgramW6432"],
+                            '/usr/bin',
+                            '/usr/sbin'
+                            ]
+        for user_dirs, user_sub_dirs, files in os.walk(os.path.expanduser('~')) :
+            for name in user_sub_dirs :
+                if (name[0] != '.') :
+                    self.root_dirs.append(os.path.join(user_dirs, name))
+            break
 
     @staticmethod
     def _is_exe(filepath):
@@ -17,30 +26,45 @@ class FileCrawler(object):
 
 
     def _find(self, name, path, target_xright, level):
-        path_size = len(path.rsplit('\\'))
+        path_size = max(len(path.rsplit('\\')), len(path.rsplit('/')))
+        autocount = 0
+        result = None
         for root, dirs, files in os.walk(path) :
-            current_size = len(root.rsplit('\\'))
+            autocount += 1
+            current_size = max(len(root.rsplit('\\')), len(root.rsplit('/')))
             current_level = current_size - path_size
+            ##### to shorten the search, if we are iterating a large amount of dirs,
+            ##### we stay at level 0
+            if (autocount >= self.Treshold_restraint) :
+                if (root.upper().find(name.upper()) == -1) :
+                    level = 0
+                else :
+                    if (target_xright == False) :
+                        result = root
+                    level = 4
+
             if (current_level > level) :
-                continue
+                dirs[:] = []
+                files[:] = []
+                # break;
             #### if we're not looking for a file (. extension) or something executable
             #### we might want to return a directory
             if (target_xright is False and len(name.rsplit('.')) < 2) :
-                    for dirname in dirs :
-                        if (dirname.upper() == name.upper()) :
-                            return os.path.join(path, dirname)
+                for dirname in dirs :
+                    if (dirname.upper() == name.upper()) :
+                        return os.path.join(path, dirname)
             ##### we try the files
             for filename in files :
-                    if filename.upper() == name.upper() or filename.upper().rpartition('.')[0] == name.upper():
-                        filepath = os.path.join(root, filename)
-                        print("[" + filename + "]")
-                        if (target_xright is True and self._is_exe(filepath)) :
-                            return filepath
-                        if (target_xright is False) :
-                            return filepath
-
+                if filename.upper() == name.upper() or filename.upper().rpartition('.')[0] == name.upper():
+                    filepath = os.path.join(root, filename)
+                    if (target_xright is True and self._is_exe(filepath)) :
+                        return filepath
+                    if (target_xright is False) :
+                        return filepath
+        return result
 
     def find(self, target, target_xright = True):
+        level = 0
         #### First we test direclty the subdirs containing [target] in their name
         ### in order to speed up the research
         for path in self.root_dirs:
@@ -48,13 +72,17 @@ class FileCrawler(object):
                 for d in x[1]:
                     if d.upper().find(target.upper()) > -1 :
                         newpath = os.path.join(path, d)
-                        result = self._find(target, newpath, target_xright, 2)
+                        result = self._find(target, newpath, target_xright, level)
                         if (result is not None) :
                             return result
                 break
+            level = 4
         #### If we didnt find it first, we try the roots dirs entirely
+        level = 0
+
         for path in self.root_dirs :
-            result = self._find(target, path, target_xright, 2)
+            result = self._find(target, path, target_xright, level)
             if (result is not None) :
                 return result
+            level = 4
         return None
