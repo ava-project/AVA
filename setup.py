@@ -27,6 +27,8 @@ setup(
     options={
         'build_exe': {
             'packages': build_exe_packages,
+            'include_files': [('ava\\plugins\\context\\main.py', 'lib\\ava\\plugins\\context\\main.py'),
+                              ('ava\\plugins\\context\\venv.py', 'lib\\ava\\plugins\\context\\venv.py')]
         }
     },
     author='AVA Project',
