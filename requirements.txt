@@ -8,3 +8,4 @@ websockets
 cx_Freeze
 pygame
 pyaudio
+virtualenv

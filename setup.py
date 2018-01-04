@@ -8,7 +8,7 @@ import ava
 
 
 # additionnal packages for cx_Freeze
-build_exe_packages = ['idna', 'gtts', 'asyncio']
+build_exe_packages = ['idna', 'gtts', 'asyncio', 'venv']
 if platform == "darwin":
     build_exe_packages.append('appdirs')
     build_exe_packages.append('packaging')
