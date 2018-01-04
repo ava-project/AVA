@@ -6,8 +6,8 @@ class FileCrawler(object):
         self.Treshold_restraint = 100
         self.root_dirs = [
                             os.path.expanduser('~'),
-                            os.environ["ProgramFiles"],
-                            os.environ["ProgramW6432"],
+                            os.environ.get("ProgramFiles"),
+                            os.environ.get("ProgramW6432"),
                             os.getenv('APPDATA'),
                             '/usr/bin',
                             '/usr/sbin'

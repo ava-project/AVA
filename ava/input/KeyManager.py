@@ -30,7 +30,7 @@ class KeyManager:
 
     def on_press(self, key):
         try:
-            if key == Key.ctrl and not self.activated:
+            if key == Key.ctrl_l and not self.activated:
                 self.activated = True
                 print(
                     "Voice recognition activated ! Release when you are done..."
