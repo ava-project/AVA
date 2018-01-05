@@ -36,7 +36,7 @@ class Plugin(object):
         """
         name = self._name
         lang = self._specs['lang']
-        path = os.path.join('ava', 'plugins', 'context')
+        path = os.path.join(os.environ['AVAPATH'], 'ava', 'plugins', 'context')
         if lang not in ['cpp', 'go', 'py']:
             raise NotSupportedLanguage('Plugin language not supported.')
         if platform.system() == 'Windows':
