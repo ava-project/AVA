@@ -7,7 +7,7 @@ install:
 	pip3 install -r requirements.txt
 
 run:
-	python3 -m ava
+	python3.6 -m ava
 
 dist:
-	python3 setup.py build
+	python3.6 setup.py build

@@ -6,6 +6,9 @@ import sys
 import multiprocessing
 import subprocess
 
+from sys import platform as _platform
+
+
 class BuiltinRunner(_BaseComponent):
 
     def __init__(self, queues):
@@ -26,17 +29,24 @@ class BuiltinRunner(_BaseComponent):
                 break
             command = ' '.join('{}'.format(value) for key, value in event.items() if value)
             command_list = command.rsplit()
-            target = self.execute_order(command);
-            if target is None :
+            target = self.execute_order(command)
+            print(target)
+            if target is None:
                 print('No file or application corresponding found : {}'.format(command))
-            else :
+            else:
                 print('Builtin runner execute : {}'.format(command))
-                if (os.name == 'nt') :
+                if (os.name == 'nt'):
                     p = multiprocessing.Process(target=os.startfile, args=(target,))
                     p.daemon = True
                     p.start()
                 else:
-                    p = subprocess.Popen(target, shell=True)
+                    try:
+                        if _platform == 'linux' or _platform == 'linux32':
+                            os.system('xdg-open ' + str(target))
+                        else:
+                            p = subprocess.Popen("open " + target, shell=True)
+                    except:
+                        pass
             self.queue_tts.put('task completed')
             self.queue_builtin.task_done()
 
@@ -46,9 +56,9 @@ class BuiltinRunner(_BaseComponent):
         if order == 'exit':
             os._exit(0)
         elif (len(command_list) > 1):
-            if order == 'open' :
+            if order == 'open':
                 return self.file_crawler.find(command_list[1], False)
-            else :
+            else:
                 return self.file_crawler.find(command_list[1])
 
     def stop(self):
